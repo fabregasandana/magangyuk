@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Magang Komdigi 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -55,7 +56,7 @@
 </head>
 <body class="bg-gradient-to-br from-blue-50 via-indigo-50/40 to-slate-50 font-sans text-gray-800 antialiased min-h-screen">
 
-    <!-- TOP BAR - Floating Rounded Navbar (sama seperti landing page) -->
+    <!-- TOP BAR -->
     <header class="sticky top-0 z-50 pt-4 px-4 sm:px-6">
         <div class="max-w-6xl mx-auto">
             <div class="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 bg-white/90 backdrop-blur-xl rounded-full shadow-lg shadow-black/5 border border-white/80">
@@ -103,7 +104,7 @@
     </header>
 
     <div class="flex min-h-[calc(100vh-80px)]">
-    @include('layouts.sidebar')
+        @include('layouts.sidebar')
 
         <!-- MAIN CONTENT -->
         <main class="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
@@ -123,7 +124,52 @@
                     </div>
                 </div>
 
-                <!-- RINGKASAN ATAS: Kehadiran + Skor + Status + Logbook -->
+                <!-- ===================== CARD PESERTA ===================== -->
+                <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-komdigi-blue/10 to-transparent rounded-bl-full"></div>
+                    <div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                        <!-- Foto / Avatar -->
+                        <div class="relative shrink-0">
+                            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-komdigi-blue via-komdigi-cerulean to-indigo-600 flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-blue-500/30">
+                                SR
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center">
+                                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Peserta -->
+                        <div class="flex-1 text-center sm:text-left">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                                <div>
+                                    <h2 class="text-xl font-black text-gray-900">Salwa Rameyza</h2>
+                                    <p class="text-sm text-gray-500 font-medium">Peserta Magang • ID: MKD-2026-0847</p>
+                                </div>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full self-center sm:self-auto">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                    Aktif
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="bg-blue-50/70 rounded-xl px-3 py-2.5">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Institusi</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5">Universitas Sumatera Utara</p>
+                                </div>
+                                <div class="bg-blue-50/70 rounded-xl px-3 py-2.5">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Unit Kerja</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5">Dinas Kominfo Sumut</p>
+                                </div>
+                                <div class="bg-blue-50/70 rounded-xl px-3 py-2.5">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Periode</p>
+                                    <p class="text-sm font-semibold text-gray-800 mt-0.5">1 Okt – 19 Des 2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RINGKASAN ATAS -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     <!-- Ringkasan Kehadiran -->
                     <div class="bg-white rounded-2xl border border-blue-100/80 shadow-sm p-4 col-span-2 lg:col-span-1">
@@ -197,10 +243,29 @@
                     </div>
                 </div>
 
-                <!-- 4 FEATURE CARDS -->
+                <!-- ===================== GRAFIK PERKEMBANGAN ===================== -->
+                <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900">Grafik Perkembangan</h3>
+                                <p class="text-xs text-gray-500">Skor kinerja mingguan</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 bg-blue-50 text-komdigi-blue text-[11px] font-bold rounded-full">5 Minggu Terakhir</span>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 4 FEATURE CARDS + PENILAIAN -->
                 <div class="grid sm:grid-cols-2 gap-4">
 
-                    <!-- 1. Status Magang Detail -->
+                    <!-- Detail Magang -->
                     <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-komdigi-blue/10 to-transparent rounded-bl-full"></div>
                         <div class="relative">
@@ -239,7 +304,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. Absensi Hari Ini -->
+                    <!-- Absensi Hari Ini -->
                     <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-400/10 to-transparent rounded-bl-full"></div>
                         <div class="relative">
@@ -276,7 +341,67 @@
                         </div>
                     </div>
 
-                    <!-- 3. Laporan Terakhir -->
+                    <!-- PENILAIAN DARI PEMBIMBING -->
+                    <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-purple-400/10 to-transparent rounded-bl-full"></div>
+                        <div class="relative">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                                    </div>
+                                    <h3 class="font-bold text-gray-900">Penilaian Pembimbing</h3>
+                                </div>
+                                <span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full">4.3 / 5.0</span>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-600 font-medium">Disiplin & Kehadiran</span>
+                                        <span class="font-bold text-gray-800">4.5</span>
+                                    </div>
+                                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-600 font-medium">Kerjasama Tim</span>
+                                        <span class="font-bold text-gray-800">4.2</span>
+                                    </div>
+                                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style="width: 84%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-600 font-medium">Kompetensi Teknis</span>
+                                        <span class="font-bold text-gray-800">4.0</span>
+                                    </div>
+                                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-gray-600 font-medium">Inisiatif & Kreativitas</span>
+                                        <span class="font-bold text-gray-800">4.5</span>
+                                    </div>
+                                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-3 bg-purple-50 rounded-xl">
+                                <p class="text-xs text-gray-600 italic">"Peserta menunjukkan progres yang baik dan aktif berkontribusi dalam proyek digitalisasi."</p>
+                                <p class="text-[10px] text-gray-500 mt-1.5 font-medium">— Budi Santoso, S.Kom • 28 Okt 2026</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LAPORAN AKHIR -->
                     <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-400/10 to-transparent rounded-bl-full"></div>
                         <div class="relative">
@@ -285,68 +410,109 @@
                                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     </div>
-                                    <h3 class="font-bold text-gray-900">Laporan Terakhir</h3>
+                                    <h3 class="font-bold text-gray-900">Laporan Akhir</h3>
                                 </div>
-                                <span class="px-2.5 py-1 bg-indigo-100 text-indigo-700 text-[11px] font-bold rounded-full">Disetujui</span>
+                                <span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-[11px] font-bold rounded-full">Belum dikumpulkan</span>
                             </div>
-                            <div class="space-y-2.5">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800 leading-snug">Laporan Mingguan Minggu ke-5</p>
-                                    <p class="text-xs text-gray-500 mt-0.5">Dikirim 28 Oktober 2026</p>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 p-3 bg-amber-50 rounded-xl">
+                                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">Batas pengumpulan</p>
+                                        <p class="text-xs text-gray-500">19 Desember 2026 (45 hari lagi)</p>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2 text-xs text-gray-500">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    <span>Diperiksa oleh Budi Santoso, S.Kom</span>
+                                
+                                <div class="space-y-1.5 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-gray-600">Laporan mingguan (5/8)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-gray-400">Draft laporan akhir</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span class="text-gray-400">Persetujuan pembimbing</span>
+                                    </div>
                                 </div>
-                                <a href="#" class="inline-flex items-center gap-1.5 text-sm font-semibold text-komdigi-blue hover:text-komdigi-dark transition mt-1">
-                                    Lihat laporan
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                                
+                                <a href="#" class="btn-shine flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg transition mt-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Mulai Buat Laporan Akhir
                                 </a>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 4. Progress Sertifikat -->
-                    <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-komdigi-gold/15 to-transparent rounded-bl-full"></div>
-                        <div class="relative">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-komdigi-gold to-amber-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-                                    </div>
-                                    <h3 class="font-bold text-gray-900">Progress Sertifikat</h3>
+                <!-- ===================== SERTIFIKAT ===================== -->
+                <div class="card-hover bg-white rounded-2xl border border-blue-100/80 shadow-sm p-5 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-komdigi-gold/15 to-transparent rounded-bl-full"></div>
+                    <div class="relative">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-komdigi-gold to-amber-500 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                                 </div>
-                                <span class="px-2.5 py-1 bg-amber-100 text-amber-700 text-[11px] font-bold rounded-full">68%</span>
-                            </div>
-                            <div class="space-y-3">
                                 <div>
-                                    <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1.5">
-                                        <span>Kelengkapan syarat</span>
-                                        <span class="text-komdigi-gold">68%</span>
-                                    </div>
-                                    <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-gradient-to-r from-komdigi-gold to-amber-400 rounded-full" style="width: 68%"></div>
-                                    </div>
+                                    <h3 class="font-bold text-gray-900 text-lg">Sertifikat Magang</h3>
+                                    <p class="text-sm text-gray-500">Kelengkapan syarat penerbitan sertifikat</p>
                                 </div>
-                                <div class="space-y-1.5">
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        <span class="text-gray-600">Absensi minimal 80%</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        <span class="text-gray-600">Laporan mingguan (5/8)</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        <span class="text-gray-400">Laporan akhir</span>
-                                    </div>
-                                    <div class="flex items-center gap-2 text-xs">
-                                        <svg class="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                        <span class="text-gray-400">Penilaian pembimbing</span>
-                                    </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <p class="text-2xl font-black text-komdigi-gold">68%</p>
+                                    <p class="text-xs text-gray-500 font-medium">Lengkap</p>
                                 </div>
+                                <div class="w-16 h-16 relative">
+                                    <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
+                                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#FEF3C7" stroke-width="3"/>
+                                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#FFB700" stroke-width="3" stroke-dasharray="68 100" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="space-y-2.5">
+                                <div class="flex items-center gap-2.5 text-sm">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <span class="text-gray-700">Absensi minimal 80% <span class="text-emerald-600 font-semibold">(92%)</span></span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-sm">
+                                    <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <span class="text-gray-700">Laporan mingguan <span class="text-emerald-600 font-semibold">(5/8)</span></span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-sm">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <span class="text-gray-400">Laporan akhir disetujui</span>
+                                </div>
+                                <div class="flex items-center gap-2.5 text-sm">
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                    <span class="text-gray-400">Penilaian pembimbing final</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 flex flex-col justify-center items-center text-center border border-amber-100">
+                                <svg class="w-10 h-10 text-amber-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                <p class="text-sm font-semibold text-gray-700">Sertifikat terkunci</p>
+                                <p class="text-xs text-gray-500 mt-1 mb-3">Lengkapi semua syarat untuk membuka</p>
+                                <button disabled class="px-4 py-2 bg-gray-200 text-gray-500 text-xs font-bold rounded-lg cursor-not-allowed">
+                                    Unduh Sertifikat
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -429,6 +595,7 @@
     </div>
 
     <script>
+        // Update Date Time
         function updateDateTime() {
             const now = new Date();
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -447,6 +614,57 @@
         }
         updateDateTime();
         setInterval(updateDateTime, 1000);
+
+        // Grafik Perkembangan
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4', 'Minggu 5'],
+                datasets: [{
+                    label: 'Skor Kinerja',
+                    data: [72, 78, 81, 83, 85],
+                    borderColor: '#0055FF',
+                    backgroundColor: 'rgba(0, 85, 255, 0.08)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#0055FF',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#00336C',
+                        titleFont: { size: 13, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 60,
+                        max: 100,
+                        grid: { color: 'rgba(0,0,0,0.04)' },
+                        ticks: { font: { size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11 } }
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>

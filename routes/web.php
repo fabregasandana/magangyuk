@@ -25,3 +25,19 @@ Route::get('/absen', function () {
 Route::get('/riwayat', function () {
     return view('riwayat');
 });
+
+Route::get('/grafik', function () {
+    return view('grafik');
+});
+
+Route::get('/penilaian', function () {
+    return view('penilaian');
+});
+
+Route::get('/laporan', function () {
+    return view('laporan');
+});
+
+Route::get('/sertifikat', function () {
+    return view('sertifikat');
+});
