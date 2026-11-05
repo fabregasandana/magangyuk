@@ -37,3 +37,11 @@ Route::get('/laporan', function () {
 Route::get('/sertifikat', function () {
     return view('feature/sertifikat');
 });
+
+Route::get('/izin', function () {
+    return view('feature/izin');
+});
+
+Route::get('/profil', function () {
+    return view('feature/profil');
+});
