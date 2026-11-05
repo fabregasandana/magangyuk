@@ -2,16 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/home', function () {
-    return view('welcome');
-});
-
 Route::get('/', function () {
-    return view('beranda');
+    return view('index');
 });
 
 Route::get('/login', function () {
-    return view('login');
+    return view('auth/login');
 });
 
 Route::get('/dashboard', function () {
@@ -19,25 +15,25 @@ Route::get('/dashboard', function () {
 });
 
 Route::get('/absen', function () {
-    return view('absensi');
+    return view('feature/absensi');
 });
 
 Route::get('/riwayat', function () {
-    return view('riwayat');
+    return view('feature/riwayat');
 });
 
 Route::get('/grafik', function () {
-    return view('grafik');
+    return view('feature/grafik');
 });
 
 Route::get('/penilaian', function () {
-    return view('penilaian');
+    return view('feature/penilaian');
 });
 
 Route::get('/laporan', function () {
-    return view('laporan');
+    return view('feature/laporan');
 });
 
 Route::get('/sertifikat', function () {
-    return view('sertifikat');
+    return view('feature/sertifikat');
 });
