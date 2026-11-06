@@ -122,8 +122,8 @@
                         <p class="text-sm text-gray-500 mt-1.5">Masuk untuk mengakses logbook & absensi</p>
                     </div>
 
-                    <form action="#" method="POST" class="space-y-5">
-                        
+                    <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                        @csrf
                         <!-- Email / Username -->
                         <div>
                             <label for="email" class="block text-sm font-bold text-gray-700 mb-1.5">Email / Username</label>
