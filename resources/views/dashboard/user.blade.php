@@ -116,6 +116,9 @@
             background: rgba(8, 12, 24, 0.35);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
+            ::-webkit-scrollbar{
+                display: none;
+            }
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 68px;
             transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
