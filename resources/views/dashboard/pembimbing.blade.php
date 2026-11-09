@@ -331,9 +331,12 @@
                             <div class="text-[10px] text-emerald-600 font-medium">● Online</div>
                         </div>
                     </div>
-                    <a href="login-komdigi.html" class="inline-flex items-center px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-komdigi-dark to-komdigi-blue rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition shadow-md">
-                        Keluar
-                    </a>
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-bold text-white bg-gradient-to-r from-komdigi-dark to-komdigi-blue rounded-full hover:shadow-lg hover:shadow-blue-500/30 transition shadow-md cursor-pointer">
+                            Keluar
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

@@ -6,172 +6,8 @@
     <title>Magang Komdigi 2026 | Kementerian Komunikasi dan Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'komdigi-blue': '#0055FF',
-                        'komdigi-dark': '#00336C',
-                        'komdigi-cerulean': '#0093DD',
-                        'komdigi-gold': '#FFB700',
-                        'komdigi-red': '#C41E3A',
-                        'komdigi-light': '#E8F1FF',
-                        'komdigi-soft': '#E0EDFF',
-                        'komdigi-mid': '#C5DBFF',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'float-slow': 'float 8s ease-in-out infinite',
-                        'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
-                        'gradient': 'gradient 8s ease infinite',
-                        'shine': 'shine 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-14px)' },
-                        },
-                        'pulse-soft': {
-                            '0%, 100%': { opacity: '1' },
-                            '50%': { opacity: '0.7' },
-                        },
-                        gradient: {
-                            '0%, 100%': { backgroundPosition: '0% 50%' },
-                            '50%': { backgroundPosition: '100% 50%' },
-                        },
-                        shine: {
-                            '0%': { backgroundPosition: '-200% center' },
-                            '100%': { backgroundPosition: '200% center' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            overflow-x: hidden;
-        }
-        .hero-gradient {
-            background: linear-gradient(135deg, #BFDBFE 0%, #C7D2FE 20%, #E0F2FE 40%, #FEF3C7 65%, #FCE7F3 85%, #FBCFE8 100%);
-            background-size: 200% 200%;
-            animation: gradientShift 12s ease infinite;
-        }
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card-hover:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 30px 60px -15px rgba(0, 51, 108, 0.25);
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.72);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        .glass-strong {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-        }
-        .gradient-border {
-            position: relative;
-            background: white;
-            border-radius: 1.5rem;
-        }
-        .gradient-border::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 1.6rem;
-            background: linear-gradient(135deg, #0055FF, #0093DD, #FFB700, #EC4899, #0055FF);
-            background-size: 300% 300%;
-            z-index: -1;
-            animation: gradientShift 6s ease infinite;
-        }
-        .text-gradient {
-            background: linear-gradient(135deg, #0055FF 0%, #0093DD 40%, #FFB700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .btn-shine {
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-shine::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
-        }
-        .btn-shine:hover::after {
-            left: 120%;
-        }
-        .blob {
-            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-            animation: blobMorph 10s ease-in-out infinite;
-        }
-        @keyframes blobMorph {
-            0%, 100% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
-            25% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-            50% { border-radius: 30% 70% 50% 50% / 50% 60% 30% 60%; }
-            75% { border-radius: 50% 50% 40% 60% / 40% 70% 50% 40%; }
-        }
-        .nav-link {
-            position: relative;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #0055FF, #0093DD);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-            border-radius: 2px;
-        }
-        .nav-link:hover::after {
-            width: 70%;
-        }
-        .countdown-box {
-            transition: all 0.3s ease;
-        }
-        .countdown-box:hover {
-            transform: scale(1.08);
-        }
-        .section-title {
-            position: relative;
-            display: inline-block;
-        }
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 0;
-            width: 60%;
-            height: 4px;
-            background: linear-gradient(90deg, #0055FF, #FFB700);
-            border-radius: 4px;
-        }
-        .img-overlay {
-            background: linear-gradient(to top, rgba(0,51,108,0.7) 0%, transparent 60%);
-        }
-    </style>
+    <script src="{{ asset('js/index.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 </head>
 <body class="bg-gradient-to-b from-blue-50 via-indigo-50/30 to-pink-50/40 font-sans text-gray-800 antialiased">
 
@@ -208,7 +44,7 @@
             <!-- Buttons -->
             <div class="flex items-center gap-2 shrink-0">
                 <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-full transition">
-                    Absensi
+                    Login
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
                 
@@ -640,40 +476,6 @@
         </div>
     </footer>
 
-    <!-- Countdown + Progress Script -->
-    <script>
-        const startDate = new Date("2026-10-01T00:00:00").getTime();
-        const endDate = new Date("2026-12-19T23:59:59").getTime();
-
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = endDate - now;
-            const totalDuration = endDate - startDate;
-            const elapsed = now - startDate;
-
-            if (distance < 0) {
-                document.getElementById("days").innerText = "0";
-                document.getElementById("hours").innerText = "0";
-                document.getElementById("minutes").innerText = "0";
-                document.getElementById("seconds").innerText = "0";
-                document.getElementById("progress-bar").style.width = "100%";
-                document.getElementById("progress-text").innerText = "100%";
-                return;
-            }
-
-            document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
-            document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
-
-            // Progress
-            let progress = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
-            document.getElementById("progress-bar").style.width = progress.toFixed(1) + "%";
-            document.getElementById("progress-text").innerText = progress.toFixed(0) + "%";
-        }
-
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    </script>
+    <script src="{{ asset('js/countdown.js') }}"></script>
 </body>
 </html>

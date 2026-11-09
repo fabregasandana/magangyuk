@@ -52,7 +52,7 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex flex-wrap items-center gap-2 mb-1">
-                        <h2 class="text-lg font-semibold text-gray-900">Nisa Ramadani</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ auth()->user()->name }}</h2>
                         <span class="text-xs px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 rounded">Aktif</span>
                     </div>
                     <p class="text-sm text-gray-500">ID Peserta: MKD-2026-0847</p>
@@ -73,7 +73,7 @@
             <div class="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                 <div>
                     <p class="text-gray-500">Nama Lengkap</p>
-                    <p class="font-medium mt-0.5">Nisa Ramadani</p>
+                    <p class="font-medium mt-0.5">{{ auth()->user()->name }}</p>
                 </div>
                 <div>
                     <p class="text-gray-500">NIM / NIS</p>
@@ -89,7 +89,7 @@
                 </div>
                 <div>
                     <p class="text-gray-500">Email</p>
-                    <p class="font-medium mt-0.5">nisa.ramadani@students.usu.ac.id</p>
+                    <p class="font-medium mt-0.5">{{ auth()->user()->email }}</p>
                 </div>
                 <div>
                     <p class="text-gray-500">No. HP / WhatsApp</p>
