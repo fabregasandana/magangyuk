@@ -24,7 +24,7 @@ Route::get('/riwayat', function () {
 
 Route::get('/grafik', function () {
     return view('feature/grafik');
-});
+}); 
 
 Route::get('/penilaian', function () {
     return view('feature/penilaian');
