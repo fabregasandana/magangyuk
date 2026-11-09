@@ -73,3 +73,8 @@ Route::get('/dashboardpembimbing', function () {
 Route::get('/penilaianpeserta', function () {
     return view('feature/penilaianpeserta');
 });
+
+Route::get('/admin', function () {
+    return view('dashboard/admin');
+});
+

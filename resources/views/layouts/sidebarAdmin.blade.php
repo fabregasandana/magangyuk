@@ -1,0 +1,85 @@
+{{-- resources/views/admin/partials/sidebar.blade.php --}}
+<aside class="hidden lg:flex flex-col glass-sidebar shrink-0 sticky top-[88px] h-[calc(100vh-100px)] mt-2 mb-3 rounded-2xl">
+    <div class="py-4 px-2 flex-1 overflow-y-auto overflow-x-hidden">
+        <p class="sidebar-section-title text-[10px] font-bold tracking-widest text-amber-300/60 uppercase">Menu Admin</p>
+        
+        <nav class="space-y-0.5">
+            <a href="s="sidebar-link text-sm {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" title="Dashboard">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.peserta.*') ? 'active' : '' }}" title="Manajemen Peserta">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <span class="sidebar-label">Manajemen Peserta</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.pembimbing.*') ? 'active' : '' }}" title="Manajemen Pembimbing">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <span class="sidebar-label">Manajemen Pembimbing</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.logbook.*') ? 'active' : '' }}" title="Logbook">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <span class="sidebar-label">Logbook</span>
+                @if(($pendingLogbook ?? 0) > 0)
+                    <span class="ml-auto sidebar-label px-1.5 py-0.5 text-[10px] font-bold bg-rose-500/20 text-rose-400 rounded-md">{{ $pendingLogbook }}</span>
+                @endif
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.penilaian.*') ? 'active' : '' }}" title="Penilaian">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                </div>
+                <span class="sidebar-label">Penilaian</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}" title="Laporan">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <span class="sidebar-label">Laporan</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.institusi.*') ? 'active' : '' }}" title="Institusi">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                <span class="sidebar-label">Institusi</span>
+            </a>
+
+            <a href="" class="sidebar-link text-sm {{ request()->routeIs('admin.pengaturan.*') ? 'active' : '' }}" title="Pengaturan">
+                <div class="sidebar-icon">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <span class="sidebar-label">Pengaturan</span>
+            </a>
+        </nav>
+    </div>
+
+    {{-- Footer Sidebar --}}
+    <div class="p-2 border-t border-white/8">
+        <div class="rounded-xl p-2 border border-white/8 bg-white/[0.03]">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <div class="sidebar-footer-text min-w-0">
+                    <p class="text-[10px] font-semibold text-amber-200/70">Periode Magang</p>
+                    <p class="text-xs font-bold text-white truncate">Okt – Des 2026</p>
+                    <div class="mt-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-400 to-orange-300 rounded-full" style="width: {{ $periodeProgress ?? 55 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
