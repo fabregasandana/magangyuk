@@ -98,3 +98,6 @@ Route::get('/cms', function () {
     return view('feature/cms');
 });
 
+Route::get('/featurependukung', function () {
+    return view('feature/featurependukung');
+});
