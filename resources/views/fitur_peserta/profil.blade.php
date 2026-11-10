@@ -171,7 +171,7 @@
                     <div class="hidden sm:flex items-center gap-2.5">
                         <div class="w-9 h-9 rounded-full bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean flex items-center justify-center text-white text-xs font-bold ring-2 ring-white shadow-md">NR</div>
                         <div class="hidden md:block">
-                            <div class="text-xs font-bold text-slate-800 leading-tight">Nisa Ramadani</div>
+                            <div class="text-xs font-bold text-slate-800 leading-tight">{{ auth()->user()->name }}</div>
                             <div class="text-[10px] text-emerald-600 font-medium">● Online</div>
                         </div>
                     </div>
@@ -181,123 +181,6 @@
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-
-        <div>
-            <h1 class="text-xl font-semibold text-gray-900">Profil Peserta</h1>
-            <p class="text-sm text-gray-500 mt-1">Data diri dan informasi magang</p>
-        </div>
-
-        <!-- Header Profil -->
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-            <div class="flex flex-col sm:flex-row items-start gap-5">
-                <div class="w-20 h-20 rounded-lg bg-komdigi-blue text-white text-2xl font-semibold flex items-center justify-center shrink-0">
-                    NR
-                </div>
-                <div class="flex-1">
-                    <div class="flex flex-wrap items-center gap-2 mb-1">
-                        <h2 class="text-lg font-semibold text-gray-900">{{ auth()->user()->name }}</h2>
-                        <span class="text-xs px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 rounded">Aktif</span>
-                    </div>
-                    <p class="text-sm text-gray-500">ID Peserta: MKD-2026-0847</p>
-                    <p class="text-sm text-gray-500 mt-0.5">Peserta Magang · Dinas Kominfo Sumatera Utara</p>
-                </div>
-                <button class="text-sm px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 transition">
-                    Ubah Foto
-                </button>
-            </div>
-        </div>
-
-        <!-- Data Pribadi -->
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium text-gray-900">Data Pribadi</h3>
-                <button class="text-sm text-komdigi-blue hover:underline">Edit</button>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                <div>
-                    <p class="text-gray-500">Nama Lengkap</p>
-                    <p class="font-medium mt-0.5">{{ auth()->user()->name }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">NIM / NIS</p>
-                    <p class="font-medium mt-0.5">210401023</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Tempat, Tanggal Lahir</p>
-                    <p class="font-medium mt-0.5">Medan, 12 Maret 2003</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Jenis Kelamin</p>
-                    <p class="font-medium mt-0.5">Perempuan</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Email</p>
-                    <p class="font-medium mt-0.5">{{ auth()->user()->email }}</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">No. HP / WhatsApp</p>
-                    <p class="font-medium mt-0.5">0812-3456-7890</p>
-                </div>
-                <div class="sm:col-span-2">
-                    <p class="text-gray-500">Alamat</p>
-                    <p class="font-medium mt-0.5">Jl. Dr. Mansyur No. 12, Medan Selayang, Kota Medan, Sumatera Utara 20155</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Institusi -->
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium text-gray-900">Data Institusi</h3>
-                <button class="text-sm text-komdigi-blue hover:underline">Edit</button>
-            </div>
-            <div class="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                <div>
-                    <p class="text-gray-500">Perguruan Tinggi / Sekolah</p>
-                    <p class="font-medium mt-0.5">Universitas Sumatera Utara</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Fakultas / Jurusan</p>
-                    <p class="font-medium mt-0.5">Ilmu Komputer / Sistem Informasi</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Semester / Tingkat</p>
-                    <p class="font-medium mt-0.5">Semester 7</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Dosen / Guru Pembimbing</p>
-                    <p class="font-medium mt-0.5">Dr. Andi Pratama, M.Kom</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Magang -->
-        <div class="bg-white border border-gray-200 rounded-lg p-5">
-            <h3 class="font-medium text-gray-900 mb-4">Data Magang</h3>
-            <div class="grid sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                <div>
-                    <p class="text-gray-500">Unit Kerja</p>
-                    <p class="font-medium mt-0.5">Dinas Komunikasi dan Informatika Provinsi Sumatera Utara</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Pembimbing Lapangan</p>
-                    <p class="font-medium mt-0.5">Budi Santoso, S.Kom</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Periode Magang</p>
-                    <p class="font-medium mt-0.5">1 Oktober 2026 – 19 Desember 2026</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Status</p>
-                    <p class="font-medium mt-0.5 text-green-700">Aktif</p>
-                </div>
-                <div>
-                    <p class="text-gray-500">Progress Periode</p>
-                    <div class="mt-1.5">
-                        <div class="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>42%</span>
-                            <span>45 hari tersisa</span>
     <div class="flex min-h-[calc(100vh-88px)] relative z-10 pl-0 lg:pl-3 gap-0 lg:gap-3">
         <!-- SIDEBAR -->
         <aside class="hidden lg:flex flex-col glass-sidebar shrink-0 sticky top-[88px] h-[calc(100vh-100px)] mt-2 mb-3 rounded-2xl">
@@ -359,6 +242,159 @@
                 </div>
             </div>
         </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-3 sm:p-4 lg:p-5 overflow-y-auto">
+            <div class="glass-panel p-5 sm:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-120px)]">
+
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">Profil Peserta</h1>
+                        <p class="text-sm text-blue-100/80 font-medium mt-0.5">Data diri dan informasi magang</p>
+                    </div>
+                    <a href="dashboard.html" class="inline-flex items-center gap-1.5 text-sm font-semibold text-komdigi-cerulean hover:text-white transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                        Kembali ke Dashboard
+                    </a>
+                </div>
+
+                <!-- Profile Header Card -->
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                        <div class="relative shrink-0">
+                            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-500/40">
+                                NR
+                            </div>
+                            <div class="absolute -bottom-1.5 -right-1.5 w-8 h-8 bg-emerald-500 rounded-full border-4 border-slate-900 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                        <div class="flex-1 text-center sm:text-left">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div>
+                                    <div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                                        <h2 class="text-xl font-black text-white">{{ auth()->user()->name }}</h2>
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[11px] font-bold rounded-full border border-emerald-500/30">
+                                            <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                                            Aktif
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-slate-400">ID Peserta: <span class="text-komdigi-cerulean font-semibold">{{ auth()->user()->id }}</span></p>
+                                    <p class="text-sm text-slate-400 mt-0.5">Peserta Magang · Dinas Kominfo Sumatera Utara</p>
+                                </div>
+                                <button class="px-4 py-2 bg-white/10 text-slate-300 text-sm font-semibold rounded-xl hover:bg-white/15 transition border border-white/10">
+                                    Ubah Foto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Pribadi -->
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="font-bold text-white">Data Pribadi</h3>
+                        <button class="text-sm font-semibold text-komdigi-cerulean hover:text-white transition">Edit</button>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-x-8 gap-y-5">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Nama Lengkap</p>
+                            <p class="text-sm font-semibold text-white">Nisa Ramadani</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">NIM / NIS</p>
+                            <p class="text-sm font-semibold text-white">210401023</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Tempat, Tanggal Lahir</p>
+                            <p class="text-sm font-semibold text-white">Medan, 12 Maret 2003</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Jenis Kelamin</p>
+                            <p class="text-sm font-semibold text-white">Perempuan</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Email</p>
+                            <p class="text-sm font-semibold text-white">nisa.ramadani@students.usu.ac.id</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">No. HP / WhatsApp</p>
+                            <p class="text-sm font-semibold text-white">0812-3456-7890</p>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <p class="text-xs font-medium text-slate-400 mb-1">Alamat</p>
+                            <p class="text-sm font-semibold text-white">Jl. Dr. Mansyur No. 12, Medan Selayang, Kota Medan, Sumatera Utara 20155</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Magang -->
+                <div class="glass-card rounded-3xl p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <h3 class="font-bold text-white">Data Magang</h3>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-x-8 gap-y-5">
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Institusi</p>
+                            <p class="text-sm font-semibold text-white">Universitas Sumatera Utara</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Program Studi</p>
+                            <p class="text-sm font-semibold text-white">Ilmu Komputer</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Unit Kerja</p>
+                            <p class="text-sm font-semibold text-white">Dinas Kominfo Sumatera Utara</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Pembimbing</p>
+                            <p class="text-sm font-semibold text-white">Budi Santoso, S.Kom</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Periode Magang</p>
+                            <p class="text-sm font-semibold text-white">1 Oktober – 19 Desember 2026</p>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-400 mb-1">Status</p>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/30">
+                                <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                                Aktif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Bottom Nav -->
+                <div class="lg:hidden fixed bottom-0 left-0 right-0 glass-strong border-t border-white/10 px-4 py-2.5 flex justify-around z-40">
+                    <a href="dashboard.html" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
+                        <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        </div>
+                        <span class="text-[10px] font-medium">Beranda</span>
+                    </a>
+                    <a href="absensi.html" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
+                        <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="text-[10px] font-medium">Absen</span>
+                    </a>
+                    <a href="riwayat.html" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
+                        <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <span class="text-[10px] font-medium">Riwayat</span>
+                    </a>
+                    <a href="profil.html" class="flex flex-col items-center gap-0.5 py-1.5 text-komdigi-cerulean">
+                        <div class="w-8 h-8 rounded-xl bg-komdigi-blue/20 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </div>
+                        <span class="text-[10px] font-semibold">Profil</span>
+                    </a>
+                </div>
+                <div class="h-20 lg:hidden"></div>
+            </div>
+        </main>
     </div>
 
     <script>
