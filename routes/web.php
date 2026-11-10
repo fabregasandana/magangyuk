@@ -78,3 +78,23 @@ Route::get('/admin', function () {
     return view('dashboard/admin');
 });
 
+Route::get('/manajemen', function () {
+    return view('feature/manajemenpeserta');
+});
+
+Route::get('/manajemen', function () {
+    return view('feature/manajemenpembimbing');
+});
+
+Route::get('/monitoring', function () {
+    return view('feature/monitoringkinerja');
+});
+
+Route::get('/kelolapenilaian', function () {
+    return view('feature/kelolapenilaian');
+});
+
+Route::get('/cms', function () {
+    return view('feature/cms');
+});
+
