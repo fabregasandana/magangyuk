@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magang Komdigi 2026 | Kementerian Komunikasi dan Digital</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="{{ asset('js/index.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+    @vite(['resources/css/landing.css', 'resources/js/landing.js'])
+    @fonts
 </head>
 <body class="bg-gradient-to-b from-blue-50 via-indigo-50/30 to-pink-50/40 font-sans text-gray-800 antialiased">
 
@@ -15,9 +14,9 @@
 <header class="sticky top-0 z-50 pt-4 px-4 sm:px-6">
     <div class="max-w-6xl mx-auto">
         <div class="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 bg-white/90 backdrop-blur-xl rounded-full shadow-lg shadow-black/5 border border-white/80">
-            
+
             <!-- Logo -->
-            <div class="flex items-center gap-2.5 shrink-0 pl-1">
+            <a href="{{ url('/') }}" class="flex items-center gap-2.5 shrink-0 pl-1">
                 <div class="relative">
                     <div class="absolute inset-0 bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean rounded-xl blur opacity-50"></div>
                     <div class="relative w-9 h-9 bg-gradient-to-br from-komdigi-blue via-komdigi-cerulean to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-md">
@@ -28,27 +27,25 @@
                     <div class="font-extrabold text-komdigi-dark text-sm leading-tight tracking-tight">MAGANG KOMDIGI</div>
                     <div class="text-[10px] font-bold bg-gradient-to-r from-komdigi-cerulean to-komdigi-gold bg-clip-text text-transparent">2026</div>
                 </div>
-            </div>
+            </a>
 
             <!-- Nav Links -->
             <nav class="hidden lg:flex items-center gap-0.5">
-                <a href="#" class="px-3.5 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full shadow-sm">Beranda</a>
+                <a href="{{ url('/') }}" class="px-3.5 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full shadow-sm">Beranda</a>
                 <a href="#tentang" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Tentang Kami</a>
                 <a href="#profil" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Profil</a>
                 <a href="#kegiatan" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Kegiatan</a>
                 <a href="#anggota" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Anggota</a>
                 <a href="#dokumentasi" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Dokumentasi</a>
-                <a href="#" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Admin</a>
+                <a href="{{ route('admin.dashboard') }}" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Admin</a>
             </nav>
 
             <!-- Buttons -->
             <div class="flex items-center gap-2 shrink-0">
-                <a href="/login" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-full transition">
+                <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-full transition">
                     Login
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </a>
-                
-               
             </div>
         </div>
     </div>
@@ -80,11 +77,11 @@
                         <span class="text-base">👋</span>
                         HALO, SELAMAT DATANG!
                     </div>
-                    
+
                     <p class="text-xs font-extrabold tracking-[0.25em] text-komdigi-gold uppercase mb-4 drop-shadow-sm">
                         ✨ Perjalanan Magang Komdigi 2026
                     </p>
-                    
+
                     <h1 class="text-4xl sm:text-5xl lg:text-[3.6rem] font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
                         Belajar, berkarya,<br>
                         <span class="text-gradient">dan bertumbuh</span><br>
@@ -95,10 +92,10 @@
                             </svg>
                         </span>
                     </h1>
-                    
+
                     <p class="text-gray-600 text-lg leading-relaxed mb-9 max-w-lg">
-                        Pusat informasi, kegiatan, logbook, dan dokumentasi 
-                        <span class="font-semibold text-komdigi-blue">Magang Komdigi 2026</span>. 
+                        Pusat informasi, kegiatan, logbook, dan dokumentasi
+                        <span class="font-semibold text-komdigi-blue">Magang Komdigi 2026</span>.
                         Data kegiatan yang dikirim melalui Logbook tampil secara otomatis.
                     </p>
 
@@ -149,7 +146,7 @@
                         </div>
                         <p class="text-xl font-extrabold text-gray-900 mb-1">Periode Magang Komdigi 2026</p>
                         <p class="text-sm text-gray-500 mb-7">Berakhir pada <span class="font-bold text-komdigi-blue">19 Desember 2026</span></p>
-                        
+
                         <div class="grid grid-cols-4 gap-3">
                             <div class="countdown-box bg-gradient-to-br from-blue-50 via-blue-100/80 to-indigo-50 rounded-2xl p-4 text-center border border-blue-200/60 shadow-sm">
                                 <div class="text-3xl md:text-4xl font-black text-komdigi-blue" id="days">—</div>
@@ -188,7 +185,7 @@
     <!-- QUICK MENU -->
     <section class="relative -mt-16 z-20 pb-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <!-- Kegiatan -->
                 <a href="#kegiatan" class="card-hover group relative bg-white rounded-2xl p-5 text-center shadow-xl border border-blue-100/80 overflow-hidden">
                     <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-indigo-500/10 transition-all duration-500"></div>
@@ -232,9 +229,6 @@
                         <span class="text-sm font-bold text-gray-700 group-hover:text-cyan-600 transition">Tentang</span>
                     </div>
                 </a>
-
-              
-              
             </div>
         </div>
     </section>
@@ -250,69 +244,32 @@
                     </div>
                     <h2 class="text-3xl md:text-4xl font-black text-gray-900 section-title">Kegiatan terbaru</h2>
                 </div>
-                <a href="#" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
-                    Semua kegiatan 
+                <a href="#kegiatan" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
+                    Semua kegiatan
                     <span class="group-hover:translate-x-1 transition-transform">→</span>
                 </a>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-                <!-- Card 1 -->
-                <article class="card-hover group bg-white rounded-3xl overflow-hidden shadow-xl border border-blue-50/80">
-                    <div class="relative h-52 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?w=600&h=400&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="">
-                        <div class="absolute inset-0 img-overlay"></div>
-                        <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-gray-800 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg">15 OKT</div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <span class="inline-block text-[11px] font-bold text-white bg-komdigi-blue/90 backdrop-blur px-3 py-1 rounded-full">Pribadi</span>
+                @foreach ($kegiatans as $kegiatan)
+                    <article class="card-hover group bg-white rounded-3xl overflow-hidden shadow-xl border border-blue-50/80">
+                        <div class="relative h-52 overflow-hidden">
+                            <img src="{{ $kegiatan['img'] }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="{{ $kegiatan['judul'] }}">
+                            <div class="absolute inset-0 img-overlay"></div>
+                            <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-gray-800 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg">{{ $kegiatan['badge'] }}</div>
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <span class="inline-block text-[11px] font-bold text-white {{ $kegiatan['kategoriClass'] }} backdrop-blur px-3 py-1 rounded-full">{{ $kegiatan['kategori'] }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-extrabold text-gray-900 text-lg leading-snug mb-2 group-hover:text-komdigi-blue transition">Menjadi announcer lagu Indonesia Raya</h3>
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">NR</div>
-                            <span>Nisa Ramadani · 15 Oktober 2026</span>
+                        <div class="p-6">
+                            <h3 class="font-extrabold text-gray-900 text-lg leading-snug mb-2 group-hover:text-komdigi-blue transition">{{ $kegiatan['judul'] }}</h3>
+                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-br {{ $kegiatan['avatarClass'] }} flex items-center justify-center text-white text-xs font-bold">{{ $kegiatan['inisial'] }}</div>
+                                <span>{{ $kegiatan['penulis'] }}</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
-
-                <!-- Card 2 -->
-                <article class="card-hover group bg-white rounded-3xl overflow-hidden shadow-xl border border-blue-50/80">
-                    <div class="relative h-52 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&h=400&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="">
-                        <div class="absolute inset-0 img-overlay"></div>
-                        <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-gray-800 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg">19 OKT</div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <span class="inline-block text-[11px] font-bold text-white bg-gray-700/90 backdrop-blur px-3 py-1 rounded-full">Semua User</span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-extrabold text-gray-900 text-lg leading-snug mb-2 group-hover:text-komdigi-blue transition">Mengikuti apel pagi</h3>
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-white text-xs font-bold">SA</div>
-                            <span>Semua Anggota · 19 Oktober 2026</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Card 3 -->
-                <article class="card-hover group bg-white rounded-3xl overflow-hidden shadow-xl border border-blue-50/80">
-                    <div class="relative h-52 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="">
-                        <div class="absolute inset-0 img-overlay"></div>
-                        <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-gray-800 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg">19 OKT</div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <span class="inline-block text-[11px] font-bold text-white bg-komdigi-blue/90 backdrop-blur px-3 py-1 rounded-full">Pribadi</span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-extrabold text-gray-900 text-lg leading-snug mb-2 group-hover:text-komdigi-blue transition">Menjadi announcer barang kehilangan</h3>
-                        <div class="flex items-center gap-2 text-sm text-gray-500">
-                            <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">NR</div>
-                            <span>Nisa Ramadani · 19 Oktober 2026</span>
-                        </div>
-                    </div>
-                </article>
+                    </article>
+                @endforeach
             </div>
         </div>
     </section>
@@ -332,41 +289,22 @@
                     </div>
                     <h2 class="text-3xl md:text-4xl font-black text-gray-900 section-title">Dokumentasi terbaru</h2>
                 </div>
-                <a href="#" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
-                    Semua dokumentasi 
+                <a href="#dokumentasi" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
+                    Semua dokumentasi
                     <span class="group-hover:translate-x-1 transition-transform">→</span>
                 </a>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white hover:ring-komdigi-blue/30 transition-all duration-500">
-                    <img src="{{ asset('images/alip5.jpeg') }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="">
-                    <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
-                        <p class="text-white text-xs font-bold truncate">Dokumentasi 1</p>
+                @foreach ($dokumentasis as $dokumentasi)
+                    <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white {{ $dokumentasi['ringClass'] }} transition-all duration-500">
+                        <img src="{{ asset($dokumentasi['img']) }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="{{ $dokumentasi['judul'] }}">
+                        <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
+                            <p class="text-white text-xs font-bold truncate">{{ $dokumentasi['judul'] }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white hover:ring-purple-400/30 transition-all duration-500">
-                    <img src="{{ asset('images/alip2.jpg') }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="">
-                    <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
-                        <p class="text-white text-xs font-bold truncate">Dokumentasi 2</p>
-                    </div>
-                </div>
-                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white hover:ring-pink-400/30 transition-all duration-500">
-                    <img src="{{ asset('images/alip3.jpg') }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="">
-                    <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
-                        <p class="text-white text-xs font-bold truncate">Dokumentasi 3</p>
-                    </div>
-                </div>
-                <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white hover:ring-komdigi-gold/40 transition-all duration-500">
-                    <img src="{{ asset('images/alip4.jpeg') }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="">
-                    <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                    <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
-                        <p class="text-white text-xs font-bold truncate">Dokumentasi 4</p>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
@@ -386,11 +324,11 @@
                         <p class="text-blue-100 text-base max-w-md">Isi logbook dan absensi secara rutin agar perjalanan magangmu terdokumentasi dengan baik.</p>
                     </div>
                     <div class="flex flex-wrap gap-3 justify-center">
-                        <a href="#" class="btn-shine inline-flex items-center gap-2 px-7 py-3.5 bg-white text-komdigi-blue font-bold rounded-full hover:shadow-xl transition shadow-lg text-sm">
+                        <a href="{{ url('/logbook') }}" class="btn-shine inline-flex items-center gap-2 px-7 py-3.5 bg-white text-komdigi-blue font-bold rounded-full hover:shadow-xl transition shadow-lg text-sm">
                             Isi Logbook
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </a>
-                        <a href="#" class="inline-flex items-center px-7 py-3.5 bg-white/15 text-white font-bold rounded-full border border-white/40 hover:bg-white/25 transition text-sm">
+                        <a href="{{ route('peserta.absensi') }}" class="inline-flex items-center px-7 py-3.5 bg-white/15 text-white font-bold rounded-full border border-white/40 hover:bg-white/25 transition text-sm">
                             Absensi Sekarang
                         </a>
                     </div>
@@ -425,10 +363,10 @@
                         Dokumentasi kegiatan Magang Komdigi 2026 di lingkungan Kementerian Komunikasi dan Digital Republik Indonesia.
                     </p>
                     <div class="flex gap-3">
-                        <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
+                        <a href="https://x.com/kemkomdigi" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter) Kementerian Komdigi" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
                             <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
+                        <a href="https://www.instagram.com/kementeriankomdigi/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Kementerian Komdigi" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
                             <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
                         </a>
                     </div>
@@ -440,23 +378,25 @@
                         <span class="w-1.5 h-6 bg-gradient-to-b from-komdigi-blue to-komdigi-gold rounded-full"></span>
                         Lokasi
                     </h4>
-                    
+
                     <div class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/15 shadow-xl">
                         <div class="relative w-full h-48 sm:h-52">
                             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.914568404523!2d98.68025207473231!3d3.601784996372325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3031319355b82e2b%3A0x286733de8de3d062!2sDinas%20Kominfo%20Provinsi%20Sumut!5e1!3m2!1sid!2sid!4v1793695785419!5m2!1sid!2sid"
                                 class="absolute inset-0 w-full h-full border-0"
                                 allowfullscreen=""
                                 loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Peta lokasi Dinas Kominfo Provinsi Sumatera Utara"></iframe>
                         </div>
 
                         <div class="p-5">
                             <p class="text-sm text-blue-100 mb-4 leading-relaxed">
                                 Jl. HM. Said No.27, Gaharu, Kec. Medan Tim., Kota Medan, Sumatera Utara 20233
                             </p>
-                            
-                            <a href="https://maps.app.goo.gl/1PyiR9wqdNK6gq6b9" 
+
+                            <a href="https://maps.app.goo.gl/1PyiR9wqdNK6gq6b9"
                                target="_blank"
+                               rel="noopener noreferrer"
                                class="btn-shine inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean hover:from-komdigi-cerulean hover:to-indigo-500 px-5 py-2.5 rounded-full transition shadow-lg shadow-blue-500/30">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -476,6 +416,5 @@
         </div>
     </footer>
 
-    <script src="{{ asset('js/countdown.js') }}"></script>
 </body>
 </html>

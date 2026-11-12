@@ -1,110 +1,131 @@
 <?php
 
+use App\Http\Controllers\AdminPageController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\PembimbingPageController;
+use App\Http\Controllers\PesertaPageController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Landing page (publik)
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
-
-Route::get('/', function () {
-    return view('index');
+/*
+|--------------------------------------------------------------------------
+| Autentikasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
 
-//HALAMAN PESERTA
-Route::get('/dashboard', function () {
-    return view('dashboard.user');
-})->middleware('auth');
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
-Route::get('/absen', function () {
-    return view('fitur_peserta/absensi');
+/*
+|--------------------------------------------------------------------------
+| PESERTA
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:peserta'])->name('peserta.')->group(function () {
+    Route::get('/dashboard', [PesertaPageController::class, 'dashboard'])->name('dashboard');
+
+    Route::get('/absen', [PesertaPageController::class, 'absensi'])->name('absensi');
+    Route::post('/absen', [PesertaPageController::class, 'storeAbsen'])->name('absen.store');
+
+    Route::get('/riwayat', [PesertaPageController::class, 'riwayat'])->name('riwayat');
+    Route::get('/grafik', [PesertaPageController::class, 'grafik'])->name('grafik');
+    Route::get('/penilaian', [PesertaPageController::class, 'penilaian'])->name('penilaian');
+
+    Route::get('/laporan', [PesertaPageController::class, 'laporan'])->name('laporan');
+    Route::post('/laporan', [PesertaPageController::class, 'storeLaporan'])->name('laporan.store');
+
+    Route::get('/sertifikat', [PesertaPageController::class, 'sertifikat'])->name('sertifikat');
+
+    Route::get('/izin', [PesertaPageController::class, 'izin'])->name('izin');
+    Route::post('/izin', [PesertaPageController::class, 'storeIzin'])->name('izin.store');
+
+    Route::get('/profil', [PesertaPageController::class, 'profil'])->name('profil');
 });
 
-Route::get('/riwayat', function () {
-    return view('fitur_peserta/riwayat');
+/*
+|--------------------------------------------------------------------------
+| PEMBIMBING
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:pembimbing'])->name('pembimbing.')->group(function () {
+    Route::get('/dashboardpembimbing', [PembimbingPageController::class, 'dashboard'])->name('dashboard');
+    Route::get('/peserta', [PembimbingPageController::class, 'peserta'])->name('peserta');
+    Route::get('/detailpeserta/{peserta?}', [PembimbingPageController::class, 'detailPeserta'])
+        ->whereNumber('peserta')
+        ->name('detailpeserta');
+    Route::get('/penilaianpeserta', [PembimbingPageController::class, 'penilaianPeserta'])->name('penilaianpeserta');
+    Route::get('/logbook', [PembimbingPageController::class, 'logbook'])->name('logbook');
+    Route::get('/laporanbimbingan', [PembimbingPageController::class, 'laporanBimbingan'])->name('laporanbimbingan');
+    Route::get('/profile', [PembimbingPageController::class, 'profile'])->name('profile');
+
+    Route::post('/penilaianpeserta', [PembimbingPageController::class, 'simpanPenilaian'])->name('penilaian.store');
+    Route::post('/logbook/review', [PembimbingPageController::class, 'reviewLogbook'])->name('logbook.review');
+    Route::post('/laporan/review', [PembimbingPageController::class, 'reviewLaporan'])->name('laporan.review');
+    Route::post('/izin/review', [PembimbingPageController::class, 'reviewIzin'])->name('izin.review');
+    Route::post('/profile', [PembimbingPageController::class, 'simpanProfil'])->name('profile.update');
+    Route::post('/profile/password', [PembimbingPageController::class, 'gantiPassword'])->name('password.update');
 });
 
-Route::get('/grafik', function () {
-    return view('fitur_peserta/grafik');
-});
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', [AdminPageController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/manajemen', [AdminPageController::class, 'manajemenPeserta'])->name('admin.manajemen-peserta');
+    Route::get('/manajemenpembimbing', [AdminPageController::class, 'manajemenPembimbing'])->name('admin.manajemen-pembimbing');
+    Route::get('/monitoring', [AdminPageController::class, 'monitoring'])->name('admin.monitoring');
+    Route::get('/kelolapenilaian', [AdminPageController::class, 'kelolaPenilaian'])->name('admin.kelola-penilaian');
+    Route::get('/cms', [AdminPageController::class, 'cms'])->name('admin.cms');
+    Route::get('/featurependukung', [AdminPageController::class, 'featurePendukung'])->name('admin.feature-pendukung');
 
-Route::get('/penilaian', function () {
-    return view('fitur_peserta/penilaian');
-});
+    Route::name('admin.')->group(function () {
+        // Peserta
+        Route::post('/admin/peserta/store', [AdminPageController::class, 'storePeserta'])->name('peserta.store');
+        Route::post('/admin/peserta/update', [AdminPageController::class, 'updatePeserta'])->name('peserta.update');
+        Route::post('/admin/peserta/toggle', [AdminPageController::class, 'togglePeserta'])->name('peserta.toggle');
+        Route::post('/admin/peserta/delete', [AdminPageController::class, 'destroyPeserta'])->name('peserta.delete');
+        Route::post('/admin/peserta/assign', [AdminPageController::class, 'assignPeserta'])->name('peserta.assign');
+        Route::post('/admin/peserta/import', [AdminPageController::class, 'importPeserta'])->name('peserta.import');
+        Route::post('/admin/peserta/export', [AdminPageController::class, 'exportPeserta'])->name('peserta.export');
 
-Route::get('/laporan', function () {
-    return view('fitur_peserta/laporan');
-});
+        // Pembimbing
+        Route::post('/admin/pembimbing/store', [AdminPageController::class, 'storePembimbing'])->name('pembimbing.store');
+        Route::post('/admin/pembimbing/update', [AdminPageController::class, 'updatePembimbing'])->name('pembimbing.update');
+        Route::post('/admin/pembimbing/toggle', [AdminPageController::class, 'togglePembimbing'])->name('pembimbing.toggle');
+        Route::post('/admin/pembimbing/delete', [AdminPageController::class, 'destroyPembimbing'])->name('pembimbing.delete');
+        Route::post('/admin/pembimbing/assign', [AdminPageController::class, 'assignPembimbing'])->name('pembimbing.assign');
+        Route::post('/admin/pembimbing/unassign', [AdminPageController::class, 'unassignPembimbing'])->name('pembimbing.unassign');
 
-Route::get('/sertifikat', function () {
-    return view('fitur_peserta/sertifikat');
-});
+        // Monitoring
+        Route::post('/admin/monitoring/export', [AdminPageController::class, 'exportLaporan'])->name('monitoring.export');
 
-Route::get('/izin', function () {
-    return view('fitur_peserta/izin');
-});
+        // Penilaian
+        Route::post('/admin/penilaian/kriteria/store', [AdminPageController::class, 'storeKriteria'])->name('kriteria.store');
+        Route::post('/admin/penilaian/kriteria/delete', [AdminPageController::class, 'destroyKriteria'])->name('kriteria.delete');
+        Route::post('/admin/penilaian/override', [AdminPageController::class, 'overridePenilaian'])->name('penilaian.override');
 
-Route::get('/profil', function () {
-    return view('fitur_peserta/profil');
-});
+        // CMS
+        Route::post('/admin/cms/store', [AdminPageController::class, 'storeCms'])->name('cms.store');
+        Route::post('/admin/cms/delete', [AdminPageController::class, 'destroyCms'])->name('cms.delete');
 
-
-
-// HALAMAN PEMBIMBING
-Route::get('/dashboardpembimbing', function () {
-    return view('dashboard/pembimbing');
-});
-
-Route::get('/logbook', function () {
-    return view('fitur_pembimbing/logbook');
-});
-
-Route::get('/laporanbimbingan', function () {
-    return view('fitur_pembimbing/laporanbimbingan');
-});
-
-Route::get('/profile', function () {
-    return view('fitur_pembimbing/profile');
-});
-
-Route::get('/peserta', function () {
-    return view('fitur_pembimbing/peserta');
-});
-
-Route::get('/detailpeserta', function () {
-    return view('fitur_pembimbing/detailpeserta');
-});
-
-
-Route::get('/penilaianpeserta', function () {
-    return view('fitur_pembimbing/penilaianpeserta');
-});
-
-Route::get('/admin', function () {
-    return view('dashboard/admin');
-});
-
-Route::get('/manajemen', function () {
-    return view('fitur_admin/manajemenpeserta');
-});
-
-Route::get('/manajemen', function () {
-    return view('fitur_admin/manajemenpembimbing');
-});
-
-Route::get('/monitoring', function () {
-    return view('fitur_admin/monitoringkinerja');
-});
-
-Route::get('/kelolapenilaian', function () {
-    return view('fitur_admin/kelolapenilaian');
-});
-
-Route::get('/cms', function () {
-    return view('fitur_admin/cms');
-});
-
-Route::get('/featurependukung', function () {
-    return view('fitur_admin/featurependukung');
+        // Fitur pendukung
+        Route::post('/admin/feature/store', [AdminPageController::class, 'storeFeature'])->name('feature.store');
+        Route::post('/admin/feature/delete', [AdminPageController::class, 'destroyFeature'])->name('feature.delete');
+        Route::post('/admin/feature/export-log', [AdminPageController::class, 'exportLog'])->name('feature.export-log');
+        Route::post('/admin/pengaturan/store', [AdminPageController::class, 'storePengaturan'])->name('pengaturan.store');
+    });
 });

@@ -1,18 +1,27 @@
 @extends('layouts.dashboardUser')
 @section('title', 'Dashboard')
-@section('mainContent')
+@section('content')
+    @php
+        $namaPeserta = auth()->check() ? auth()->user()->nama_lengkap : $peserta['nama'];
+        $idPeserta = auth()->check() ? auth()->user()->id : $peserta['id_peserta'];
+        $inisial = collect(explode(' ', trim($namaPeserta)))
+            ->filter(fn ($word) => $word !== '')
+            ->take(2)
+            ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
+            ->implode('') ?: 'P';
+    @endphp
     <div class="glass-panel p-5 sm:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-120px)]">
         <!-- Welcome Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <p class="text-sm text-blue-100/80 font-medium">Selamat datang kembali</p>
-                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">{{ auth()->user()->name }} 👋</h1>
+                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">{{ $namaPeserta }} 👋</h1>
             </div>
             <div class="flex items-center gap-3 glass px-4 py-2.5 rounded-2xl">
                 <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <div class="text-right">
-                    <p class="text-sm font-bold text-white" id="current-date">Rabu, 4 November 2026</p>
-                    <p class="text-xs text-blue-200/70 font-medium tabular-nums" id="current-time">09.28.46 WIB</p>
+                    <p class="text-sm font-bold text-white" id="current-date">—</p>
+                    <p class="text-xs text-blue-200/70 font-medium tabular-nums" id="current-time">—</p>
                 </div>
             </div>
         </div>
@@ -25,7 +34,7 @@
                 <div class="relative shrink-0">
                     <div
                         class="w-24 h-24 rounded-2xl bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-500/40">
-                        SR
+                        {{ $inisial }}
                     </div>
                     <div
                         class="absolute -bottom-1.5 -right-1.5 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
@@ -38,29 +47,29 @@
                 <div class="flex-1 text-center sm:text-left">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
                         <div>
-                            <h2 class="text-xl font-black text-komdigi-dark">{{ auth()->user()->name }}</h2>
+                            <h2 class="text-xl font-black text-komdigi-dark">{{ $namaPeserta }}</h2>
                             <p class="text-sm text-slate-500 font-medium">Peserta Magang • ID: <span
-                                    class="text-komdigi-blue font-semibold">{{ auth()->user()->id }}</span></p>
+                                    class="text-komdigi-blue font-semibold">{{ $idPeserta }}</span></p>
                         </div>
                         <span
                             class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full self-center sm:self-auto border border-emerald-100">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                            Aktif
+                            {{ $peserta['status'] }}
                         </span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
                             <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Institusi</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">Universitas Sumatera Utara</p>
+                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['institusi'] }}</p>
                         </div>
                         <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
                             <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Unit Kerja</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">Dinas Kominfo Sumut</p>
+                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['unit_kerja'] }}</p>
                         </div>
                         <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
                             <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Periode</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">1 Okt – 19 Des 2026</p>
+                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['periode'] }}</p>
                         </div>
                     </div>
                 </div>
@@ -73,19 +82,19 @@
                 <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-3">Ringkasan Kehadiran</p>
                 <div class="grid grid-cols-4 gap-2">
                     <div class="text-center">
-                        <p class="text-2xl font-black text-emerald-600">22</p>
+                        <p class="text-2xl font-black text-emerald-600">{{ $kehadiran['hadir'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Hadir</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-2xl font-black text-amber-500">3</p>
+                        <p class="text-2xl font-black text-amber-500">{{ $kehadiran['terlambat'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Terlambat</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-2xl font-black text-sky-500">1</p>
+                        <p class="text-2xl font-black text-sky-500">{{ $kehadiran['izin'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Izin</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-2xl font-black text-rose-500">0</p>
+                        <p class="text-2xl font-black text-rose-500">{{ $kehadiran['alpha'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Alpha</p>
                     </div>
                 </div>
@@ -97,7 +106,7 @@
                     <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="#E0EDFF" stroke-width="3.5" />
                         <circle cx="18" cy="18" r="15.5" fill="none" stroke="url(#scoreGrad)"
-                            stroke-width="3.5" stroke-dasharray="85 100" stroke-linecap="round" />
+                            stroke-width="3.5" stroke-dasharray="{{ $skor['nilai'] }} 100" stroke-linecap="round" />
                         <defs>
                             <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#0055FF" />
@@ -106,10 +115,10 @@
                         </defs>
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-lg font-black text-komdigi-blue">85</span>
+                        <span class="text-lg font-black text-komdigi-blue">{{ $skor['nilai'] }}</span>
                     </div>
                 </div>
-                <p class="text-[10px] font-bold text-emerald-600 mt-1.5 bg-emerald-50 px-2.5 py-0.5 rounded-full">Baik</p>
+                <p class="text-[10px] font-bold text-emerald-600 mt-1.5 bg-emerald-50 px-2.5 py-0.5 rounded-full">{{ $skor['label'] }}</p>
             </div>
 
             <div class="glass-card rounded-3xl p-5 flex flex-col items-center justify-center">
@@ -122,7 +131,7 @@
                     </svg>
                 </div>
                 <span
-                    class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">Aktif</span>
+                    class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">{{ $peserta['status'] }}</span>
                 <p class="text-[10px] text-slate-400 mt-1.5">Berjalan lancar</p>
             </div>
 
@@ -130,16 +139,16 @@
                 <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-2">Logbook</p>
                 <div class="flex items-end gap-3">
                     <div class="text-center">
-                        <p class="text-2xl font-black text-amber-500">2</p>
+                        <p class="text-2xl font-black text-amber-500">{{ $logbook['belum_isi'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500">Belum isi</p>
                     </div>
                     <div class="w-px h-9 bg-slate-200"></div>
                     <div class="text-center">
-                        <p class="text-2xl font-black text-komdigi-blue">1</p>
+                        <p class="text-2xl font-black text-komdigi-blue">{{ $logbook['menunggu'] }}</p>
                         <p class="text-[10px] font-semibold text-slate-500">Menunggu</p>
                     </div>
                 </div>
-                <a href="#"
+                <a href="{{ route('peserta.laporan') }}"
                     class="text-[11px] font-bold text-komdigi-blue hover:text-komdigi-dark mt-2.5 flex items-center gap-1 transition">
                     Isi logbook
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,12 +173,12 @@
                         <p class="text-xs text-slate-500">Skor kinerja mingguan</p>
                     </div>
                 </div>
-                <span
-                    class="px-3 py-1.5 bg-blue-50 text-komdigi-blue text-[11px] font-bold rounded-full border border-blue-100">5
-                    Minggu Terakhir</span>
+                <a href="{{ route('peserta.grafik') }}"
+                    class="px-3 py-1.5 bg-blue-50 text-komdigi-blue text-[11px] font-bold rounded-full border border-blue-100">{{ count($chartData['labels']) }}
+                    Minggu Terakhir</a>
             </div>
             <div class="h-64">
-                <canvas id="progressChart"></canvas>
+                <canvas id="progressChart" data-chart='@json($chartData)'></canvas>
             </div>
         </div>
 
@@ -189,29 +198,29 @@
                         <h3 class="font-bold text-komdigi-dark">Detail Magang</h3>
                     </div>
                     <span
-                        class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold rounded-full border border-emerald-100">Aktif</span>
+                        class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold rounded-full border border-emerald-100">{{ $peserta['status'] }}</span>
                 </div>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">Periode</span>
-                        <span class="font-semibold text-slate-800">1 Okt – 19 Des 2026</span>
+                        <span class="font-semibold text-slate-800">{{ $peserta['periode'] }}</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">Unit Kerja</span>
-                        <span class="font-semibold text-slate-800">Dinas Kominfo Sumut</span>
+                        <span class="font-semibold text-slate-800">{{ $peserta['unit_kerja'] }}</span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-slate-500">Pembimbing</span>
-                        <span class="font-semibold text-slate-800">Budi Santoso, S.Kom</span>
+                        <span class="font-semibold text-slate-800">{{ $peserta['pembimbing'] }}</span>
                     </div>
                     <div class="pt-3">
                         <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1.5">
                             <span>Progress Periode</span>
-                            <span class="text-komdigi-blue">42%</span>
+                            <span class="text-komdigi-blue">{{ $peserta['periode_progress'] }}%</span>
                         </div>
                         <div class="h-2 bg-blue-50 rounded-full overflow-hidden">
                             <div class="h-full bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full"
-                                style="width: 42%"></div>
+                                style="width: {{ $peserta['periode_progress'] }}%"></div>
                         </div>
                     </div>
                 </div>
@@ -232,24 +241,24 @@
                     <span
                         class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-                        Belum absen
+                        {{ $absenHariIni['status'] }}
                     </span>
                 </div>
                 <div class="grid grid-cols-3 gap-2.5 mb-5">
                     <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
                         <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Masuk</p>
-                        <p class="text-sm font-bold text-slate-800">—</p>
+                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['masuk'] ?? '—' }}</p>
                     </div>
                     <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
                         <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Pulang</p>
-                        <p class="text-sm font-bold text-slate-800">—</p>
+                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['pulang'] ?? '—' }}</p>
                     </div>
                     <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
                         <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Durasi</p>
-                        <p class="text-sm font-bold text-slate-800">—</p>
+                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['durasi'] ?? '—' }}</p>
                     </div>
                 </div>
-                <a href="#"
+                <a href="{{ route('peserta.absensi') }}"
                     class="btn-shine flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -271,58 +280,29 @@
                         </div>
                         <h3 class="font-bold text-komdigi-dark">Penilaian Pembimbing</h3>
                     </div>
-                    <span
-                        class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[11px] font-bold rounded-full border border-indigo-100">4.3
-                        / 5.0</span>
+                    <a href="{{ route('peserta.penilaian') }}"
+                        class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[11px] font-bold rounded-full border border-indigo-100">{{ $penilaian['total'] }}
+                        / 5.0</a>
                 </div>
 
                 <div class="space-y-3.5">
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-slate-600 font-medium">Disiplin & Kehadiran</span>
-                            <span class="font-bold text-slate-800">4.5</span>
+                    @foreach ($penilaian['aspek'] as $aspek)
+                        <div>
+                            <div class="flex justify-between text-xs mb-1.5">
+                                <span class="text-slate-600 font-medium">{{ $aspek['label'] }}</span>
+                                <span class="font-bold text-slate-800">{{ $aspek['nilai'] }}</span>
+                            </div>
+                            <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r {{ $aspek['bar'] }} rounded-full"
+                                    style="width: {{ $aspek['persen'] }}%"></div>
+                            </div>
                         </div>
-                        <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full"
-                                style="width: 90%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-slate-600 font-medium">Kerjasama Tim</span>
-                            <span class="font-bold text-slate-800">4.2</span>
-                        </div>
-                        <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-komdigi-blue to-sky-400 rounded-full"
-                                style="width: 84%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-slate-600 font-medium">Kompetensi Teknis</span>
-                            <span class="font-bold text-slate-800">4.0</span>
-                        </div>
-                        <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full"
-                                style="width: 80%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs mb-1.5">
-                            <span class="text-slate-600 font-medium">Inisiatif & Kreativitas</span>
-                            <span class="font-bold text-slate-800">4.5</span>
-                        </div>
-                        <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-komdigi-cerulean to-blue-300 rounded-full"
-                                style="width: 90%"></div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
 
                 <div class="mt-5 p-4 bg-blue-50/60 rounded-2xl border border-blue-100">
-                    <p class="text-xs text-slate-600 italic leading-relaxed">"Peserta menunjukkan progres yang baik dan
-                        aktif berkontribusi dalam proyek digitalisasi."</p>
-                    <p class="text-[10px] text-komdigi-blue mt-2 font-medium">— Budi Santoso, S.Kom • 28 Okt 2026</p>
+                    <p class="text-xs text-slate-600 italic leading-relaxed">{{ $penilaian['komentar'] }}</p>
+                    <p class="text-[10px] text-komdigi-blue mt-2 font-medium">— {{ $penilaian['komentar_oleh'] }}</p>
                 </div>
             </div>
 
@@ -339,8 +319,7 @@
                         <h3 class="font-bold text-komdigi-dark">Laporan Akhir</h3>
                     </div>
                     <span
-                        class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100">Belum
-                        dikumpulkan</span>
+                        class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100">{{ $laporan['status'] }}</span>
                 </div>
 
                 <div class="space-y-4">
@@ -354,45 +333,41 @@
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-slate-800">Batas pengumpulan</p>
-                            <p class="text-xs text-amber-700 font-medium">19 Desember 2026 (45 hari lagi)</p>
+                            <p class="text-xs text-amber-700 font-medium">{{ $laporan['batas'] }}</p>
                         </div>
                     </div>
 
                     <div class="space-y-2 text-sm">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
+                        @foreach ($laporan['checklist'] as $item)
+                            <div class="flex items-center gap-2.5">
+                                @if ($item['done'])
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-700">{{ $item['label'] }}
+                                        @if ($item['detail'])
+                                            <span class="text-emerald-600 font-semibold">{{ $item['detail'] }}</span>
+                                        @endif
+                                    </span>
+                                @else
+                                    <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-400">{{ $item['label'] }}</span>
+                                @endif
                             </div>
-                            <span class="text-slate-700">Laporan mingguan <span
-                                    class="text-emerald-600 font-semibold">(5/8)</span></span>
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <span class="text-slate-400">Draft laporan akhir</span>
-                        </div>
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <span class="text-slate-400">Persetujuan pembimbing</span>
-                        </div>
+                        @endforeach
                     </div>
 
-                    <a href="#"
+                    <a href="{{ route('peserta.laporan') }}"
                         class="btn-shine flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-sm font-bold rounded-2xl shadow-md shadow-indigo-500/25 hover:shadow-lg transition mt-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -424,7 +399,7 @@
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="text-right">
-                            <p class="text-3xl font-black text-amber-500">68%</p>
+                            <p class="text-3xl font-black text-amber-500">{{ $sertifikat['progress'] }}%</p>
                             <p class="text-xs text-slate-500 font-medium">Lengkap</p>
                         </div>
                         <div class="w-16 h-16 relative">
@@ -432,7 +407,7 @@
                                 <circle cx="18" cy="18" r="15.5" fill="none" stroke="#FEF3C7"
                                     stroke-width="3.5" />
                                 <circle cx="18" cy="18" r="15.5" fill="none" stroke="#F59E0B"
-                                    stroke-width="3.5" stroke-dasharray="68 100" stroke-linecap="round" />
+                                    stroke-width="3.5" stroke-dasharray="{{ $sertifikat['progress'] }} 100" stroke-linecap="round" />
                             </svg>
                         </div>
                     </div>
@@ -440,48 +415,33 @@
 
                 <div class="grid sm:grid-cols-2 gap-5">
                     <div class="space-y-3">
-                        <div class="flex items-center gap-3 text-sm">
-                            <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
+                        @foreach ($sertifikat['syarat'] as $syarat)
+                            <div class="flex items-center gap-3 text-sm">
+                                @if ($syarat['done'])
+                                    <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-700">{{ $syarat['label'] }}
+                                        @if ($syarat['detail'])
+                                            <span class="text-emerald-600 font-bold">{{ $syarat['detail'] }}</span>
+                                        @endif
+                                    </span>
+                                @else
+                                    <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-slate-400">{{ $syarat['label'] }}</span>
+                                @endif
                             </div>
-                            <span class="text-slate-700">Absensi minimal 80% <span
-                                    class="text-emerald-600 font-bold">(92%)</span></span>
-                        </div>
-                        <div class="flex items-center gap-3 text-sm">
-                            <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <span class="text-slate-700">Laporan mingguan <span
-                                    class="text-emerald-600 font-bold">(5/8)</span></span>
-                        </div>
-                        <div class="flex items-center gap-3 text-sm">
-                            <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <span class="text-slate-400">Laporan akhir disetujui</span>
-                        </div>
-                        <div class="flex items-center gap-3 text-sm">
-                            <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <span class="text-slate-400">Penilaian pembimbing final</span>
-                        </div>
+                        @endforeach
                     </div>
 
                     <div
@@ -496,10 +456,10 @@
                         </div>
                         <p class="text-sm font-bold text-slate-800">Sertifikat terkunci</p>
                         <p class="text-xs text-slate-500 mt-1 mb-4">Lengkapi semua syarat untuk membuka</p>
-                        <button disabled
-                            class="px-5 py-2.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl cursor-not-allowed border border-slate-200">
-                            Unduh Sertifikat
-                        </button>
+                        <a href="{{ route('peserta.sertifikat') }}"
+                            class="px-5 py-2.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-200 transition">
+                            Lihat Detail Sertifikat
+                        </a>
                     </div>
                 </div>
             </div>
@@ -507,7 +467,7 @@
 
         <!-- Quick Actions -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <a href="#" class="glass-card group rounded-3xl p-5 text-center">
+            <a href="{{ route('peserta.riwayat') }}" class="glass-card group rounded-3xl p-5 text-center">
                 <div
                     class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition">
                     <svg class="w-5 h-5 text-komdigi-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -518,7 +478,7 @@
                 <p class="text-sm font-bold text-slate-800">Riwayat</p>
                 <p class="text-[11px] text-slate-500 mt-0.5">Catatan kehadiran</p>
             </a>
-            <a href="#" class="glass-card group rounded-3xl p-5 text-center">
+            <a href="{{ route('peserta.laporan') }}" class="glass-card group rounded-3xl p-5 text-center">
                 <div
                     class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition">
                     <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -529,7 +489,7 @@
                 <p class="text-sm font-bold text-slate-800">Laporan</p>
                 <p class="text-[11px] text-slate-500 mt-0.5">Harian & mingguan</p>
             </a>
-            <a href="#" class="glass-card group rounded-3xl p-5 text-center">
+            <a href="{{ route('peserta.izin') }}" class="glass-card group rounded-3xl p-5 text-center">
                 <div
                     class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition">
                     <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -540,7 +500,7 @@
                 <p class="text-sm font-bold text-slate-800">Izin / Sakit</p>
                 <p class="text-[11px] text-slate-500 mt-0.5">Ajukan ketidakhadiran</p>
             </a>
-            <a href="#" class="glass-card group rounded-3xl p-5 text-center">
+            <a href="{{ route('peserta.profil') }}" class="glass-card group rounded-3xl p-5 text-center">
                 <div
                     class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-sky-50 flex items-center justify-center group-hover:bg-sky-100 transition">
                     <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -557,63 +517,19 @@
         <div class="glass-card rounded-3xl overflow-hidden">
             <div class="px-6 py-4 border-b border-blue-100 flex items-center justify-between bg-blue-50/40">
                 <h3 class="font-bold text-komdigi-dark">Area Absensi</h3>
-                <span class="px-3 py-1 bg-blue-100 text-komdigi-blue text-[11px] font-bold rounded-full">Senin–Kamis</span>
+                <span class="px-3 py-1 bg-blue-100 text-komdigi-blue text-[11px] font-bold rounded-full">{{ $areaAbsensi['hari_kerja'] }}</span>
             </div>
             <div class="px-6 py-5 space-y-4">
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-500 font-medium">Lokasi</span>
-                    <span class="text-sm font-semibold text-slate-800 text-right">Dinas Kominfo Provinsi Sumatera
-                        Utara</span>
+                    <span class="text-sm font-semibold text-slate-800 text-right">{{ $areaAbsensi['lokasi'] }}</span>
                 </div>
                 <div class="h-px bg-blue-100"></div>
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-slate-500 font-medium">Radius</span>
-                    <span class="text-sm font-semibold text-komdigi-cerulean">2000 meter</span>
+                    <span class="text-sm font-semibold text-komdigi-cerulean">{{ $areaAbsensi['radius'] }}</span>
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Bottom Nav -->
-        <div
-            class="lg:hidden fixed bottom-0 left-0 right-0 glass-strong border-t border-blue-100 px-4 py-2.5 flex justify-around z-40">
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-komdigi-blue">
-                <div class="w-8 h-8 rounded-xl bg-komdigi-blue/10 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold">Beranda</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Absen</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Riwayat</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Profil</span>
-            </a>
-        </div>
-
-        <div class="h-20 lg:hidden"></div>
     </div>
 @endsection

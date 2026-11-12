@@ -1,0 +1,507 @@
+@import "./app.css";
+
+/* ==========================================================================
+   Admin Panel — shared glassmorphism design system (Magang Komdigi 2026)
+   Dipakai oleh layouts/admin.blade.php + semua halaman admin.
+   ========================================================================== */
+
+body.admin-body {
+    overflow-x: hidden;
+    background: linear-gradient(160deg, #001B3D 0%, #00336C 28%, #0055FF 65%, #0093DD 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+body.admin-body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 90% 60% at 10% 20%, rgba(0, 147, 221, 0.35) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 90% 10%, rgba(0, 85, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 50% 90%, rgba(0, 51, 108, 0.4) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- Glass surfaces ------------------------------------------------------- */
+
+.glass {
+    background: rgba(15, 23, 42, 0.32);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.glass-strong {
+    background: rgba(15, 23, 42, 0.38);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card {
+    background: rgba(15, 23, 42, 0.26);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(125, 211, 252, 0.45);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.14),
+        0 0 14px rgba(56, 189, 248, 0.4),
+        0 0 32px rgba(0, 147, 221, 0.32),
+        0 0 56px rgba(0, 85, 255, 0.18),
+        0 6px 24px rgba(0, 0, 0, 0.16),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 1px rgba(56, 189, 248, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #e2e8f0;
+}
+
+.glass-card:hover {
+    background: rgba(15, 23, 42, 0.42);
+    border-color: rgba(125, 211, 252, 0.75);
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.22),
+        0 0 18px rgba(56, 189, 248, 0.6),
+        0 0 40px rgba(0, 147, 221, 0.45),
+        0 0 70px rgba(0, 85, 255, 0.25),
+        0 12px 36px rgba(0, 0, 0, 0.22),
+        inset 0 1px 1px rgba(255, 255, 255, 0.28),
+        inset 0 -1px 1px rgba(56, 189, 248, 0.15);
+}
+
+.glass-panel {
+    background: rgba(8, 12, 24, 0.35);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 0 24px rgba(0, 147, 221, 0.22),
+        0 0 48px rgba(0, 85, 255, 0.1),
+        0 12px 48px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    border-radius: 1.5rem;
+}
+
+/* --- Collapsible glass sidebar -------------------------------------------- */
+
+.glass-sidebar {
+    background: rgba(8, 12, 24, 0.35);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 68px;
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 40;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.glass-sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.glass-sidebar:hover {
+    width: 240px;
+    background: rgba(8, 12, 24, 0.5);
+}
+
+.glass-sidebar .sidebar-label {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.18s ease 0.04s;
+    pointer-events: none;
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+}
+
+.glass-sidebar:hover .sidebar-label {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.glass-sidebar .sidebar-section-title {
+    opacity: 0;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.glass-sidebar:hover .sidebar-section-title {
+    opacity: 1;
+    max-height: 2rem;
+    margin-bottom: 0.75rem;
+    padding: 0 0.5rem;
+}
+
+.glass-sidebar .sidebar-footer-text {
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.glass-sidebar:hover .sidebar-footer-text {
+    opacity: 1;
+    max-width: 160px;
+    pointer-events: auto;
+}
+
+.sidebar-link {
+    transition: all 0.2s ease;
+    color: rgba(186, 198, 214, 0.95);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.7rem;
+    position: relative;
+    margin: 0 0.2rem;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #f8fafc;
+}
+
+.sidebar-link.active {
+    background: rgba(0, 147, 221, 0.18);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 55%;
+    background: #38bdf8;
+    border-radius: 0 3px 3px 0;
+}
+
+.sidebar-link .sidebar-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.sidebar-link:hover .sidebar-icon {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link.active .sidebar-icon {
+    background: rgba(0, 147, 221, 0.3);
+}
+
+/* --- Buttons & form controls ---------------------------------------------- */
+
+.btn-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transition: 0.5s;
+}
+
+.btn-shine:hover::after {
+    left: 120%;
+}
+
+.form-input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #f1f5f9;
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    width: 100%;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.form-input::placeholder {
+    color: #64748b;
+}
+
+select.form-input option {
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+textarea.form-input {
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* --- Tables & modals -------------------------------------------------------- */
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.row-alert {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-left: 3px solid #f87171;
+}
+
+.row-warning {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-left: 3px solid #fbbf24;
+}
+
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* --- Tabs (kelola penilaian & CMS) ------------------------------------------ */
+
+.tab-btn {
+    white-space: nowrap;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: rgba(0, 147, 221, 0.25);
+    color: #ffffff;
+    border-color: rgba(56, 189, 248, 0.4);
+}
+
+.tabs-scroll {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+}
+
+/* --- Tabs (fitur pendukung: nav-tab + tab-panel) ----------------------------- */
+
+.nav-tab {
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.nav-tab.active {
+    background: linear-gradient(135deg, rgba(0, 85, 255, 0.35), rgba(0, 147, 221, 0.25));
+    border-color: rgba(56, 189, 248, 0.6);
+    color: #ffffff;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* --- Sub-tab pengaturan (fitur pendukung: set-tab) --------------------------- */
+
+.set-tab {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.set-tab.active {
+    background: rgba(0, 147, 221, 0.15);
+    color: #ffffff;
+    border-color: rgba(0, 147, 221, 0.3);
+    font-weight: 600;
+}
+
+/* --- Sorting (monitoring kinerja) ------------------------------------------- */
+
+.sort-btn {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort-btn:hover {
+    color: #38bdf8;
+}
+
+/* --- Status & kategori badges (CMS) ------------------------------------------ */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.status-publish,
+.status-aktif {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-draft,
+.status-nonaktif {
+    background: rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.kategori-badge {
+    display: inline-flex;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+}
+
+.kat-pribadi {
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+}
+
+.kat-semua {
+    background: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+}
+
+.kat-tim {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.kat-peserta {
+    background: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+}
+
+.kat-pembimbing {
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+}
+
+.kat-koordinator {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.kat-hero {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f472b6;
+}
+
+.kat-popup {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+}
+
+.kat-running {
+    background: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+}
+
+/* --- CMS extras: rich editor, dropzone, avatar, drag handle ------------------ */
+
+.rich-editor {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.75rem;
+    min-height: 140px;
+    padding: 0.75rem;
+    color: #f1f5f9;
+    font-size: 0.875rem;
+}
+
+.rich-editor:focus {
+    outline: none;
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.rich-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.rich-toolbar button {
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.4rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rich-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+.dropzone {
+    border: 2px dashed rgba(125, 211, 252, 0.35);
+    background: rgba(14, 165, 233, 0.06);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.avatar-lg {
+    width: 72px;
+    height: 72px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, #0055FF, #0093DD);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #64748b;
+}

@@ -1,6 +1,6 @@
 @extends('layouts.dashboardUser')
 @section('title', 'Absensi')
-@section('absensi')
+@section('content')
     <div class="glass-panel p-5 sm:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-120px)]">
 
         <!-- Title -->
@@ -12,8 +12,8 @@
             <div class="flex items-center gap-3 glass px-4 py-2.5 rounded-2xl">
                 <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                 <div class="text-right">
-                    <p class="text-sm font-bold text-white" id="current-date">Jumat, 6 November 2026</p>
-                    <p class="text-xs text-blue-200/70 font-medium tabular-nums" id="current-time">10.27.00 WIB</p>
+                    <p class="text-sm font-bold text-white" id="current-date">—</p>
+                    <p class="text-xs text-blue-200/70 font-medium tabular-nums" id="current-time">—</p>
                 </div>
             </div>
         </div>
@@ -34,27 +34,27 @@
                             <span id="status-badge"
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/90 text-amber-900 text-xs font-bold rounded-full shadow-sm">
                                 <span class="w-1.5 h-1.5 bg-amber-900 rounded-full animate-pulse"></span>
-                                Belum Absen
+                                {{ $absenHariIni['status'] }}
                             </span>
                         </div>
                     </div>
                     <div class="text-left sm:text-right">
                         <p class="text-blue-100/70 text-xs font-medium">Jam kerja</p>
-                        <p class="text-white text-sm font-bold">08.00 – 16.00 WIB</p>
+                        <p class="text-white text-sm font-bold">{{ $areaAbsensi['jam_kerja'] }}</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3.5 text-center border border-white/10">
                         <p class="text-blue-100/80 text-xs font-medium mb-1">Masuk</p>
-                        <p class="text-white text-xl font-black" id="time-masuk">—</p>
+                        <p class="text-white text-xl font-black" id="time-masuk">{{ $absenHariIni['masuk'] ?? '—' }}</p>
                     </div>
                     <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3.5 text-center border border-white/10">
                         <p class="text-blue-100/80 text-xs font-medium mb-1">Pulang</p>
-                        <p class="text-white text-xl font-black" id="time-pulang">—</p>
+                        <p class="text-white text-xl font-black" id="time-pulang">{{ $absenHariIni['pulang'] ?? '—' }}</p>
                     </div>
                     <div class="bg-white/10 backdrop-blur rounded-2xl px-4 py-3.5 text-center border border-white/10">
                         <p class="text-blue-100/80 text-xs font-medium mb-1">Durasi</p>
-                        <p class="text-white text-xl font-black" id="time-durasi">—</p>
+                        <p class="text-white text-xl font-black" id="time-durasi">{{ $absenHariIni['durasi'] ?? '—' }}</p>
                     </div>
                 </div>
             </div>
@@ -75,12 +75,13 @@
                 </div>
                 <h3 class="font-bold text-white text-lg mb-1">Absen Masuk</h3>
                 <p class="text-sm text-slate-400 mb-5">Wajib selfie + lokasi dalam radius</p>
-                <button onclick="handleAbsen('masuk')" id="btn-masuk"
-                    class="btn-shine w-full py-3.5 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:shadow-xl transition text-sm">
+                <button type="button" data-action="absen-open" data-jenis="masuk" id="btn-masuk"
+                    class="btn-shine w-full py-3.5 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:shadow-xl transition text-sm cursor-pointer">
                     Absen Masuk Sekarang
                 </button>
             </div>
-            <div class="glass-card rounded-3xl p-6 text-center opacity-60" id="card-pulang">
+            <div class="glass-card rounded-3xl p-6 text-center {{ $absenHariIni['masuk'] ? '' : 'opacity-60' }}"
+                id="card-pulang">
                 <div class="relative inline-flex mb-4">
                     <div
                         class="relative w-20 h-20 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white shadow-lg">
@@ -92,9 +93,10 @@
                 </div>
                 <h3 class="font-bold text-white text-lg mb-1">Absen Pulang</h3>
                 <p class="text-sm text-slate-400 mb-5">Tersedia setelah absen masuk</p>
-                <button id="btn-pulang" disabled
-                    class="w-full py-3.5 bg-white/10 text-slate-400 font-bold rounded-2xl cursor-not-allowed text-sm border border-white/10">
-                    Belum Bisa Absen Pulang
+                <button type="button" data-action="absen-open" data-jenis="pulang" id="btn-pulang"
+                    @disabled(! $absenHariIni['masuk'])
+                    class="w-full py-3.5 text-sm font-bold rounded-2xl {{ $absenHariIni['masuk'] ? 'btn-shine bg-gradient-to-r from-komdigi-dark to-komdigi-blue text-white shadow-lg shadow-blue-500/30 hover:shadow-xl transition cursor-pointer' : 'bg-white/10 text-slate-400 cursor-not-allowed border border-white/10' }}">
+                    {{ $absenHariIni['masuk'] ? 'Absen Pulang Sekarang' : 'Belum Bisa Absen Pulang' }}
                 </button>
             </div>
         </div>
@@ -105,30 +107,29 @@
                 <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
                     <h3 class="font-bold text-white">Area Absensi</h3>
                     <span
-                        class="px-2.5 py-1 bg-komdigi-blue/20 text-komdigi-cerulean text-[11px] font-bold rounded-full border border-komdigi-blue/30">Senin–Kamis</span>
+                        class="px-2.5 py-1 bg-komdigi-blue/20 text-komdigi-cerulean text-[11px] font-bold rounded-full border border-komdigi-blue/30">{{ $areaAbsensi['hari_kerja'] }}</span>
                 </div>
                 <div class="px-5 py-4 space-y-3">
                     <div class="flex items-start justify-between gap-3">
                         <span class="text-sm text-slate-400 font-medium shrink-0">Lokasi</span>
-                        <span class="text-sm font-semibold text-slate-200 text-right">Dinas Kominfo Provinsi Sumatera
-                            Utara</span>
+                        <span class="text-sm font-semibold text-slate-200 text-right">{{ $areaAbsensi['lokasi'] }}</span>
                     </div>
                     <div class="h-px bg-white/10"></div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-400 font-medium">Alamat</span>
-                        <span class="text-sm font-semibold text-slate-200 text-right">Jl. HM. Said No.27, Medan</span>
+                        <span class="text-sm font-semibold text-slate-200 text-right">{{ $areaAbsensi['alamat'] }}</span>
                     </div>
                     <div class="h-px bg-white/10"></div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-400 font-medium">Radius</span>
-                        <span class="text-sm font-semibold text-komdigi-cerulean">2000 meter</span>
+                        <span class="text-sm font-semibold text-komdigi-cerulean">{{ $areaAbsensi['radius'] }}</span>
                     </div>
                     <div class="h-px bg-white/10"></div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-400 font-medium">Status Lokasi</span>
                         <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400">
                             <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                            Dalam jangkauan
+                            {{ $areaAbsensi['status_lokasi'] }}
                         </span>
                     </div>
                 </div>
@@ -138,57 +139,30 @@
                     <h3 class="font-bold text-white">Syarat Absensi</h3>
                 </div>
                 <div class="px-5 py-4 space-y-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
+                    @foreach ($syarat as $item)
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $item['ok'] ? 'bg-emerald-500/20' : 'bg-amber-500/20' }}">
+                                @if ($item['ok'])
+                                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                @else
+                                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-200">{{ $item['judul'] }}</p>
+                                <p class="text-xs text-slate-400">{{ $item['detail'] }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">Lokasi GPS aktif</p>
-                            <p class="text-xs text-slate-400">Harus berada dalam radius 2000m</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">Selfie wajah</p>
-                            <p class="text-xs text-slate-400">Foto wajah jelas, tanpa masker</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">Hari kerja aktif</p>
-                            <p class="text-xs text-slate-400">Senin – Kamis (hari ini valid)</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">Jam masuk ideal</p>
-                            <p class="text-xs text-slate-400">Sebelum 08.15 (toleransi 15 menit)</p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -197,117 +171,44 @@
         <div class="glass-card rounded-3xl overflow-hidden">
             <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
                 <h3 class="font-bold text-white">Riwayat Minggu Ini</h3>
-                <a href="#" class="text-sm font-semibold text-komdigi-cerulean hover:text-white transition">Lihat
+                <a href="{{ route('peserta.riwayat') }}"
+                    class="text-sm font-semibold text-komdigi-cerulean hover:text-white transition">Lihat
                     semua →</a>
             </div>
             <div class="divide-y divide-white/5">
-                <div class="px-5 py-3.5 flex items-center justify-between hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                            <span class="text-xs font-bold text-emerald-400">SEN</span>
+                @foreach ($riwayatMinggu as $row)
+                    <div
+                        class="px-5 py-3.5 flex items-center justify-between hover:bg-white/5 transition {{ $row['future'] ? 'opacity-50' : '' }}">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl {{ $row['box'] }} flex items-center justify-center">
+                                <span class="text-xs font-bold {{ $row['boxText'] }}">{{ $row['hari'] }}</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold {{ $row['future'] ? 'text-slate-400' : 'text-slate-200' }}">
+                                    {{ $row['tanggal'] }}
+                                    @if ($row['hariIni'])
+                                        <span class="text-komdigi-cerulean text-xs font-bold">(Hari ini)</span>
+                                    @endif
+                                </p>
+                                <p class="text-xs {{ $row['future'] ? 'text-slate-500' : 'text-slate-400' }}">{{ $row['detail'] }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">3 November 2026</p>
-                            <p class="text-xs text-slate-400">Masuk 07.58 · Pulang 16.05</p>
-                        </div>
+                        <span class="px-2.5 py-1 text-[11px] font-bold rounded-full {{ $row['badge'] }}">{{ $row['label'] }}</span>
                     </div>
-                    <span
-                        class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 text-[11px] font-bold rounded-full border border-emerald-500/30">Hadir</span>
-                </div>
-                <div class="px-5 py-3.5 flex items-center justify-between hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
-                            <span class="text-xs font-bold text-amber-400">SEL</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">4 November 2026</p>
-                            <p class="text-xs text-slate-400">Masuk 08.22 · Pulang 16.10</p>
-                        </div>
-                    </div>
-                    <span
-                        class="px-2.5 py-1 bg-amber-500/20 text-amber-400 text-[11px] font-bold rounded-full border border-amber-500/30">Terlambat</span>
-                </div>
-                <div class="px-5 py-3.5 flex items-center justify-between hover:bg-white/5 transition">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-komdigi-blue/20 flex items-center justify-center">
-                            <span class="text-xs font-bold text-komdigi-cerulean">RAB</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-200">5 November 2026 <span
-                                    class="text-komdigi-cerulean text-xs font-bold">(Hari ini)</span></p>
-                            <p class="text-xs text-slate-400">Belum absen</p>
-                        </div>
-                    </div>
-                    <span
-                        class="px-2.5 py-1 bg-white/10 text-slate-400 text-[11px] font-bold rounded-full border border-white/10">Menunggu</span>
-                </div>
-                <div class="px-5 py-3.5 flex items-center justify-between opacity-50">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-                            <span class="text-xs font-bold text-slate-500">KAM</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-400">6 November 2026</p>
-                            <p class="text-xs text-slate-500">Belum dimulai</p>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 bg-white/5 text-slate-500 text-[11px] font-bold rounded-full">—</span>
-                </div>
+                @endforeach
             </div>
         </div>
-
-        <!-- Mobile Bottom Nav -->
-        <div
-            class="lg:hidden fixed bottom-0 left-0 right-0 glass-strong border-t border-white/10 px-4 py-2.5 flex justify-around z-40">
-            <a href="dashboard.html" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Beranda</span>
-            </a>
-            <a href="absensi.html" class="flex flex-col items-center gap-0.5 py-1.5 text-komdigi-cerulean">
-                <div class="w-8 h-8 rounded-xl bg-komdigi-blue/20 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-semibold">Absen</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Riwayat</span>
-            </a>
-            <a href="#" class="flex flex-col items-center gap-0.5 py-1.5 text-slate-400">
-                <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <span class="text-[10px] font-medium">Profil</span>
-            </a>
-        </div>
-        <div class="h-20 lg:hidden"></div>
     </div>
 
     <!-- Modal Absen -->
     <div id="modal-absen" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-action="absen-close"></div>
         <div class="relative glass-strong rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-white/15">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-5">
                     <h3 class="text-lg font-black text-white" id="modal-title">Absen Masuk</h3>
-                    <button onclick="closeModal()"
-                        class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition">
+                    <button type="button" data-action="absen-close"
+                        class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition cursor-pointer">
                         <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                 d="M6 18L18 6M6 6l12 12" />
@@ -342,15 +243,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <p class="text-xs font-semibold text-emerald-300">Lokasi terverifikasi · Dalam radius 2000m</p>
+                    <p class="text-xs font-semibold text-emerald-300">Lokasi terverifikasi · Dalam radius {{ $areaAbsensi['radius'] }}</p>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="closeModal()"
-                        class="flex-1 py-3 bg-white/10 text-slate-300 font-bold rounded-xl hover:bg-white/15 transition text-sm border border-white/10">Batal</button>
-                    <button onclick="confirmAbsen()"
-                        class="btn-shine flex-1 py-3 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 text-sm">Ambil
+                <form method="POST" action="{{ route('peserta.absen.store') }}" class="flex gap-3">
+                    @csrf
+                    <input type="hidden" name="jenis" value="masuk">
+                    <button type="button" data-action="absen-close"
+                        class="flex-1 py-3 bg-white/10 text-slate-300 font-bold rounded-xl hover:bg-white/15 transition text-sm border border-white/10 cursor-pointer">Batal</button>
+                    <button type="submit"
+                        class="btn-shine flex-1 py-3 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 text-sm cursor-pointer">Ambil
                         & Kirim</button>
-                </div>
+                </form>
             </div>
         </div>
     </div>

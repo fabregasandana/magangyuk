@@ -2,37 +2,27 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
+/**
+ * Seeder utama MagangYuk.
+ *
+ * Urutan penting: data master -> akun -> aktivitas -> konten CMS.
+ * Seluruh seeder bersifat idempoten (updateOrCreate/firstOrCreate) sehingga
+ * aman dijalankan berulang tanpa menduplikasi data.
+ */
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        DB::table('users')->insert([
-            [
-                'name' => 'Alip Hidayat',
-                'email' => 'alip@gmail.com',
-                'password' => Hash::make('alip123'),
-            ],
-            [
-                'name' => 'Nabila Amriyanti',
-                'email' => 'makucup@gmail.com',
-                'password' => Hash::make('makucup123'),
-            ],
-            [
-                'name' => 'Azam Darmansyah',
-                'email' => 'pakucup@gmail.com',
-                'password' => Hash::make('pakucup123'),
-            ],
+        $this->call([
+            MasterSeeder::class,
+            AkunSeeder::class,
+            AktivitasSeeder::class,
+            CmsSeeder::class,
         ]);
     }
 }

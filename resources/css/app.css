@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/*
+ * Theme global MagangYuk — pengganti tailwind.config inline (CDN) di mockup lama.
+ * Semua warna brand & font didefinisikan sekali di sini, dipakai seluruh halaman.
+ */
+@theme {
+    --color-komdigi-blue: #0055ff;
+    --color-komdigi-dark: #00336c;
+    --color-komdigi-cerulean: #0093dd;
+    --color-komdigi-navy: #001b3d;
+    --color-komdigi-soft: #e0edff;
+    --color-komdigi-light: #f0f7ff;
+    --color-komdigi-mid: #b8d4ff;
+    --color-komdigi-gold: #ffb700;
+    --color-komdigi-red: #c41e3a;
+
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
