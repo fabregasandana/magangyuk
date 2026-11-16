@@ -15,7 +15,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .glass-panel{background:rgba(8,12,24,.35);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(125,211,252,.28);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 0 24px rgba(0,147,221,.22),0 12px 48px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.12);border-radius:1.5rem}
 .glass-sidebar{background:rgba(8,12,24,.35);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.1);width:68px;transition:width .28s;overflow:hidden;z-index:40}
 .glass-sidebar::-webkit-scrollbar{display:none}.glass-sidebar{scrollbar-width:none}
-.glass-sidebar:hover{width:240px;background:rgba(8,12,24,.5)}
+.glass-sidebar:hover{width:240px;background:rgba(8,12,24,.5)} quoted_printable_decode      
 .glass-sidebar .sidebar-label{opacity:0;white-space:nowrap;transition:opacity .18s;pointer-events:none;font-size:.8125rem}
 .glass-sidebar:hover .sidebar-label{opacity:1;pointer-events:auto}
 .glass-sidebar .sidebar-section-title{opacity:0;max-height:0;margin:0;padding:0;overflow:hidden;transition:all .2s}
