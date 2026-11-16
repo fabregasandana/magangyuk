@@ -1,420 +1,252 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pusat informasi, kegiatan, dan dokumentasi Magang Komdigi 2026. Pantau perjalanan magang melalui logbook dan absensi dalam satu tempat.">
     <title>Magang Komdigi 2026 | Kementerian Komunikasi dan Digital</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    @include('layouts.theme-init')
     @vite(['resources/css/landing.css', 'resources/js/landing.js'])
-    @fonts
 </head>
-<body class="bg-gradient-to-b from-blue-50 via-indigo-50/30 to-pink-50/40 font-sans text-gray-800 antialiased">
+<body class="landing-page">
+    <a class="landing-skip-link" href="#konten-utama">Lewati ke konten utama</a>
 
-    <!-- HEADER - Floating Rounded Navbar -->
-<header class="sticky top-0 z-50 pt-4 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-        <div class="flex items-center justify-between gap-3 px-3 sm:px-4 py-2.5 bg-white/90 backdrop-blur-xl rounded-full shadow-lg shadow-black/5 border border-white/80">
-
-            <!-- Logo -->
-            <a href="{{ url('/') }}" class="flex items-center gap-2.5 shrink-0 pl-1">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean rounded-xl blur opacity-50"></div>
-                    <div class="relative w-9 h-9 bg-gradient-to-br from-komdigi-blue via-komdigi-cerulean to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-md">
-                        K
-                    </div>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="font-extrabold text-komdigi-dark text-sm leading-tight tracking-tight">MAGANG KOMDIGI</div>
-                    <div class="text-[10px] font-bold bg-gradient-to-r from-komdigi-cerulean to-komdigi-gold bg-clip-text text-transparent">2026</div>
-                </div>
+    <header class="landing-header">
+        <div class="landing-container landing-header-inner">
+            <a href="{{ url('/') }}" class="landing-brand" aria-label="Magang Komdigi — Beranda">
+                <span class="landing-brand-mark" aria-hidden="true">K<span></span></span>
+                <span class="landing-brand-text">Magang Komdigi<small>Program magang 2026</small></span>
             </a>
 
-            <!-- Nav Links -->
-            <nav class="hidden lg:flex items-center gap-0.5">
-                <a href="{{ url('/') }}" class="px-3.5 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full shadow-sm">Beranda</a>
-                <a href="#tentang" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Tentang Kami</a>
-                <a href="#profil" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Profil</a>
-                <a href="#kegiatan" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Kegiatan</a>
-                <a href="#anggota" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Anggota</a>
-                <a href="#dokumentasi" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Dokumentasi</a>
-                <a href="{{ route('admin.dashboard') }}" class="px-3.5 py-1.5 text-sm font-medium text-gray-600 hover:text-komdigi-blue hover:bg-blue-50 rounded-full transition">Admin</a>
+            <nav class="landing-desktop-nav" aria-label="Navigasi utama">
+                <a href="{{ url('/') }}" aria-current="page">Beranda</a>
+                <a href="#tentang">Tentang</a>
+                <a href="#profil">Profil</a>
+                <a href="#kegiatan">Kegiatan</a>
+                <a href="#anggota">Anggota</a>
+                <a href="#dokumentasi">Dokumentasi</a>
             </nav>
 
-            <!-- Buttons -->
-            <div class="flex items-center gap-2 shrink-0">
-                <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-amber-800 bg-amber-100 hover:bg-amber-200 rounded-full transition">
-                    Login
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </a>
+            <div class="landing-header-actions">
+                @include('layouts.theme-toggle')
+                <a href="{{ route('login') }}" class="ui-button landing-header-login">Masuk <i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                <details class="landing-mobile-nav">
+                    <summary aria-label="Menu navigasi"><i data-lucide="menu" class="w-5 h-5" aria-hidden="true"></i></summary>
+                    <nav aria-label="Navigasi seluler">
+                        <a href="{{ url('/') }}" aria-current="page">Beranda</a>
+                        <a href="#tentang">Tentang kami</a>
+                        <a href="#profil">Profil program</a>
+                        <a href="#kegiatan">Kegiatan</a>
+                        <a href="#anggota">Anggota</a>
+                        <a href="#dokumentasi">Dokumentasi</a>
+                        <a href="{{ route('admin.dashboard') }}">Portal admin</a>
+                    </nav>
+                </details>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-    <!-- HERO -->
-    <section class="hero-gradient pt-14 pb-32 md:pt-20 md:pb-40 relative overflow-hidden">
-        <!-- Animated Blobs -->
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-komdigi-blue/25 rounded-full blur-3xl blob animate-float"></div>
-        <div class="absolute bottom-0 left-0 w-[450px] h-[450px] bg-komdigi-cerulean/30 rounded-full blur-3xl blob animate-float-slow" style="animation-delay: -2s;"></div>
-        <div class="absolute top-1/3 left-1/2 -translate-x-1/2 w-80 h-80 bg-komdigi-gold/25 rounded-full blur-3xl blob animate-float" style="animation-delay: -4s;"></div>
-        <div class="absolute bottom-20 right-1/4 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl blob animate-float-slow" style="animation-delay: -1s;"></div>
-        <div class="absolute top-20 left-1/4 w-48 h-48 bg-indigo-400/20 rounded-full blur-3xl animate-pulse-soft"></div>
-
-        <!-- Decorative circles -->
-        <div class="absolute top-32 right-20 w-3 h-3 bg-komdigi-blue rounded-full opacity-60 animate-pulse-soft"></div>
-        <div class="absolute top-48 right-40 w-2 h-2 bg-komdigi-gold rounded-full opacity-70"></div>
-        <div class="absolute bottom-40 left-16 w-4 h-4 bg-pink-400 rounded-full opacity-50 animate-pulse-soft"></div>
-        <div class="absolute top-1/2 left-10 w-2 h-2 bg-komdigi-cerulean rounded-full opacity-60"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                <div>
-                    <div class="inline-flex items-center gap-2.5 px-4 py-2 glass-strong border border-white/60 rounded-full text-sm font-bold text-komdigi-blue mb-6 shadow-lg shadow-blue-500/10">
-                        <span class="relative flex h-2.5 w-2.5">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-komdigi-blue opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-komdigi-blue"></span>
-                        </span>
-                        <span class="text-base">👋</span>
-                        HALO, SELAMAT DATANG!
+    <main id="konten-utama">
+        <section class="landing-hero" aria-labelledby="hero-title">
+            <div class="landing-visual" aria-hidden="true">
+                <canvas data-webgl-bg></canvas>
+            </div>
+            <div class="landing-container landing-hero-grid">
+                <div class="landing-hero-copy">
+                    <p class="landing-eyebrow"><span></span> Belajar. Berkontribusi. Bertumbuh.</p>
+                    <h1 id="hero-title" data-split-text>Langkah kecil hari ini.<br><span>Kontribusi nyata</span><br>untuk esok.</h1>
+                    <p class="landing-hero-description">Ruang untuk belajar, berkarya, dan mencatat perjalanan Magang Komdigi. Dari kehadiran hingga hasil kerja, setiap proses punya tempatnya.</p>
+                    <div class="landing-hero-actions">
+                        <a href="{{ route('login') }}" class="ui-button">Masuk ke ruang magang <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                        <a href="#kegiatan" class="ui-button ui-button-secondary">Jelajahi kegiatan</a>
                     </div>
-
-                    <p class="text-xs font-extrabold tracking-[0.25em] text-komdigi-gold uppercase mb-4 drop-shadow-sm">
-                        ✨ Perjalanan Magang Komdigi 2026
-                    </p>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-[3.6rem] font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
-                        Belajar, berkarya,<br>
-                        <span class="text-gradient">dan bertumbuh</span><br>
-                        <span class="relative inline-block">
-                            <span class="text-komdigi-gold">bersama.</span>
-                            <svg class="absolute -bottom-2 left-0 w-full" height="8" viewBox="0 0 200 8" fill="none">
-                                <path d="M1 5.5C50 1.5 150 1.5 199 5.5" stroke="#FFB700" stroke-width="3" stroke-linecap="round"/>
-                            </svg>
-                        </span>
-                    </h1>
-
-                    <p class="text-gray-600 text-lg leading-relaxed mb-9 max-w-lg">
-                        Pusat informasi, kegiatan, logbook, dan dokumentasi
-                        <span class="font-semibold text-komdigi-blue">Magang Komdigi 2026</span>.
-                        Data kegiatan yang dikirim melalui Logbook tampil secara otomatis.
-                    </p>
-
-                    <div class="flex flex-wrap gap-3.5">
-                        <a href="#kegiatan" class="btn-shine inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-komdigi-blue via-komdigi-cerulean to-indigo-500 text-white font-bold rounded-full hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 shadow-xl shadow-blue-500/30 text-[15px]">
-                            Lihat Kegiatan
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                        </a>
-                        <a href="#dokumentasi" class="inline-flex items-center px-8 py-4 glass-strong text-komdigi-blue font-bold rounded-full border-2 border-komdigi-blue/30 hover:border-komdigi-blue hover:bg-white transition-all duration-300 shadow-lg text-[15px]">
-                            Lihat Dokumentasi
-                        </a>
-                    </div>
-
-                    <!-- Stats mini -->
-                    <div class="flex items-center gap-6 mt-10">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                                <span class="text-lg">📅</span>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500 font-medium">Periode</div>
-                                <div class="text-sm font-bold text-gray-800">Okt – Des 2026</div>
-                            </div>
-                        </div>
-                        <div class="w-px h-10 bg-gray-200"></div>
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-100 to-yellow-50 flex items-center justify-center">
-                                <span class="text-lg">🎯</span>
-                            </div>
-                            <div>
-                                <div class="text-xs text-gray-500 font-medium">Status</div>
-                                <div class="text-sm font-bold text-emerald-600">Sedang Berjalan</div>
-                            </div>
-                        </div>
+                    <a href="#dokumentasi" class="landing-text-link landing-hero-gallery">Lihat cerita dalam dokumentasi <i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                    <div class="landing-hero-signature">
+                        <i data-lucide="building-2" class="w-5 h-5" aria-hidden="true"></i>
+                        <span>Kementerian Komunikasi dan Digital<small>Program Magang 2026</small></span>
                     </div>
                 </div>
 
-                <!-- Countdown Card -->
-                <div class="relative animate-float">
-                    <div class="absolute -inset-2 bg-gradient-to-r from-komdigi-blue via-komdigi-cerulean via-komdigi-gold to-pink-400 rounded-[32px] blur-md opacity-50 animate-pulse-soft"></div>
-                    <div class="relative glass-strong rounded-[28px] shadow-2xl p-7 md:p-8 border border-white/80">
-                        <div class="flex items-center justify-between mb-2">
-                            <p class="text-xs font-bold tracking-wider text-gray-400 uppercase">⏱️ Masa Magang</p>
-                            <span class="px-3 py-1.5 bg-gradient-to-r from-emerald-400 to-green-500 text-white text-xs font-bold rounded-full shadow-md shadow-green-500/30 flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
-                                Aktif
-                            </span>
-                        </div>
-                        <p class="text-xl font-extrabold text-gray-900 mb-1">Periode Magang Komdigi 2026</p>
-                        <p class="text-sm text-gray-500 mb-7">Berakhir pada <span class="font-bold text-komdigi-blue">19 Desember 2026</span></p>
+                <figure class="landing-preview glass-card" data-parallax="0.05" aria-labelledby="preview-title" aria-describedby="preview-caption">
+                    <div class="landing-preview-toolbar">
+                        <span><i data-lucide="layout-dashboard" class="w-5 h-5" aria-hidden="true"></i> Ruang magang</span>
+                        <span class="landing-preview-label">Pratinjau</span>
+                    </div>
+                    <div class="landing-preview-body">
+                        <p class="landing-eyebrow">Alur harian peserta</p>
+                        <h2 id="preview-title">Satu hari, tercatat rapi.</h2>
+                        <p class="landing-preview-intro">Fokus berkarya. Dokumentasikan prosesnya.</p>
+                        <ol class="landing-workflow" data-anime-stagger>
+                            <li>
+                                <span class="landing-workflow-icon" data-anime-draw><i data-lucide="calendar-check" class="w-5 h-5" aria-hidden="true"></i></span>
+                                <div><h3>Mulai dengan absensi</h3><p>Catat kehadiran sebelum beraktivitas.</p></div>
+                                <span class="landing-step-number">01</span>
+                            </li>
+                            <li>
+                                <span class="landing-workflow-icon" data-anime-draw><i data-lucide="notebook-pen" class="w-5 h-5" aria-hidden="true"></i></span>
+                                <div><h3>Ceritakan progresmu</h3><p>Tulis kegiatan dan hasil kerja di logbook.</p></div>
+                                <span class="landing-step-number">02</span>
+                            </li>
+                            <li>
+                                <span class="landing-workflow-icon" data-anime-draw><i data-lucide="message-square" class="w-5 h-5" aria-hidden="true"></i></span>
+                                <div><h3>Bertumbuh lewat ulasan</h3><p>Ikuti tinjauan dan arahan pembimbing.</p></div>
+                                <span class="landing-step-number">03</span>
+                            </li>
+                        </ol>
+                        <div class="landing-preview-note"><i data-lucide="file-check-2" class="w-5 h-5" aria-hidden="true"></i><span>Kehadiran, kegiatan, dan evaluasi.<strong>Terhubung dalam satu perjalanan.</strong></span></div>
+                    </div>
+                    <figcaption id="preview-caption">Ilustrasi alur penggunaan, bukan data peserta.</figcaption>
+                </figure>
+            </div>
+        </section>
 
-                        <div class="grid grid-cols-4 gap-3">
-                            <div class="countdown-box bg-gradient-to-br from-blue-50 via-blue-100/80 to-indigo-50 rounded-2xl p-4 text-center border border-blue-200/60 shadow-sm">
-                                <div class="text-3xl md:text-4xl font-black text-komdigi-blue" id="days">—</div>
-                                <div class="text-[10px] font-bold text-blue-600/70 mt-1.5 tracking-widest">HARI</div>
-                            </div>
-                            <div class="countdown-box bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl p-4 text-center border border-amber-200/60 shadow-sm">
-                                <div class="text-3xl md:text-4xl font-black text-komdigi-gold" id="hours">—</div>
-                                <div class="text-[10px] font-bold text-amber-600/70 mt-1.5 tracking-widest">JAM</div>
-                            </div>
-                            <div class="countdown-box bg-gradient-to-br from-rose-50 via-red-50 to-pink-50 rounded-2xl p-4 text-center border border-rose-200/60 shadow-sm">
-                                <div class="text-3xl md:text-4xl font-black text-komdigi-red" id="minutes">—</div>
-                                <div class="text-[10px] font-bold text-rose-600/70 mt-1.5 tracking-widest">MENIT</div>
-                            </div>
-                            <div class="countdown-box bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 rounded-2xl p-4 text-center border border-gray-200/80 shadow-sm">
-                                <div class="text-3xl md:text-4xl font-black text-gray-700" id="seconds">—</div>
-                                <div class="text-[10px] font-bold text-gray-500 mt-1.5 tracking-widest">DETIK</div>
-                            </div>
-                        </div>
-
-                        <!-- Progress bar -->
-                        <div class="mt-6">
-                            <div class="flex justify-between text-xs font-semibold text-gray-500 mb-1.5">
-                                <span>Progress Magang</span>
-                                <span id="progress-text">—</span>
-                            </div>
-                            <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div id="progress-bar" class="h-full bg-gradient-to-r from-komdigi-blue via-komdigi-cerulean to-komdigi-gold rounded-full transition-all duration-1000" style="width: 0%"></div>
-                            </div>
-                        </div>
+        <section class="landing-period" aria-labelledby="period-title">
+            <div class="landing-container landing-period-inner">
+                <div class="landing-period-heading">
+                    <span class="landing-icon-tile"><i data-lucide="calendar-days" class="w-5 h-5" aria-hidden="true"></i></span>
+                    <div><p class="landing-eyebrow">Periode magang</p><h2 id="period-title">1 Oktober – 19 Desember 2026</h2><p id="period-status" aria-live="polite">Program Magang Komdigi 2026</p></div>
+                </div>
+                <div class="landing-countdown-block">
+                    <p id="countdown-label">Menuju akhir periode</p>
+                    <div class="landing-countdown" role="timer" aria-label="Waktu tersisa hingga akhir periode magang">
+                        <div><strong id="days">—</strong><span>Hari</span></div>
+                        <div><strong id="hours">—</strong><span>Jam</span></div>
+                        <div><strong id="minutes">—</strong><span>Menit</span></div>
+                        <div><strong id="seconds">—</strong><span>Detik</span></div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- QUICK MENU -->
-    <section class="relative -mt-16 z-20 pb-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- Kegiatan -->
-                <a href="#kegiatan" class="card-hover group relative bg-white rounded-2xl p-5 text-center shadow-xl border border-blue-100/80 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-indigo-500/10 transition-all duration-500"></div>
-                    <div class="relative">
-                        <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-blue-100 to-indigo-50 rounded-2xl flex items-center justify-center group-hover:from-komdigi-blue group-hover:to-indigo-500 transition-all duration-400 shadow-inner group-hover:shadow-lg group-hover:shadow-blue-500/30">
-                            <svg class="w-7 h-7 text-komdigi-blue group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        </div>
-                        <span class="text-sm font-bold text-gray-700 group-hover:text-komdigi-blue transition">Kegiatan</span>
-                    </div>
-                </a>
-
-                <!-- Dokumentasi -->
-                <a href="#dokumentasi" class="card-hover group relative bg-white rounded-2xl p-5 text-center shadow-xl border border-purple-100/80 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-fuchsia-500/0 group-hover:from-purple-500/5 group-hover:to-fuchsia-500/10 transition-all duration-500"></div>
-                    <div class="relative">
-                        <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-purple-100 to-fuchsia-50 rounded-2xl flex items-center justify-center group-hover:from-purple-500 group-hover:to-fuchsia-500 transition-all duration-400 shadow-inner group-hover:shadow-lg group-hover:shadow-purple-500/30">
-                            <svg class="w-7 h-7 text-purple-500 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        </div>
-                        <span class="text-sm font-bold text-gray-700 group-hover:text-purple-600 transition">Dokumentasi</span>
-                    </div>
-                </a>
-
-                <!-- Profil Tim -->
-                <a href="#profil" class="card-hover group relative bg-white rounded-2xl p-5 text-center shadow-xl border border-pink-100/80 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-rose-500/0 group-hover:from-pink-500/5 group-hover:to-rose-500/10 transition-all duration-500"></div>
-                    <div class="relative">
-                        <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-pink-100 to-rose-50 rounded-2xl flex items-center justify-center group-hover:from-pink-500 group-hover:to-rose-500 transition-all duration-400 shadow-inner group-hover:shadow-lg group-hover:shadow-pink-500/30">
-                            <svg class="w-7 h-7 text-pink-500 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                        </div>
-                        <span class="text-sm font-bold text-gray-700 group-hover:text-pink-600 transition">Profil Tim</span>
-                    </div>
-                </a>
-
-                <!-- Tentang -->
-                <a href="#tentang" class="card-hover group relative bg-white rounded-2xl p-5 text-center shadow-xl border border-cyan-100/80 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/0 to-sky-500/0 group-hover:from-cyan-500/5 group-hover:to-sky-500/10 transition-all duration-500"></div>
-                    <div class="relative">
-                        <div class="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-cyan-100 to-sky-50 rounded-2xl flex items-center justify-center group-hover:from-cyan-500 group-hover:to-sky-500 transition-all duration-400 shadow-inner group-hover:shadow-lg group-hover:shadow-cyan-500/30">
-                            <svg class="w-7 h-7 text-cyan-500 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <span class="text-sm font-bold text-gray-700 group-hover:text-cyan-600 transition">Tentang</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- KEGIATAN TERBARU -->
-    <section id="kegiatan" class="py-16 md:py-24">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-end justify-between mb-12">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-komdigi-blue text-xs font-bold rounded-full mb-3">
-                        <span class="w-1.5 h-1.5 bg-komdigi-blue rounded-full"></span>
-                        TERBARU
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-black text-gray-900 section-title">Kegiatan terbaru</h2>
+                <div class="landing-period-progress">
+                    <div><span>Perjalanan periode</span><strong id="progress-text">—</strong></div>
+                    <div class="landing-progress-track" role="progressbar" aria-label="Progres periode magang" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="period-progress"><span id="progress-bar"></span></div>
+                    <small>Berakhir 19 Desember 2026, WIB</small>
                 </div>
-                <a href="#kegiatan" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
-                    Semua kegiatan
-                    <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </a>
             </div>
+        </section>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
-                @foreach ($kegiatans as $kegiatan)
-                    <article class="card-hover group bg-white rounded-3xl overflow-hidden shadow-xl border border-blue-50/80">
-                        <div class="relative h-52 overflow-hidden">
-                            <img src="{{ $kegiatan['img'] }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="{{ $kegiatan['judul'] }}">
-                            <div class="absolute inset-0 img-overlay"></div>
-                            <div class="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-gray-800 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg">{{ $kegiatan['badge'] }}</div>
-                            <div class="absolute bottom-4 left-4 right-4">
-                                <span class="inline-block text-[11px] font-bold text-white {{ $kegiatan['kategoriClass'] }} backdrop-blur px-3 py-1 rounded-full">{{ $kegiatan['kategori'] }}</span>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="font-extrabold text-gray-900 text-lg leading-snug mb-2 group-hover:text-komdigi-blue transition">{{ $kegiatan['judul'] }}</h3>
-                            <div class="flex items-center gap-2 text-sm text-gray-500">
-                                <div class="w-7 h-7 rounded-full bg-gradient-to-br {{ $kegiatan['avatarClass'] }} flex items-center justify-center text-white text-xs font-bold">{{ $kegiatan['inisial'] }}</div>
-                                <span>{{ $kegiatan['penulis'] }}</span>
-                            </div>
-                        </div>
+        <section id="tentang" class="landing-section" aria-labelledby="about-title">
+            <div class="landing-container">
+                <div class="landing-about-heading" data-reveal>
+                    <div><p class="landing-eyebrow">Tentang program</p><h2 id="about-title">Pengalaman nyata.<br>Pembelajaran yang bermakna.</h2></div>
+                    <p>Magang bukan hanya tentang menyelesaikan tugas. Ini adalah kesempatan mengenal dunia kerja, berkolaborasi, dan melihat kontribusimu berkembang dari hari ke hari.</p>
+                </div>
+                <div class="landing-feature-grid">
+                    <article class="landing-feature" id="profil">
+                        <span class="landing-icon-tile"><i data-lucide="building-2" class="w-5 h-5" aria-hidden="true"></i></span>
+                        <p class="landing-feature-index">01 / Profil program</p>
+                        <h3>Belajar di lingkungan kerja nyata</h3>
+                        <p>Kenali kegiatan Magang Komdigi 2026 melalui informasi dan cerita yang dipublikasikan di portal ini.</p>
+                        <a href="#kegiatan" class="landing-text-link">Kenali kegiatan kami <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i></a>
                     </article>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- DOKUMENTASI -->
-    <section id="dokumentasi" class="py-16 md:py-24 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-white via-komdigi-soft/40 to-indigo-50/50"></div>
-        <div class="absolute top-20 right-0 w-72 h-72 bg-purple-300/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 left-10 w-64 h-64 bg-blue-300/20 rounded-full blur-3xl"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="flex items-end justify-between mb-12">
-                <div>
-                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-600 text-xs font-bold rounded-full mb-3">
-                        <span class="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
-                        GALERI
-                    </div>
-                    <h2 class="text-3xl md:text-4xl font-black text-gray-900 section-title">Dokumentasi terbaru</h2>
-                </div>
-                <a href="#dokumentasi" class="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-komdigi-blue hover:text-komdigi-dark transition group">
-                    Semua dokumentasi
-                    <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </a>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
-                @foreach ($dokumentasis as $dokumentasi)
-                    <div class="relative aspect-[4/3] rounded-2xl overflow-hidden group cursor-pointer shadow-xl ring-4 ring-white {{ $dokumentasi['ringClass'] }} transition-all duration-500">
-                        <img src="{{ asset($dokumentasi['img']) }}" class="w-full h-full object-cover group-hover:scale-125 transition duration-700" alt="{{ $dokumentasi['judul'] }}">
-                        <div class="absolute inset-0 bg-gradient-to-t from-komdigi-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                        <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition duration-500 translate-y-2 group-hover:translate-y-0">
-                            <p class="text-white text-xs font-bold truncate">{{ $dokumentasi['judul'] }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA BANNER -->
-    <section class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="relative rounded-3xl overflow-hidden shadow-2xl">
-                <div class="absolute inset-0 bg-gradient-to-r from-komdigi-dark via-komdigi-blue to-komdigi-cerulean"></div>
-                <div class="absolute inset-0 opacity-30">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl"></div>
-                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-komdigi-gold/30 rounded-full blur-3xl"></div>
-                </div>
-                <div class="relative px-8 py-12 md:px-14 md:py-14 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div class="text-center md:text-left">
-                        <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Siap mencatat kegiatan hari ini?</h3>
-                        <p class="text-blue-100 text-base max-w-md">Isi logbook dan absensi secara rutin agar perjalanan magangmu terdokumentasi dengan baik.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-3 justify-center">
-                        <a href="{{ url('/logbook') }}" class="btn-shine inline-flex items-center gap-2 px-7 py-3.5 bg-white text-komdigi-blue font-bold rounded-full hover:shadow-xl transition shadow-lg text-sm">
-                            Isi Logbook
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                        </a>
-                        <a href="{{ route('peserta.absensi') }}" class="inline-flex items-center px-7 py-3.5 bg-white/15 text-white font-bold rounded-full border border-white/40 hover:bg-white/25 transition text-sm">
-                            Absensi Sekarang
-                        </a>
-                    </div>
+                    <article class="landing-feature" id="anggota">
+                        <span class="landing-icon-tile"><i data-lucide="users" class="w-5 h-5" aria-hidden="true"></i></span>
+                        <p class="landing-feature-index">02 / Anggota &amp; pembimbing</p>
+                        <h3>Berkembang bersama tim</h3>
+                        <p>Peserta mencatat proses belajar, pembimbing memberikan arahan, dan admin mendukung pengelolaan program.</p>
+                        <a href="{{ route('login') }}" class="landing-text-link">Akses ruang anggota <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                    </article>
+                    <article class="landing-feature">
+                        <span class="landing-icon-tile"><i data-lucide="images" class="w-5 h-5" aria-hidden="true"></i></span>
+                        <p class="landing-feature-index">03 / Jejak perjalanan</p>
+                        <h3>Setiap proses layak dicatat</h3>
+                        <p>Temukan dokumentasi kegiatan sebagai bagian dari cerita belajar dan kolaborasi selama masa magang.</p>
+                        <a href="#dokumentasi" class="landing-text-link">Jelajahi dokumentasi <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                    </article>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-gradient-to-br from-[#001a3d] via-komdigi-dark to-[#002a5c] text-white pt-16 pb-10 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-komdigi-blue/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-komdigi-cerulean/15 rounded-full blur-3xl"></div>
-        <div class="absolute top-1/2 left-1/3 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid md:grid-cols-3 gap-12 mb-12">
-                <!-- Brand -->
-                <div>
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean rounded-2xl blur opacity-50"></div>
-                            <div class="relative w-12 h-12 bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg">
-                                K
+        <section id="kegiatan" class="landing-section landing-section-surface" aria-labelledby="activities-title">
+            <div class="landing-container">
+                <div class="landing-section-heading" data-reveal>
+                    <div><p class="landing-eyebrow">Dari ruang magang</p><h2 id="activities-title">Kegiatan terbaru</h2></div>
+                    <p>Catatan aktivitas, kolaborasi, dan pengalaman<br class="landing-desktop-break"> yang membentuk perjalanan kami.</p>
+                </div>
+                <div class="landing-activity-grid">
+                    @forelse ($kegiatans as $kegiatan)
+                        <article class="landing-activity-card">
+                            <div class="landing-activity-image">
+                                <img src="{{ $kegiatan['img'] }}" alt="{{ $kegiatan['judul'] }}" loading="lazy" decoding="async" width="600" height="400">
+                                <span class="landing-date-badge">{{ $kegiatan['badge'] }}</span>
                             </div>
-                        </div>
-                        <div>
-                            <div class="font-extrabold text-white text-lg">Magang Komdigi 2026</div>
-                            <div class="text-xs text-blue-200 font-medium">Kementerian Komunikasi dan Digital</div>
-                        </div>
-                    </div>
-                    <p class="text-sm text-blue-100/90 leading-relaxed mb-5">
-                        Dokumentasi kegiatan Magang Komdigi 2026 di lingkungan Kementerian Komunikasi dan Digital Republik Indonesia.
-                    </p>
-                    <div class="flex gap-3">
-                        <a href="https://x.com/kemkomdigi" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter) Kementerian Komdigi" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
-                            <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                        </a>
-                        <a href="https://www.instagram.com/kementeriankomdigi/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Kementerian Komdigi" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition border border-white/10">
-                            <svg class="w-5 h-5 text-blue-200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                        </a>
-                    </div>
+                            <div class="landing-activity-body">
+                                <span class="landing-category {{ $kegiatan['kategoriClass'] }}">{{ $kegiatan['kategori'] }}</span>
+                                <h3>{{ $kegiatan['judul'] }}</h3>
+                                <div class="landing-author"><span class="landing-avatar {{ $kegiatan['avatarClass'] }}" aria-hidden="true">{{ $kegiatan['inisial'] }}</span><span>{{ $kegiatan['penulis'] }}</span></div>
+                            </div>
+                        </article>
+                    @empty
+                        <div class="landing-empty-state"><i data-lucide="notebook-pen" class="w-5 h-5" aria-hidden="true"></i><h3>Belum ada kegiatan dipublikasikan</h3><p>Catatan perjalanan magang akan hadir di sini.</p></div>
+                    @endforelse
                 </div>
+            </div>
+        </section>
 
-                <!-- Lokasi -->
-                <div class="md:col-span-2">
-                    <h4 class="font-extrabold text-white mb-4 text-lg flex items-center gap-2">
-                        <span class="w-1.5 h-6 bg-gradient-to-b from-komdigi-blue to-komdigi-gold rounded-full"></span>
-                        Lokasi
-                    </h4>
-
-                    <div class="bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden border border-white/15 shadow-xl">
-                        <div class="relative w-full h-48 sm:h-52">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.914568404523!2d98.68025207473231!3d3.601784996372325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3031319355b82e2b%3A0x286733de8de3d062!2sDinas%20Kominfo%20Provinsi%20Sumut!5e1!3m2!1sid!2sid!4v1793695785419!5m2!1sid!2sid"
-                                class="absolute inset-0 w-full h-full border-0"
-                                allowfullscreen=""
-                                loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"
-                                title="Peta lokasi Dinas Kominfo Provinsi Sumatera Utara"></iframe>
-                        </div>
-
-                        <div class="p-5">
-                            <p class="text-sm text-blue-100 mb-4 leading-relaxed">
-                                Jl. HM. Said No.27, Gaharu, Kec. Medan Tim., Kota Medan, Sumatera Utara 20233
-                            </p>
-
-                            <a href="https://maps.app.goo.gl/1PyiR9wqdNK6gq6b9"
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               class="btn-shine inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean hover:from-komdigi-cerulean hover:to-indigo-500 px-5 py-2.5 rounded-full transition shadow-lg shadow-blue-500/30">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                                Buka di Google Maps
+        <section id="dokumentasi" class="landing-section" aria-labelledby="gallery-title">
+            <div class="landing-container">
+                <div class="landing-section-heading" data-reveal>
+                    <div><p class="landing-eyebrow">Galeri perjalanan</p><h2 id="gallery-title">Momen yang bercerita.</h2></div>
+                    <p>Potret kegiatan dan kebersamaan.<br class="landing-desktop-break"> Pilih foto untuk melihat ukuran penuh.</p>
+                </div>
+                <div class="landing-gallery-grid">
+                    @forelse ($dokumentasis as $dokumentasi)
+                        <figure class="landing-gallery-card {{ $dokumentasi['ringClass'] }}">
+                            <a href="{{ asset($dokumentasi['img']) }}" target="_blank" rel="noopener noreferrer" aria-label="Lihat {{ $dokumentasi['judul'] }} dalam ukuran penuh (tab baru)">
+                                <img src="{{ asset($dokumentasi['img']) }}" alt="{{ $dokumentasi['judul'] }}" loading="lazy" decoding="async" width="600" height="450">
+                                <span class="landing-gallery-open"><i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></span>
                             </a>
-                        </div>
+                            <figcaption>{{ $dokumentasi['judul'] }}</figcaption>
+                        </figure>
+                    @empty
+                        <div class="landing-empty-state"><i data-lucide="images" class="w-5 h-5" aria-hidden="true"></i><h3>Dokumentasi segera hadir</h3><p>Momen kegiatan yang dipublikasikan akan tampil di sini.</p></div>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+
+        <section class="landing-cta-section" aria-labelledby="cta-title">
+            <div class="landing-container">
+                <div class="landing-cta" data-reveal>
+                    <canvas data-canvas-ripple aria-hidden="true"></canvas>
+                    <div><p class="landing-eyebrow">Jadikan setiap hari berarti</p><h2 id="cta-title">Sudah mencatat<br>kegiatan hari ini?</h2><p>Isi logbook dan absensi secara rutin.<br>Bangun rekam jejak yang bisa kamu banggakan.</p></div>
+                    <div class="landing-cta-actions">
+                        <a href="{{ route('login') }}" class="ui-button landing-cta-primary">Buka logbook <i data-lucide="arrow-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                        <a href="{{ route('peserta.absensi') }}" class="ui-button ui-button-secondary landing-cta-secondary"><i data-lucide="calendar-check" class="w-5 h-5" aria-hidden="true"></i> Absensi sekarang</a>
+                        <span>Akses sesuai peran akun yang diberikan admin.</span>
                     </div>
                 </div>
             </div>
+        </section>
+    </main>
 
-            <div class="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <p class="text-sm text-blue-200/90">© 2026 Magang Komdigi. All rights reserved.</p>
-                <p class="text-xs text-blue-300/80">Dibuat dengan ❤️ untuk Magang Komdigi</p>
+    <footer class="landing-footer">
+        <div class="landing-container">
+            <div class="landing-footer-grid">
+                <div class="landing-footer-brand">
+                    <a href="{{ url('/') }}" class="landing-brand"><span class="landing-brand-mark" aria-hidden="true">K<span></span></span><span class="landing-brand-text">Magang Komdigi<small>Kementerian Komunikasi dan Digital</small></span></a>
+                    <p>Ruang informasi dan dokumentasi perjalanan Magang Komdigi 2026 di lingkungan Kementerian Komunikasi dan Digital Republik Indonesia.</p>
+                    <div class="landing-social-links">
+                        <a href="https://x.com/kemkomdigi" target="_blank" rel="noopener noreferrer" aria-label="X Kementerian Komdigi (tab baru)">X <i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                        <a href="https://www.instagram.com/kementeriankomdigi/" target="_blank" rel="noopener noreferrer" aria-label="Instagram Kementerian Komdigi (tab baru)">Instagram <i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+                <nav class="landing-footer-nav" aria-label="Tautan footer">
+                    <h2>Jelajahi</h2>
+                    <a href="#tentang">Tentang kami</a>
+                    <a href="#profil">Profil program</a>
+                    <a href="#anggota">Anggota</a>
+                    <a href="#kegiatan">Kegiatan</a>
+                    <a href="#dokumentasi">Dokumentasi</a>
+                    <a href="{{ route('admin.dashboard') }}">Portal admin</a>
+                </nav>
+                <div class="landing-footer-location">
+                    <h2>Temukan kami</h2>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.914568404523!2d98.68025207473231!3d3.601784996372325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3031319355b82e2b%3A0x286733de8de3d062!2sDinas%20Kominfo%20Provinsi%20Sumut!5e1!3m2!1sid!2sid!4v1793695785419!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Peta lokasi Dinas Kominfo Provinsi Sumatera Utara"></iframe>
+                    <p>Jl. HM. Said No.27, Gaharu, Kec. Medan Tim., Kota Medan, Sumatera Utara 20233</p>
+                    <a href="https://maps.app.goo.gl/1PyiR9wqdNK6gq6b9" target="_blank" rel="noopener noreferrer" class="landing-text-link"><i data-lucide="map-pin" class="w-5 h-5" aria-hidden="true"></i> Buka di Google Maps <i data-lucide="arrow-up-right" class="w-5 h-5" aria-hidden="true"></i></a>
+                </div>
             </div>
+            <div class="landing-footer-bottom"><p>&copy; 2026 Magang Komdigi. All rights reserved.</p><span>Belajar hari ini. Berkontribusi untuk esok.</span></div>
         </div>
     </footer>
-
 </body>
 </html>

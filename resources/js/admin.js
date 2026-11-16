@@ -15,7 +15,8 @@
  *  - rich-command (data-command: bold/italic/... untuk editor contenteditable)
  */
 
-import Chart from 'chart.js/auto';
+import './app';
+import { initCharts } from './charts';
 
 /* ------------------------------------------------------------------ */
 /* Jam & tanggal (menggantikan updateDateTime() di mockup)             */
@@ -237,24 +238,6 @@ function sortTable(tableId, key, dir) {
     });
 
     rows.forEach((row) => tbody.appendChild(row));
-}
-
-/* ------------------------------------------------------------------ */
-/* Chart.js dari atribut data-chart='@json(...)'                       */
-/* ------------------------------------------------------------------ */
-
-function initCharts() {
-    document.querySelectorAll('canvas[data-chart]').forEach((canvas) => {
-        let config;
-        try {
-            config = JSON.parse(canvas.dataset.chart);
-        } catch (e) {
-            return;
-        }
-        if (config && typeof config === 'object') {
-            new Chart(canvas, config);
-        }
-    });
 }
 
 /* ------------------------------------------------------------------ */

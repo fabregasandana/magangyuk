@@ -23,14 +23,18 @@ return new class extends Migration
         });
 
         // Kolom warisan boleh kosong karena sekarang diisi via relasi.
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN nis_nim DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN institusi DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN prodi DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN penempatan DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN bidang DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN periode DROP NOT NULL');
-        DB::statement('ALTER TABLE data_magang ALTER COLUMN status DROP NOT NULL');
-        DB::statement("ALTER TABLE data_magang ALTER COLUMN status SET DEFAULT 'aktif'");
+        // Sintaks ALTER COLUMN ini khusus PostgreSQL; SQLite tidak
+        // membutuhkannya untuk menjalankan skema maupun pengujian.
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN nis_nim DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN institusi DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN prodi DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN penempatan DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN bidang DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN periode DROP NOT NULL');
+            DB::statement('ALTER TABLE data_magang ALTER COLUMN status DROP NOT NULL');
+            DB::statement("ALTER TABLE data_magang ALTER COLUMN status SET DEFAULT 'aktif'");
+        }
     }
 
     public function down(): void

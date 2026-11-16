@@ -2,7 +2,8 @@
 // Semua memakai addEventListener + delegasi + atribut data-action (tanpa inline handler).
 // Konten teks selalu diisi via textContent (tidak pernah innerHTML untuk data user).
 
-import Chart from 'chart.js/auto';
+import './app';
+import { initCharts } from './charts';
 
 /* ==========================================================================
    1. Jam & tanggal WIB
@@ -80,20 +81,10 @@ if (document.getElementById('current-time') || document.getElementById('current-
 })();
 
 /* ==========================================================================
-   2. Chart.js — konfigurasi dibaca dari atribut data-chart pada canvas
+   2. Chart bersama — konfigurasi tetap dibaca dari atribut data-chart
    ========================================================================== */
 
-document.querySelectorAll('canvas[data-chart]').forEach((canvas) => {
-    let config;
-    try {
-        config = JSON.parse(canvas.dataset.chart);
-    } catch (e) {
-        console.error('Konfigurasi chart tidak valid pada #' + canvas.id, e);
-        return;
-    }
-    config.options = Object.assign({ responsive: true, maintainAspectRatio: false }, config.options || {});
-    new Chart(canvas, config);
-});
+initCharts();
 
 /* ==========================================================================
    3. Halaman Daftar Peserta — pencarian, filter status/periode, sorting

@@ -10,526 +10,362 @@
             ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
             ->implode('') ?: 'P';
     @endphp
-    <div class="glass-panel p-5 sm:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-120px)]">
-        <!-- Welcome Header -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <p class="text-sm text-blue-100/80 font-medium">Selamat datang kembali</p>
-                <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">{{ $namaPeserta }} 👋</h1>
+
+    <div class="space-y-6 text-foreground">
+        <header class="ui-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-reveal>
+            <div class="min-w-0">
+                <p class="ui-eyebrow">Selamat datang kembali</p>
+                <h1 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl break-words">{{ $namaPeserta }}</h1>
+                <p class="mt-2 text-sm text-muted">Pantau perkembangan dan aktivitas magangmu di sini.</p>
             </div>
-            <div class="flex items-center gap-3 glass px-4 py-2.5 rounded-2xl">
-                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <div class="text-right">
-                    <p class="text-sm font-bold text-white" id="current-date">—</p>
-                    <p class="text-xs text-blue-200/70 font-medium tabular-nums" id="current-time">—</p>
+            <div class="glass flex w-fit shrink-0 items-center gap-3 rounded-xl px-4 py-3">
+                <i data-lucide="calendar-days" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                <div>
+                    <p class="text-sm font-medium" id="current-date">{{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}</p>
+                    <p class="mt-0.5 text-xs tabular-nums text-muted" id="current-time">{{ now()->timezone('Asia/Jakarta')->format('H.i.s') }} WIB</p>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- ===================== CARD PESERTA ===================== -->
-        <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-48 h-48 bg-komdigi-blue/10 rounded-full blur-3xl"></div>
-
-            <div class="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
-                <div class="relative shrink-0">
-                    <div
-                        class="w-24 h-24 rounded-2xl bg-gradient-to-br from-komdigi-blue to-komdigi-cerulean flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-500/40">
-                        {{ $inisial }}
-                    </div>
-                    <div
-                        class="absolute -bottom-1.5 -right-1.5 w-8 h-8 bg-emerald-500 rounded-full border-4 border-white flex items-center justify-center shadow-sm">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="flex-1 text-center sm:text-left">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-                        <div>
-                            <h2 class="text-xl font-black text-komdigi-dark">{{ $namaPeserta }}</h2>
-                            <p class="text-sm text-slate-500 font-medium">Peserta Magang • ID: <span
-                                    class="text-komdigi-blue font-semibold">{{ $idPeserta }}</span></p>
-                        </div>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full self-center sm:self-auto border border-emerald-100">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                            {{ $peserta['status'] }}
-                        </span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
-                            <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Institusi</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['institusi'] }}</p>
-                        </div>
-                        <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
-                            <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Unit Kerja</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['unit_kerja'] }}</p>
-                        </div>
-                        <div class="bg-blue-50/80 rounded-2xl px-4 py-3 border border-blue-100">
-                            <p class="text-[10px] font-bold text-komdigi-blue uppercase tracking-wide">Periode</p>
-                            <p class="text-sm font-semibold text-slate-800 mt-0.5">{{ $peserta['periode'] }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RINGKASAN ATAS -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card rounded-3xl p-5 col-span-2 lg:col-span-1">
-                <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-3">Ringkasan Kehadiran</p>
-                <div class="grid grid-cols-4 gap-2">
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-emerald-600">{{ $kehadiran['hadir'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Hadir</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-amber-500">{{ $kehadiran['terlambat'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Terlambat</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-sky-500">{{ $kehadiran['izin'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Izin</p>
-                    </div>
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-rose-500">{{ $kehadiran['alpha'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500 mt-0.5">Alpha</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card rounded-3xl p-5 flex flex-col items-center justify-center">
-                <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-2">Skor Kinerja</p>
-                <div class="relative w-16 h-16">
-                    <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#E0EDFF" stroke-width="3.5" />
-                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="url(#scoreGrad)"
-                            stroke-width="3.5" stroke-dasharray="{{ $skor['nilai'] }} 100" stroke-linecap="round" />
-                        <defs>
-                            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#0055FF" />
-                                <stop offset="100%" stop-color="#0093DD" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-lg font-black text-komdigi-blue">{{ $skor['nilai'] }}</span>
-                    </div>
-                </div>
-                <p class="text-[10px] font-bold text-emerald-600 mt-1.5 bg-emerald-50 px-2.5 py-0.5 rounded-full">{{ $skor['label'] }}</p>
-            </div>
-
-            <div class="glass-card rounded-3xl p-5 flex flex-col items-center justify-center">
-                <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-2">Status Magang</p>
-                <div
-                    class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-2">
-                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <span
-                    class="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">{{ $peserta['status'] }}</span>
-                <p class="text-[10px] text-slate-400 mt-1.5">Berjalan lancar</p>
-            </div>
-
-            <div class="glass-card rounded-3xl p-5 flex flex-col items-center justify-center">
-                <p class="text-[11px] font-bold text-komdigi-blue uppercase tracking-wide mb-2">Logbook</p>
-                <div class="flex items-end gap-3">
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-amber-500">{{ $logbook['belum_isi'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500">Belum isi</p>
-                    </div>
-                    <div class="w-px h-9 bg-slate-200"></div>
-                    <div class="text-center">
-                        <p class="text-2xl font-black text-komdigi-blue">{{ $logbook['menunggu'] }}</p>
-                        <p class="text-[10px] font-semibold text-slate-500">Menunggu</p>
-                    </div>
-                </div>
-                <a href="{{ route('peserta.laporan') }}"
-                    class="text-[11px] font-bold text-komdigi-blue hover:text-komdigi-dark mt-2.5 flex items-center gap-1 transition">
-                    Isi logbook
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
-            </div>
-        </div>
-
-        <!-- GRAFIK -->
-        <div class="glass-card rounded-3xl p-6">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-komdigi-blue/10 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-komdigi-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                        </svg>
-                    </div>
+        {{-- Daily action comes before the overview. --}}
+        <div class="grid gap-5 xl:grid-cols-5" data-reveal>
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-3" aria-labelledby="attendance-heading">
+                <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h3 class="font-bold text-komdigi-dark">Grafik Perkembangan</h3>
-                        <p class="text-xs text-slate-500">Skor kinerja mingguan</p>
+                        <p class="ui-eyebrow">Prioritas hari ini</p>
+                        <h2 id="attendance-heading" class="mt-2 text-lg font-semibold">Absensi Hari Ini</h2>
                     </div>
-                </div>
-                <a href="{{ route('peserta.grafik') }}"
-                    class="px-3 py-1.5 bg-blue-50 text-komdigi-blue text-[11px] font-bold rounded-full border border-blue-100">{{ count($chartData['labels']) }}
-                    Minggu Terakhir</a>
-            </div>
-            <div class="h-64">
-                <canvas id="progressChart" data-chart='@json($chartData)'></canvas>
-            </div>
-        </div>
-
-        <!-- 4 FEATURE CARDS -->
-        <div class="grid sm:grid-cols-2 gap-5">
-
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-komdigi-blue/10 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-komdigi-blue" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-komdigi-dark">Detail Magang</h3>
-                    </div>
-                    <span
-                        class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold rounded-full border border-emerald-100">{{ $peserta['status'] }}</span>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Periode</span>
-                        <span class="font-semibold text-slate-800">{{ $peserta['periode'] }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Unit Kerja</span>
-                        <span class="font-semibold text-slate-800">{{ $peserta['unit_kerja'] }}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-slate-500">Pembimbing</span>
-                        <span class="font-semibold text-slate-800">{{ $peserta['pembimbing'] }}</span>
-                    </div>
-                    <div class="pt-3">
-                        <div class="flex justify-between text-xs font-semibold text-slate-500 mb-1.5">
-                            <span>Progress Periode</span>
-                            <span class="text-komdigi-blue">{{ $peserta['periode_progress'] }}%</span>
-                        </div>
-                        <div class="h-2 bg-blue-50 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean rounded-full"
-                                style="width: {{ $peserta['periode_progress'] }}%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-komdigi-dark">Absensi Hari Ini</h3>
-                    </div>
-                    <span
-                        class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                    <span class="inline-flex items-center gap-2 rounded-lg border border-subtle bg-elevated px-3 py-1.5 text-xs font-medium">
+                        <i data-lucide="clock" class="w-4 h-4 text-primary" aria-hidden="true"></i>
                         {{ $absenHariIni['status'] }}
                     </span>
                 </div>
-                <div class="grid grid-cols-3 gap-2.5 mb-5">
-                    <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
-                        <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Masuk</p>
-                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['masuk'] ?? '—' }}</p>
+                <dl class="my-6 grid grid-cols-3 gap-3">
+                    <div class="rounded-xl border border-subtle bg-elevated p-3 sm:p-4">
+                        <dt class="text-xs text-muted">Masuk</dt>
+                        <dd class="mt-2 text-lg font-semibold tabular-nums">{{ $absenHariIni['masuk'] ?? '—' }}</dd>
                     </div>
-                    <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
-                        <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Pulang</p>
-                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['pulang'] ?? '—' }}</p>
+                    <div class="rounded-xl border border-subtle bg-elevated p-3 sm:p-4">
+                        <dt class="text-xs text-muted">Pulang</dt>
+                        <dd class="mt-2 text-lg font-semibold tabular-nums">{{ $absenHariIni['pulang'] ?? '—' }}</dd>
                     </div>
-                    <div class="bg-blue-50/70 rounded-2xl p-3 text-center border border-blue-100">
-                        <p class="text-[10px] font-semibold text-slate-500 mb-0.5">Durasi</p>
-                        <p class="text-sm font-bold text-slate-800">{{ $absenHariIni['durasi'] ?? '—' }}</p>
+                    <div class="rounded-xl border border-subtle bg-elevated p-3 sm:p-4">
+                        <dt class="text-xs text-muted">Durasi</dt>
+                        <dd class="mt-2 text-lg font-semibold tabular-nums">{{ $absenHariIni['durasi'] ?? '—' }}</dd>
                     </div>
+                </dl>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p class="text-sm leading-relaxed text-muted">Catat kehadiran dan lengkapi aktivitas harianmu.</p>
+                    <a href="{{ route('peserta.absensi') }}" class="ui-button inline-flex shrink-0 items-center justify-center gap-2 px-4 py-3 text-sm">
+                        <i data-lucide="scan-face" class="w-5 h-5" aria-hidden="true"></i>
+                        @if ($absenHariIni['pulang'])
+                            Lihat Absensi Hari Ini
+                        @elseif ($absenHariIni['masuk'])
+                            Absen Pulang
+                        @else
+                            Absen Masuk Sekarang
+                        @endif
+                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
                 </div>
-                <a href="{{ route('peserta.absensi') }}"
-                    class="btn-shine flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-komdigi-blue to-komdigi-cerulean text-white text-sm font-bold rounded-2xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Absen Masuk Sekarang
-                </a>
-            </div>
+            </section>
 
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-komdigi-dark">Penilaian Pembimbing</h3>
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-label="Identitas peserta">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-semibold text-white">{{ $inisial }}</div>
+                    <div class="min-w-0">
+                        <h2 class="font-semibold break-words">{{ $namaPeserta }}</h2>
+                        <p class="mt-1 text-xs text-muted">Peserta Magang · ID: <span class="text-foreground">{{ $idPeserta }}</span></p>
                     </div>
-                    <a href="{{ route('peserta.penilaian') }}"
-                        class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-[11px] font-bold rounded-full border border-indigo-100">{{ $penilaian['total'] }}
-                        / 5.0</a>
+                    <span class="ml-auto shrink-0 rounded-lg border border-subtle bg-elevated px-2.5 py-1 text-xs font-medium text-primary">{{ $peserta['status'] }}</span>
                 </div>
+                <dl class="mt-5 space-y-4 border-t border-subtle pt-5 text-sm">
+                    <div class="grid grid-cols-3 gap-3">
+                        <dt class="text-muted">Institusi</dt>
+                        <dd class="col-span-2 font-medium break-words">{{ $peserta['institusi'] }}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <dt class="text-muted">Unit Kerja</dt>
+                        <dd class="col-span-2 font-medium break-words">{{ $peserta['unit_kerja'] }}</dd>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <dt class="text-muted">Periode</dt>
+                        <dd class="col-span-2 font-medium">{{ $peserta['periode'] }}</dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
 
-                <div class="space-y-3.5">
-                    @foreach ($penilaian['aspek'] as $aspek)
+        <div class="grid grid-cols-2 gap-4 xl:grid-cols-5" data-stagger>
+            <section class="glass-card ui-stat col-span-2 rounded-2xl p-5" aria-label="Ringkasan kehadiran">
+                <p class="text-sm font-medium text-muted">Ringkasan Kehadiran</p>
+                <dl class="mt-5 grid grid-cols-4 gap-2">
+                    @foreach (['hadir' => 'Hadir', 'terlambat' => 'Terlambat', 'izin' => 'Izin', 'alpha' => 'Alpha'] as $key => $label)
                         <div>
-                            <div class="flex justify-between text-xs mb-1.5">
-                                <span class="text-slate-600 font-medium">{{ $aspek['label'] }}</span>
-                                <span class="font-bold text-slate-800">{{ $aspek['nilai'] }}</span>
-                            </div>
-                            <div class="h-1.5 bg-blue-50 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r {{ $aspek['bar'] }} rounded-full"
-                                    style="width: {{ $aspek['persen'] }}%"></div>
-                            </div>
+                            <dt class="text-xs text-muted">{{ $label }}</dt>
+                            <dd class="ui-stat-value mt-2 text-2xl font-semibold tabular-nums"><span data-counter="{{ $kehadiran[$key] }}">{{ $kehadiran[$key] }}</span></dd>
                         </div>
                     @endforeach
-                </div>
+                </dl>
+            </section>
 
-                <div class="mt-5 p-4 bg-blue-50/60 rounded-2xl border border-blue-100">
-                    <p class="text-xs text-slate-600 italic leading-relaxed">{{ $penilaian['komentar'] }}</p>
-                    <p class="text-[10px] text-komdigi-blue mt-2 font-medium">— {{ $penilaian['komentar_oleh'] }}</p>
+            <section class="glass-card ui-stat rounded-2xl p-5" aria-label="Skor kinerja">
+                <p class="text-sm font-medium text-muted">Skor Kinerja</p>
+                <div class="mt-3 flex flex-wrap items-center gap-3">
+                    <div class="relative h-16 w-16 shrink-0">
+                        <svg class="h-16 w-16 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+                            <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ui-border)" stroke-width="3" />
+                            <circle cx="18" cy="18" r="15.5" pathLength="100" fill="none" stroke="url(#scoreGrad)" stroke-width="3" stroke-dasharray="{{ $skor['nilai'] }} 100" stroke-linecap="round" data-ring />
+                            <defs>
+                                <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="var(--ui-primary)" />
+                                    <stop offset="100%" stop-color="var(--ui-accent)" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="ui-stat-value text-xl font-semibold tabular-nums" data-counter="{{ $skor['nilai'] }}">{{ $skor['nilai'] }}</span>
+                        </div>
+                    </div>
+                    <p class="text-xs font-medium text-primary">{{ $skor['label'] }}</p>
+                </div>
+            </section>
+
+            <section class="glass-card ui-stat rounded-2xl p-5" aria-label="Status magang">
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-sm font-medium text-muted">Status Magang</p>
+                    <i data-lucide="shield-check" class="w-5 h-5 shrink-0 text-accent" aria-hidden="true"></i>
+                </div>
+                <p class="mt-5 inline-flex items-center text-xl font-semibold {{ strtolower($peserta['status']) === 'aktif' ? 'ui-badge-live' : '' }}">{{ $peserta['status'] }}</p>
+                <p class="mt-2 text-xs text-muted">Status kepesertaan</p>
+            </section>
+
+            <section class="glass-card ui-stat col-span-2 rounded-2xl p-5 xl:col-span-1" aria-label="Ringkasan logbook">
+                <p class="text-sm font-medium text-muted">Logbook</p>
+                <dl class="mt-3 flex gap-6">
+                    <div>
+                        <dt class="text-xs text-muted">Belum isi</dt>
+                        <dd class="ui-stat-value mt-1 text-2xl font-semibold tabular-nums"><span data-counter="{{ $logbook['belum_isi'] }}">{{ $logbook['belum_isi'] }}</span></dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-muted">Menunggu</dt>
+                        <dd class="ui-stat-value mt-1 text-2xl font-semibold tabular-nums"><span data-counter="{{ $logbook['menunggu'] }}">{{ $logbook['menunggu'] }}</span></dd>
+                    </div>
+                </dl>
+                <a href="{{ route('peserta.laporan') }}" class="mt-3 inline-flex items-center gap-2 text-xs font-medium text-primary hover:underline">
+                    Isi logbook <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                </a>
+            </section>
+        </div>
+
+        <div class="grid gap-5 xl:grid-cols-3" data-stagger>
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-labelledby="progress-heading">
+                <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 id="progress-heading" class="text-base font-semibold">Grafik Perkembangan</h2>
+                        <p class="mt-1 text-sm text-muted">Skor kinerja mingguan</p>
+                    </div>
+                    <a href="{{ route('peserta.grafik') }}" class="ui-button-secondary inline-flex items-center gap-2 px-3 py-2 text-xs">
+                        {{ count($chartData['labels']) }} Minggu Terakhir
+                        <i data-lucide="arrow-up-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="h-64 sm:h-72">
+                    <div id="progressChart" class="h-full w-full" data-chart='@json($chartData)' role="img" aria-label="Grafik skor kinerja mingguan"></div>
+                </div>
+            </section>
+
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6" aria-labelledby="internship-heading">
+                <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <h2 id="internship-heading" class="text-base font-semibold">Detail Magang</h2>
+                    <span class="rounded-lg border border-subtle bg-elevated px-2.5 py-1 text-xs font-medium text-primary">{{ $peserta['status'] }}</span>
+                </div>
+                <dl class="space-y-5 text-sm">
+                    <div>
+                        <dt class="text-xs text-muted">Periode</dt>
+                        <dd class="mt-1.5 font-medium">{{ $peserta['periode'] }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-muted">Unit Kerja</dt>
+                        <dd class="mt-1.5 font-medium break-words">{{ $peserta['unit_kerja'] }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-muted">Pembimbing</dt>
+                        <dd class="mt-1.5 font-medium break-words">{{ $peserta['pembimbing'] }}</dd>
+                    </div>
+                </dl>
+                <div class="mt-6 border-t border-subtle pt-5">
+                    <div class="mb-2 flex items-center justify-between gap-3 text-xs">
+                        <span class="text-muted">Progress Periode</span>
+                        <span class="font-medium text-primary">{{ $peserta['periode_progress'] }}%</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-elevated" role="progressbar" aria-label="Progress periode magang" aria-valuenow="{{ $peserta['periode_progress'] }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="h-full origin-left rounded-full bg-primary" data-progress="{{ $peserta['periode_progress'] }}" style="width: {{ $peserta['periode_progress'] }}%"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid gap-5 lg:grid-cols-2">
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6" aria-labelledby="assessment-heading">
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="star" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                        <h2 id="assessment-heading" class="text-base font-semibold">Penilaian Pembimbing</h2>
+                    </div>
+                    <a href="{{ route('peserta.penilaian') }}" class="ui-button-secondary inline-flex items-center gap-2 px-3 py-2 text-xs">
+                        {{ $penilaian['total'] }} / 5.0
+                        <i data-lucide="arrow-up-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="space-y-4">
+                    @forelse ($penilaian['aspek'] as $aspek)
+                        <div>
+                            <div class="mb-2 flex justify-between gap-3 text-sm">
+                                <span class="text-muted">{{ $aspek['label'] }}</span>
+                                <span class="font-medium tabular-nums">{{ $aspek['nilai'] }}</span>
+                            </div>
+                            <div class="h-1.5 overflow-hidden rounded-full bg-elevated" role="progressbar" aria-label="{{ $aspek['label'] }}" aria-valuenow="{{ $aspek['persen'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <div class="h-full origin-left rounded-full bg-accent" data-progress="{{ $aspek['persen'] }}" style="width: {{ $aspek['persen'] }}%"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-muted">Belum ada penilaian dari pembimbing.</p>
+                    @endforelse
+                </div>
+                <blockquote class="mt-6 rounded-xl border border-subtle bg-elevated p-4">
+                    <p class="text-sm leading-relaxed">{{ $penilaian['komentar'] }}</p>
+                    <footer class="mt-3 text-xs text-muted">— {{ $penilaian['komentar_oleh'] }}</footer>
+                </blockquote>
+            </section>
+
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6" aria-labelledby="report-heading">
+                <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                        <h2 id="report-heading" class="text-base font-semibold">Laporan Akhir</h2>
+                    </div>
+                    <span class="rounded-lg border border-subtle bg-elevated px-2.5 py-1.5 text-xs font-medium">{{ $laporan['status'] }}</span>
+                </div>
+                <div class="flex items-center gap-3 rounded-xl border border-subtle bg-elevated p-4">
+                    <i data-lucide="calendar-check" class="w-5 h-5 shrink-0 text-accent" aria-hidden="true"></i>
+                    <div>
+                        <p class="text-xs text-muted">Batas pengumpulan</p>
+                        <p class="mt-1 text-sm font-medium">{{ $laporan['batas'] }}</p>
+                    </div>
+                </div>
+                <ul class="my-5 space-y-3 text-sm">
+                    @foreach ($laporan['checklist'] as $item)
+                        <li class="flex items-start gap-3">
+                            @if ($item['done'])
+                                <i data-lucide="circle-check" class="w-5 h-5 shrink-0 text-accent" aria-hidden="true"></i>
+                                <span><span class="sr-only">Selesai: </span>{{ $item['label'] }}
+                                    @if ($item['detail'])
+                                        <span class="font-medium text-primary">{{ $item['detail'] }}</span>
+                                    @endif
+                                </span>
+                            @else
+                                <i data-lucide="clock" class="w-5 h-5 shrink-0 text-muted" aria-hidden="true"></i>
+                                <span class="text-muted"><span class="sr-only">Belum selesai: </span>{{ $item['label'] }}</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+                <a href="{{ route('peserta.laporan') }}" class="ui-button-secondary inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm">
+                    <i data-lucide="plus" class="w-4 h-4" aria-hidden="true"></i>
+                    Mulai Buat Laporan Akhir
+                </a>
+            </section>
+        </div>
+
+        <section class="glass-card rounded-2xl p-5 sm:p-6" aria-labelledby="certificate-heading">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="award" class="w-5 h-5 shrink-0 text-primary" aria-hidden="true"></i>
+                    <div>
+                        <h2 id="certificate-heading" class="text-base font-semibold">Sertifikat Magang</h2>
+                        <p class="mt-1 text-sm text-muted">Kelengkapan syarat penerbitan sertifikat</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-2xl font-semibold tabular-nums"><span data-counter="{{ $sertifikat['progress'] }}">{{ $sertifikat['progress'] }}</span><span class="ml-0.5 text-base text-muted">%</span></p>
+                        <p class="text-xs text-muted">Lengkap</p>
+                    </div>
+                    <svg class="h-12 w-12 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ui-border)" stroke-width="3" />
+                        <circle cx="18" cy="18" r="15.5" pathLength="100" fill="none" stroke="var(--ui-accent)" stroke-width="3" stroke-dasharray="{{ $sertifikat['progress'] }} 100" stroke-linecap="round" data-ring />
+                    </svg>
                 </div>
             </div>
-
-            <div class="glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-5">
+            <div class="grid gap-6 lg:grid-cols-2">
+                <ul class="space-y-4">
+                    @foreach ($sertifikat['syarat'] as $syarat)
+                        <li class="flex items-start gap-3 text-sm">
+                            @if ($syarat['done'])
+                                <i data-lucide="circle-check" class="w-5 h-5 shrink-0 text-accent" aria-hidden="true"></i>
+                                <span><span class="sr-only">Terpenuhi: </span>{{ $syarat['label'] }}
+                                    @if ($syarat['detail'])
+                                        <span class="font-medium text-primary">{{ $syarat['detail'] }}</span>
+                                    @endif
+                                </span>
+                            @else
+                                <i data-lucide="clock" class="w-5 h-5 shrink-0 text-muted" aria-hidden="true"></i>
+                                <span class="text-muted"><span class="sr-only">Belum terpenuhi: </span>{{ $syarat['label'] }}</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="flex flex-col items-start justify-center rounded-xl border border-subtle bg-elevated p-5">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                        </div>
-                        <h3 class="font-bold text-komdigi-dark">Laporan Akhir</h3>
+                        @if ($sertifikat['terkunci'])
+                            <i data-lucide="lock-keyhole" class="w-5 h-5 text-muted" aria-hidden="true"></i>
+                            <p class="text-sm font-semibold">Sertifikat terkunci</p>
+                        @else
+                            <i data-lucide="award" class="w-5 h-5 text-accent" aria-hidden="true"></i>
+                            <p class="text-sm font-semibold">Sertifikat tersedia</p>
+                        @endif
                     </div>
-                    <span
-                        class="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-100">{{ $laporan['status'] }}</span>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center gap-3 p-3.5 bg-amber-50/80 rounded-2xl border border-amber-100">
-                        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-slate-800">Batas pengumpulan</p>
-                            <p class="text-xs text-amber-700 font-medium">{{ $laporan['batas'] }}</p>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2 text-sm">
-                        @foreach ($laporan['checklist'] as $item)
-                            <div class="flex items-center gap-2.5">
-                                @if ($item['done'])
-                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-slate-700">{{ $item['label'] }}
-                                        @if ($item['detail'])
-                                            <span class="text-emerald-600 font-semibold">{{ $item['detail'] }}</span>
-                                        @endif
-                                    </span>
-                                @else
-                                    <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-slate-400">{{ $item['label'] }}</span>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <a href="{{ route('peserta.laporan') }}"
-                        class="btn-shine flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-sm font-bold rounded-2xl shadow-md shadow-indigo-500/25 hover:shadow-lg transition mt-1">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Mulai Buat Laporan Akhir
+                    <p class="mt-2 text-sm text-muted">{{ $sertifikat['terkunci'] ? 'Lengkapi semua syarat untuk membuka.' : 'Semua syarat penerbitan telah terpenuhi.' }}</p>
+                    <a href="{{ route('peserta.sertifikat') }}" class="ui-button-secondary mt-4 inline-flex items-center gap-2 px-4 py-2.5 text-sm">
+                        Lihat Detail Sertifikat
+                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- SERTIFIKAT -->
-        <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-48 h-48 bg-amber-300/15 rounded-full blur-3xl"></div>
-            <div class="relative">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 mb-6">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center">
-                            <svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-komdigi-dark text-lg">Sertifikat Magang</h3>
-                            <p class="text-sm text-slate-500">Kelengkapan syarat penerbitan sertifikat</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <p class="text-3xl font-black text-amber-500">{{ $sertifikat['progress'] }}%</p>
-                            <p class="text-xs text-slate-500 font-medium">Lengkap</p>
-                        </div>
-                        <div class="w-16 h-16 relative">
-                            <svg class="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="15.5" fill="none" stroke="#FEF3C7"
-                                    stroke-width="3.5" />
-                                <circle cx="18" cy="18" r="15.5" fill="none" stroke="#F59E0B"
-                                    stroke-width="3.5" stroke-dasharray="{{ $sertifikat['progress'] }} 100" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+        <nav class="grid grid-cols-2 gap-4 lg:grid-cols-4" aria-label="Akses cepat peserta" data-stagger>
+            <a href="{{ route('peserta.riwayat') }}" class="glass-card flex flex-col items-start gap-3 rounded-2xl p-4 transition-colors hover:bg-elevated sm:p-5">
+                <i data-lucide="history" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                <div><p class="text-sm font-semibold">Riwayat</p><p class="mt-1 text-xs text-muted">Catatan kehadiran</p></div>
+            </a>
+            <a href="{{ route('peserta.laporan') }}" class="glass-card flex flex-col items-start gap-3 rounded-2xl p-4 transition-colors hover:bg-elevated sm:p-5">
+                <i data-lucide="book-open" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                <div><p class="text-sm font-semibold">Laporan</p><p class="mt-1 text-xs text-muted">Harian & mingguan</p></div>
+            </a>
+            <a href="{{ route('peserta.izin') }}" class="glass-card flex flex-col items-start gap-3 rounded-2xl p-4 transition-colors hover:bg-elevated sm:p-5">
+                <i data-lucide="calendar-days" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                <div><p class="text-sm font-semibold">Izin / Sakit</p><p class="mt-1 text-xs text-muted">Ajukan ketidakhadiran</p></div>
+            </a>
+            <a href="{{ route('peserta.profil') }}" class="glass-card flex flex-col items-start gap-3 rounded-2xl p-4 transition-colors hover:bg-elevated sm:p-5">
+                <i data-lucide="user-round" class="w-5 h-5 text-primary" aria-hidden="true"></i>
+                <div><p class="text-sm font-semibold">Profil</p><p class="mt-1 text-xs text-muted">Data peserta</p></div>
+            </a>
+        </nav>
 
-                <div class="grid sm:grid-cols-2 gap-5">
-                    <div class="space-y-3">
-                        @foreach ($sertifikat['syarat'] as $syarat)
-                            <div class="flex items-center gap-3 text-sm">
-                                @if ($syarat['done'])
-                                    <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-slate-700">{{ $syarat['label'] }}
-                                        @if ($syarat['detail'])
-                                            <span class="text-emerald-600 font-bold">{{ $syarat['detail'] }}</span>
-                                        @endif
-                                    </span>
-                                @else
-                                    <div class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                    <span class="text-slate-400">{{ $syarat['label'] }}</span>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div
-                        class="bg-blue-50/60 rounded-2xl p-5 flex flex-col justify-center items-center text-center border border-blue-100">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-3 border border-blue-100 shadow-sm">
-                            <svg class="w-7 h-7 text-amber-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
-                        <p class="text-sm font-bold text-slate-800">Sertifikat terkunci</p>
-                        <p class="text-xs text-slate-500 mt-1 mb-4">Lengkapi semua syarat untuk membuka</p>
-                        <a href="{{ route('peserta.sertifikat') }}"
-                            class="px-5 py-2.5 bg-slate-100 text-slate-400 text-xs font-bold rounded-xl border border-slate-200 hover:bg-slate-200 transition">
-                            Lihat Detail Sertifikat
-                        </a>
-                    </div>
+        <section class="glass-card flex flex-col gap-5 rounded-2xl p-5 sm:p-6 lg:flex-row lg:items-center" aria-labelledby="attendance-area-heading">
+            <div class="flex items-center gap-3 lg:mr-auto">
+                <i data-lucide="map-pin" class="w-5 h-5 shrink-0 text-primary" aria-hidden="true"></i>
+                <div>
+                    <h2 id="attendance-area-heading" class="text-sm font-semibold">Area Absensi</h2>
+                    <p class="mt-1 text-xs text-muted">{{ $areaAbsensi['hari_kerja'] }}</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <a href="{{ route('peserta.riwayat') }}" class="glass-card group rounded-3xl p-5 text-center">
-                <div
-                    class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition">
-                    <svg class="w-5 h-5 text-komdigi-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <p class="text-sm font-bold text-slate-800">Riwayat</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Catatan kehadiran</p>
-            </a>
-            <a href="{{ route('peserta.laporan') }}" class="glass-card group rounded-3xl p-5 text-center">
-                <div
-                    class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 flex items-center justify-center group-hover:bg-indigo-100 transition">
-                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-                <p class="text-sm font-bold text-slate-800">Laporan</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Harian & mingguan</p>
-            </a>
-            <a href="{{ route('peserta.izin') }}" class="glass-card group rounded-3xl p-5 text-center">
-                <div
-                    class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <p class="text-sm font-bold text-slate-800">Izin / Sakit</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Ajukan ketidakhadiran</p>
-            </a>
-            <a href="{{ route('peserta.profil') }}" class="glass-card group rounded-3xl p-5 text-center">
-                <div
-                    class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-sky-50 flex items-center justify-center group-hover:bg-sky-100 transition">
-                    <svg class="w-5 h-5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <p class="text-sm font-bold text-slate-800">Profil</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Data peserta</p>
-            </a>
-        </div>
-
-        <!-- Area Absensi -->
-        <div class="glass-card rounded-3xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-blue-100 flex items-center justify-between bg-blue-50/40">
-                <h3 class="font-bold text-komdigi-dark">Area Absensi</h3>
-                <span class="px-3 py-1 bg-blue-100 text-komdigi-blue text-[11px] font-bold rounded-full">{{ $areaAbsensi['hari_kerja'] }}</span>
-            </div>
-            <div class="px-6 py-5 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-slate-500 font-medium">Lokasi</span>
-                    <span class="text-sm font-semibold text-slate-800 text-right">{{ $areaAbsensi['lokasi'] }}</span>
-                </div>
-                <div class="h-px bg-blue-100"></div>
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-slate-500 font-medium">Radius</span>
-                    <span class="text-sm font-semibold text-komdigi-cerulean">{{ $areaAbsensi['radius'] }}</span>
-                </div>
-            </div>
-        </div>
+            <dl class="grid gap-4 text-sm sm:grid-cols-2 lg:gap-8">
+                <div><dt class="text-xs text-muted">Lokasi</dt><dd class="mt-1 font-medium">{{ $areaAbsensi['lokasi'] }}</dd></div>
+                <div><dt class="text-xs text-muted">Radius</dt><dd class="mt-1 font-medium text-accent">{{ $areaAbsensi['radius'] }}</dd></div>
+            </dl>
+        </section>
     </div>
 @endsection

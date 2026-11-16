@@ -1,35 +1,28 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Pembimbing') | Magang Komdigi 2026</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Pembimbing') | Magang Komdigi</title>
+    @include('layouts.theme-init')
     @vite(['resources/css/pembimbing.css', 'resources/js/pembimbing.js'])
-    @viteFonts()
+    @stack('styles')
 </head>
-<body class="font-sans text-slate-800 antialiased">
-
+<body class="dashboard-body font-sans antialiased">
     @include('layouts.pembimbing.header')
-
-    <div class="flex min-h-[calc(100vh-88px)] relative z-10 pl-0 lg:pl-3 gap-0 lg:gap-3">
-
+    <div class="dashboard-shell">
         @include('layouts.pembimbing.sidebar')
-
-        {{-- MAIN CONTENT --}}
-        <main class="flex-1 p-3 sm:p-4 lg:p-5 overflow-y-auto">
-            <div class="glass-panel p-5 sm:p-6 lg:p-8 space-y-6 min-h-[calc(100vh-120px)]">
-
+        <main id="main-content" class="dashboard-main" tabindex="-1">
+            <div class="glass-panel space-y-6">
                 @include('layouts.pembimbing.flash')
-
                 @yield('content')
-
-                @include('layouts.pembimbing.bottomnav')
-
-                <div class="h-20 lg:hidden"></div>
             </div>
         </main>
     </div>
-
+    @include('layouts.pembimbing.bottomnav')
+    @stack('modals')
     @yield('scripts')
+    @stack('scripts')
 </body>
 </html>

@@ -8,7 +8,8 @@
  * data-chart='@json($var)' pada <canvas>.
  */
 
-import Chart from 'chart.js/auto';
+import './app';
+import { initCharts } from './charts';
 
 /* ---------------------------------------------------------------------------
  * 1. Jam & tanggal real-time (dateTime.js lama) — elemen #current-date/#current-time
@@ -35,81 +36,6 @@ function initDateTime() {
 
     update();
     setInterval(update, 1000);
-}
-
-/* ---------------------------------------------------------------------------
- * 2. Chart perkembangan (chart.js lama) — canvas[data-chart]
- *    Payload: { labels: [], data: [], variant: 'light'|'dark' }
- * ------------------------------------------------------------------------- */
-function initCharts() {
-    document.querySelectorAll('canvas[data-chart]').forEach((canvas) => {
-        let payload;
-        try {
-            payload = JSON.parse(canvas.dataset.chart);
-        } catch (e) {
-            return;
-        }
-        if (!payload || !Array.isArray(payload.labels) || !Array.isArray(payload.data)) return;
-
-        const dark = payload.variant === 'dark';
-        const lineColor = dark ? '#38bdf8' : '#0055FF';
-
-        new Chart(canvas.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: payload.labels,
-                datasets: [
-                    {
-                        label: payload.label ?? 'Skor Kinerja',
-                        data: payload.data,
-                        borderColor: lineColor,
-                        backgroundColor: dark ? 'rgba(56, 189, 248, 0.12)' : 'rgba(0, 85, 255, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: lineColor,
-                        pointBorderColor: dark ? '#0f172a' : '#fff',
-                        pointBorderWidth: dark ? 3 : 2.5,
-                        pointRadius: dark ? 6 : 5,
-                        pointHoverRadius: dark ? 9 : 8,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: dark ? 'rgba(15, 23, 42, 0.95)' : '#00336C',
-                        titleFont: { size: 13, weight: 'bold' },
-                        bodyFont: { size: 12 },
-                        padding: 12,
-                        cornerRadius: 10,
-                        displayColors: false,
-                        ...(dark
-                            ? { borderColor: 'rgba(56, 189, 248, 0.3)', borderWidth: 1 }
-                            : {}),
-                    },
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 60,
-                        max: 100,
-                        grid: { color: dark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 85, 255, 0.08)' },
-                        ticks: { color: dark ? '#94a3b8' : '#64748b', font: { size: 11 } },
-                        border: { display: false },
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: dark ? '#94a3b8' : '#64748b', font: { size: 11 } },
-                        border: { display: false },
-                    },
-                },
-            },
-        });
-    });
 }
 
 /* ---------------------------------------------------------------------------
@@ -167,12 +93,10 @@ function initRiwayatFilter() {
         const btn = event.target.closest('.filter-btn[data-filter]');
         if (!btn) return;
 
+        // The active state is styled by .filter-btn.active, so only move the class.
         document.querySelectorAll('.filter-btn[data-filter]').forEach((b) => {
-            b.classList.remove('active');
-            b.classList.add('text-slate-300');
+            b.classList.toggle('active', b === btn);
         });
-        btn.classList.add('active');
-        btn.classList.remove('text-slate-300');
 
         const filter = btn.dataset.filter;
         list.querySelectorAll('.attendance-item[data-status]').forEach((item) => {

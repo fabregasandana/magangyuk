@@ -17,9 +17,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN nik TYPE varchar(20) USING nik::varchar");
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN no_hp TYPE varchar(20) USING no_hp::varchar");
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN tanggal_lahir TYPE date USING NULLIF(tanggal_lahir, '')::date");
+        // The USING clause is PostgreSQL-specific. SQLite tests rely on its
+        // dynamic typing, so the type change is a no-op there.
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN nik TYPE varchar(20) USING nik::varchar");
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN no_hp TYPE varchar(20) USING no_hp::varchar");
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN tanggal_lahir TYPE date USING NULLIF(tanggal_lahir, '')::date");
+        }
 
         Schema::table('data_diri', function (Blueprint $table) {
             $table->string('nip', 50)->nullable();
@@ -35,8 +39,10 @@ return new class extends Migration
             $table->dropColumn(['nip', 'jabatan', 'unit_kerja', 'instansi']);
         });
 
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN nik TYPE integer USING NULLIF(nik, '')::integer");
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN no_hp TYPE integer USING NULLIF(no_hp, '')::integer");
-        DB::statement("ALTER TABLE data_diri ALTER COLUMN tanggal_lahir TYPE varchar USING tanggal_lahir::varchar");
+        if (Schema::getConnection()->getDriverName() === 'pgsql') {
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN nik TYPE integer USING NULLIF(nik, '')::integer");
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN no_hp TYPE integer USING NULLIF(no_hp, '')::integer");
+            DB::statement("ALTER TABLE data_diri ALTER COLUMN tanggal_lahir TYPE varchar USING tanggal_lahir::varchar");
+        }
     }
 };

@@ -1,46 +1,64 @@
-// Skrip halaman login.
-// DILARANG inline handler & innerHTML:
-// - Ikon toggle password memakai dua SVG yang sudah dirender di Blade,
-//   ditampilkan/disembunyikan lewat class "hidden" (tanpa injeksi HTML).
-// - Label tombol ("Lihat"/"Sembunyikan") diganti lewat textContent — BUKAN
-//   innerHTML (perbaikan XSS dari mockup lama yang memakai icon.innerHTML).
+import './app';
+import { initAnime } from './animations/anime';
 
-const initPasswordToggle = () => {
-    const buttons = document.querySelectorAll('[data-action="toggle-password"]');
-    if (!buttons.length) return;
+function initPasswordToggle() {
+    document.querySelectorAll('[data-action="toggle-password"]').forEach((button) => {
+        const input = document.getElementById(button.dataset.target || 'password');
+        if (!(input instanceof HTMLInputElement)) return;
 
-    buttons.forEach((button) => {
         button.addEventListener('click', () => {
-            const targetId = button.dataset.target || 'password';
-            const input = document.getElementById(targetId);
-            if (!input) return;
+            const visible = input.type === 'password';
+            input.type = visible ? 'text' : 'password';
 
-            const jadiTeks = input.type === 'password';
-            input.type = jadiTeks ? 'text' : 'password';
+            // Keep Lucide's rendered icons intact; toggle their stable wrappers.
+            const eye = button.querySelector('[data-icon="eye"]');
+            const eyeOff = button.querySelector('[data-icon="eye-off"]');
+            if (eye) eye.hidden = visible;
+            if (eyeOff) eyeOff.hidden = !visible;
 
-            const iconEye = button.querySelector('[data-icon="eye"]');
-            const iconEyeOff = button.querySelector('[data-icon="eye-off"]');
-            if (iconEye) iconEye.classList.toggle('hidden', jadiTeks);
-            if (iconEyeOff) iconEyeOff.classList.toggle('hidden', !jadiTeks);
-
-            // Label teks tombol diganti via textContent (aman dari XSS).
-            // Opsional: markup tombol saat ini icon-only, jadi hanya berjalan
-            // bila ada elemen ber-data-label di dalam tombol.
-            const label = button.querySelector('[data-label]');
-            if (label) {
-                label.textContent = jadiTeks ? 'Sembunyikan' : 'Lihat';
-            }
-
-            button.setAttribute('aria-pressed', jadiTeks ? 'true' : 'false');
-            button.setAttribute(
-                'aria-label',
-                jadiTeks ? 'Sembunyikan password' : 'Tampilkan password'
-            );
-            input.focus();
+            button.setAttribute('aria-pressed', String(visible));
+            button.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Tampilkan password');
+            input.focus({ preventScroll: true });
         });
     });
-};
+}
 
-document.addEventListener('DOMContentLoaded', () => {
+function initSubmitFeedback() {
+    const form = document.getElementById('login-form');
+    if (!form) return;
+
+    form.addEventListener('submit', () => {
+        const button = form.querySelector('.login-submit');
+        if (!(button instanceof HTMLButtonElement)) return;
+        button.dataset.loading = 'true';
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+    });
+
+    // Returning through the back/forward cache must not keep the button disabled.
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+        const button = form.querySelector('.login-submit');
+        if (!(button instanceof HTMLButtonElement)) return;
+        delete button.dataset.loading;
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+    });
+}
+
+function initLogin() {
     initPasswordToggle();
-});
+    initSubmitFeedback();
+
+    const cleanup = initAnime();
+    window.addEventListener('pagehide', (event) => {
+        if (event.persisted) return;
+        cleanup();
+    }, { once: true });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLogin, { once: true });
+} else {
+    initLogin();
+}
