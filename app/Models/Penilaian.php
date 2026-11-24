@@ -55,16 +55,22 @@ class Penilaian extends Model
      */
     public static function hitungSkorBerbobot(array $nilaiPerKriteria): float
     {
+        if ($nilaiPerKriteria === []) {
+            return 0.0;
+        }
+
         $totalBobot = 0;
         $totalNilai = 0.0;
+        $bobotKriteria = KriteriaPenilaian::whereIn('id', array_keys($nilaiPerKriteria))
+            ->pluck('bobot', 'id');
 
         foreach ($nilaiPerKriteria as $kriteriaId => $nilai) {
-            $kriteria = KriteriaPenilaian::find($kriteriaId);
-            if (! $kriteria) {
+            if (! $bobotKriteria->has($kriteriaId)) {
                 continue;
             }
-            $totalBobot += $kriteria->bobot;
-            $totalNilai += ((float) $nilai / 5) * $kriteria->bobot;
+            $bobot = (int) $bobotKriteria->get($kriteriaId);
+            $totalBobot += $bobot;
+            $totalNilai += ((float) $nilai / 5) * $bobot;
         }
 
         if ($totalBobot === 0) {

@@ -4,28 +4,56 @@
     @php
         $namaPeserta = auth()->check() ? auth()->user()->nama_lengkap : $peserta['nama'];
         $idPeserta = auth()->check() ? auth()->user()->id : $peserta['id_peserta'];
-        $inisial = collect(explode(' ', trim($namaPeserta)))
-            ->filter(fn ($word) => $word !== '')
-            ->take(2)
-            ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))
-            ->implode('') ?: 'P';
+        $targetHarian = [
+            [
+                'id' => 'absen',
+                'label' => 'Catat kehadiran hari ini',
+                'caption' => $absenHariIni['masuk'] ? 'Masuk pukul ' . $absenHariIni['masuk'] : 'Belum ada absensi masuk',
+                'done' => (bool) $absenHariIni['masuk'],
+            ],
+            [
+                'id' => 'logbook',
+                'label' => 'Isi logbook harian',
+                'caption' => $logbook['belum_isi'] > 0 ? $logbook['belum_isi'] . ' logbook belum diisi' : 'Semua logbook sudah terisi',
+                'done' => $logbook['belum_isi'] === 0,
+            ],
+            [
+                'id' => 'feedback',
+                'label' => 'Baca feedback pembimbing',
+                'caption' => 'Skor ' . $penilaian['total'] . ' / 5.0 dari pembimbing',
+                'done' => $penilaian['total'] > 0,
+            ],
+            [
+                'id' => 'sertifikat',
+                'label' => 'Cek kelengkapan sertifikat',
+                'caption' => $sertifikat['progress'] . '% syarat terpenuhi',
+                'done' => $sertifikat['progress'] >= 100,
+            ],
+        ];
     @endphp
 
     <div class="space-y-6 text-foreground">
-        <header class="ui-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-reveal>
-            <div class="min-w-0">
-                <p class="ui-eyebrow">Selamat datang kembali</p>
-                <h1 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl break-words">{{ $namaPeserta }}</h1>
-                <p class="mt-2 text-sm text-muted">Pantau perkembangan dan aktivitas magangmu di sini.</p>
-            </div>
-            <div class="glass flex w-fit shrink-0 items-center gap-3 rounded-xl px-4 py-3">
-                <i data-lucide="calendar-days" class="w-5 h-5 text-primary" aria-hidden="true"></i>
-                <div>
-                    <p class="text-sm font-medium" id="current-date">{{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}</p>
-                    <p class="mt-0.5 text-xs tabular-nums text-muted" id="current-time">{{ now()->timezone('Asia/Jakarta')->format('H.i.s') }} WIB</p>
-                </div>
-            </div>
-        </header>
+        @include('layouts.dashboard-hero', [
+            'kicker' => 'Selamat datang kembali',
+            'title' => 'Halo, ' . $namaPeserta,
+            'description' => 'Pantau kehadiran, logbook, dan perkembangan magangmu dalam satu ruang yang rapi.',
+            'meta' => [
+                ['icon' => 'building-2', 'label' => $peserta['institusi']],
+                ['icon' => 'briefcase-business', 'label' => $peserta['unit_kerja']],
+                ['icon' => 'calendar-range', 'label' => $peserta['periode']],
+                ['icon' => 'fingerprint', 'label' => 'ID ' . $idPeserta],
+            ],
+            'mini' => [
+                ['label' => 'Hadir', 'value' => $kehadiran['hadir']],
+                ['label' => 'Skor kinerja', 'value' => $skor['nilai']],
+                ['label' => 'Logbook belum isi', 'value' => $logbook['belum_isi']],
+                ['label' => 'Progress periode', 'value' => $peserta['periode_progress'] . '%'],
+            ],
+            'actions' => [
+                ['label' => 'Absen sekarang', 'href' => route('peserta.absensi'), 'icon' => 'scan-face'],
+                ['label' => 'Isi logbook', 'href' => route('peserta.laporan'), 'icon' => 'notebook-pen', 'variant' => 'secondary'],
+            ],
+        ])
 
         {{-- Daily action comes before the overview. --}}
         <div class="grid gap-5 xl:grid-cols-5" data-reveal>
@@ -70,34 +98,52 @@
                 </div>
             </section>
 
-            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-label="Identitas peserta">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-base font-semibold text-white">{{ $inisial }}</div>
-                    <div class="min-w-0">
-                        <h2 class="font-semibold break-words">{{ $namaPeserta }}</h2>
-                        <p class="mt-1 text-xs text-muted">Peserta Magang · ID: <span class="text-foreground">{{ $idPeserta }}</span></p>
+            <section
+                class="glass-card relative min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6 xl:col-span-2"
+                aria-labelledby="target-heading"
+                x-data="checklist('komdigi-peserta-target', @js($targetHarian))"
+                data-reveal
+            >
+                <canvas class="pointer-events-none absolute inset-0 h-full w-full opacity-20" data-canvas-ripple aria-hidden="true"></canvas>
+                <div class="relative">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="ui-eyebrow">Ritme harian</p>
+                            <h2 id="target-heading" class="mt-2 text-lg font-semibold">Target Hari Ini</h2>
+                        </div>
+                        <span class="chip"><span x-text="progress"></span>% selesai</span>
                     </div>
-                    <span class="ml-auto shrink-0 rounded-lg border border-subtle bg-elevated px-2.5 py-1 text-xs font-medium text-primary">{{ $peserta['status'] }}</span>
+
+                    <div class="checklist-progress mt-4" role="progressbar" aria-label="Progres target harian" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100">
+                        <span :style="`width: ${progress}%`"></span>
+                    </div>
+
+                    <div class="checklist mt-4">
+                        <template x-for="item in items" :key="item.id">
+                            <label class="checklist-item" :data-done="item.done ? 'true' : 'false'">
+                                <input type="checkbox" class="sr-only" :checked="item.done" @change="toggle(item.id)">
+                                <span class="checklist-box" aria-hidden="true"><span class="text-[11px] font-bold leading-none">✓</span></span>
+                                <span class="min-w-0">
+                                    <span class="checklist-label block" x-text="item.label"></span>
+                                    <span class="checklist-caption block" x-text="item.caption"></span>
+                                </span>
+                            </label>
+                        </template>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-subtle pt-4">
+                        <button type="button" class="text-xs font-semibold text-muted hover:text-foreground" @click="reset()">Reset target</button>
+                        <a href="{{ route('peserta.laporan') }}" class="inline-flex items-center gap-2 py-1 text-xs font-semibold text-primary hover:underline">
+                            Buka logbook
+                            <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                        </a>
+                    </div>
                 </div>
-                <dl class="mt-5 space-y-4 border-t border-subtle pt-5 text-sm">
-                    <div class="grid grid-cols-3 gap-3">
-                        <dt class="text-muted">Institusi</dt>
-                        <dd class="col-span-2 font-medium break-words">{{ $peserta['institusi'] }}</dd>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <dt class="text-muted">Unit Kerja</dt>
-                        <dd class="col-span-2 font-medium break-words">{{ $peserta['unit_kerja'] }}</dd>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3">
-                        <dt class="text-muted">Periode</dt>
-                        <dd class="col-span-2 font-medium">{{ $peserta['periode'] }}</dd>
-                    </div>
-                </dl>
             </section>
         </div>
 
         <div class="grid grid-cols-2 gap-4 xl:grid-cols-5" data-stagger>
-            <section class="glass-card ui-stat col-span-2 rounded-2xl p-5" aria-label="Ringkasan kehadiran">
+            <section class="glass-card ui-stat ui-stat-featured col-span-2 rounded-2xl p-5" aria-label="Ringkasan kehadiran">
                 <p class="text-sm font-medium text-muted">Ringkasan Kehadiran</p>
                 <dl class="mt-5 grid grid-cols-4 gap-2">
                     @foreach (['hadir' => 'Hadir', 'terlambat' => 'Terlambat', 'izin' => 'Izin', 'alpha' => 'Alpha'] as $key => $label)

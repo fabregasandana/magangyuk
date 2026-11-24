@@ -4,23 +4,30 @@
 
 @section('content')
     <div class="space-y-6 text-foreground">
-        <header class="ui-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-reveal>
-            <div class="min-w-0">
-                <p class="ui-eyebrow">Panel Administrasi</p>
-                <h1 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Dashboard Admin</h1>
-                <p class="mt-2 text-sm text-muted">Ringkasan program, performa peserta, dan aktivitas terbaru.</p>
-            </div>
-            <div class="glass flex w-fit shrink-0 items-center gap-3 rounded-xl px-4 py-3">
-                <i data-lucide="calendar-days" class="w-5 h-5 text-primary" aria-hidden="true"></i>
-                <div>
-                    <p class="text-sm font-medium" id="current-date">{{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}</p>
-                    <p class="mt-0.5 text-xs tabular-nums text-muted" id="current-time">{{ now()->timezone('Asia/Jakarta')->format('H.i.s') }} WIB</p>
-                </div>
-            </div>
-        </header>
+        @include('layouts.dashboard-hero', [
+            'kicker' => 'Panel administrasi',
+            'title' => 'Pantau progres,',
+            'accent' => 'kembangkan potensi.',
+            'description' => 'Ringkasan program, performa peserta, dan aktivitas terbaru dalam satu ruang kendali.',
+            'meta' => [
+                ['icon' => 'calendar-days', 'label' => now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y')],
+                ['icon' => 'clock', 'label' => now()->timezone('Asia/Jakarta')->format('H.i') . ' WIB'],
+                ['icon' => 'shield-check', 'label' => 'Akses administrator'],
+            ],
+            'mini' => [
+                ['label' => 'Peserta aktif', 'value' => $stats['total_peserta_aktif']],
+                ['label' => 'Kehadiran', 'value' => $stats['rata_kehadiran'] . '%'],
+                ['label' => 'Skor rata-rata', 'value' => $stats['rata_skor']],
+                ['label' => 'Logbook pending', 'value' => $stats['logbook_pending']],
+            ],
+            'actions' => [
+                ['label' => 'Monitoring', 'href' => route('admin.monitoring'), 'icon' => 'chart-no-axes-combined'],
+                ['label' => 'Kelola penilaian', 'href' => route('admin.kelola-penilaian'), 'icon' => 'clipboard-check', 'variant' => 'secondary'],
+            ],
+        ])
 
         <div class="grid grid-cols-2 gap-4 xl:grid-cols-4" data-stagger>
-            <section class="glass-card ui-stat rounded-2xl p-4 sm:p-5" aria-label="Total peserta aktif">
+            <section class="glass-card ui-stat ui-stat-featured rounded-2xl p-4 sm:p-5" aria-label="Total peserta aktif">
                 <div class="mb-4 flex items-start justify-between gap-3">
                     <p class="text-sm font-medium text-muted">Total Peserta Aktif</p>
                     <i data-lucide="users-round" class="w-5 h-5 shrink-0 text-primary" aria-hidden="true"></i>
@@ -177,67 +184,126 @@
             </section>
         </div>
 
-        <section class="glass-card rounded-2xl p-5 sm:p-6" aria-labelledby="activity-heading">
-            <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <i data-lucide="history" class="w-5 h-5 shrink-0 text-primary" aria-hidden="true"></i>
-                    <h2 id="activity-heading" class="text-base font-semibold">Ringkasan Aktivitas Terbaru</h2>
+        <div class="grid gap-5 xl:grid-cols-3">
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-labelledby="activity-heading" x-data="dashTabs" data-reveal>
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="dash-icon-tile"><i data-lucide="history" class="w-4 h-4" aria-hidden="true"></i></span>
+                        <div class="min-w-0">
+                            <h2 id="activity-heading" class="dash-card-title">Ringkasan Aktivitas Terbaru</h2>
+                            <p class="dash-card-subtitle">Pilih kategori untuk menelusuri arus aktivitas.</p>
+                        </div>
+                    </div>
+                    <div class="dash-tabs" role="tablist" aria-label="Kategori aktivitas">
+                        <button type="button" class="dash-tab" role="tab" id="activity-tab-logbook" aria-controls="activity-panel-logbook" :aria-selected="active === 0 ? 'true' : 'false'" @click="select(0)">Logbook</button>
+                        <button type="button" class="dash-tab" role="tab" id="activity-tab-penilaian" aria-controls="activity-panel-penilaian" :aria-selected="active === 1 ? 'true' : 'false'" @click="select(1)">Penilaian</button>
+                        <button type="button" class="dash-tab" role="tab" id="activity-tab-pendaftaran" aria-controls="activity-panel-pendaftaran" :aria-selected="active === 2 ? 'true' : 'false'" @click="select(2)">Pendaftaran</button>
+                    </div>
                 </div>
-                <a href="{{ route('admin.feature-pendukung') }}" class="inline-flex items-center gap-2 py-1 text-xs font-medium text-primary hover:underline">
-                    Lihat semua aktivitas
-                    <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
-                </a>
-            </div>
-            <div class="grid gap-5 lg:grid-cols-3" data-stagger>
-                <section class="rounded-xl border border-subtle bg-elevated p-4" aria-label="Aktivitas logbook">
-                    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold">
-                        <i data-lucide="book-open" class="w-4 h-4 text-primary" aria-hidden="true"></i>
-                        Logbook
-                    </h3>
-                    <ul class="space-y-4">
+
+                <div id="activity-panel-logbook" role="tabpanel" aria-labelledby="activity-tab-logbook" x-show="active === 0" x-transition.opacity.duration.200ms>
+                    <ul class="space-y-3">
                         @forelse ($recentLogbook as $item)
-                            <li class="border-l border-subtle pl-3">
-                                <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
-                                <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                            <li class="flex items-start gap-3 rounded-xl border border-subtle bg-elevated p-3.5">
+                                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface text-primary"><i data-lucide="book-open" class="w-4 h-4" aria-hidden="true"></i></span>
+                                <div class="min-w-0">
+                                    <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
+                                    <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                                </div>
                             </li>
                         @empty
-                            <li class="text-sm text-muted">Belum ada aktivitas logbook</li>
+                            <li class="rounded-xl border border-dashed border-subtle p-5 text-sm text-muted">Belum ada aktivitas logbook</li>
                         @endforelse
                     </ul>
-                </section>
-                <section class="rounded-xl border border-subtle bg-elevated p-4" aria-label="Aktivitas penilaian">
-                    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold">
-                        <i data-lucide="star" class="w-4 h-4 text-primary" aria-hidden="true"></i>
-                        Penilaian
-                    </h3>
-                    <ul class="space-y-4">
+                </div>
+
+                <div id="activity-panel-penilaian" role="tabpanel" aria-labelledby="activity-tab-penilaian" x-show="active === 1" x-cloak x-transition.opacity.duration.200ms>
+                    <ul class="space-y-3">
                         @forelse ($recentPenilaian as $item)
-                            <li class="border-l border-subtle pl-3">
-                                <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
-                                <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                            <li class="flex items-start gap-3 rounded-xl border border-subtle bg-elevated p-3.5">
+                                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface text-primary"><i data-lucide="star" class="w-4 h-4" aria-hidden="true"></i></span>
+                                <div class="min-w-0">
+                                    <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
+                                    <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                                </div>
                             </li>
                         @empty
-                            <li class="text-sm text-muted">Belum ada aktivitas penilaian</li>
+                            <li class="rounded-xl border border-dashed border-subtle p-5 text-sm text-muted">Belum ada aktivitas penilaian</li>
                         @endforelse
                     </ul>
-                </section>
-                <section class="rounded-xl border border-subtle bg-elevated p-4" aria-label="Aktivitas pendaftaran baru">
-                    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold">
-                        <i data-lucide="user-plus" class="w-4 h-4 text-primary" aria-hidden="true"></i>
-                        Pendaftaran Baru
-                    </h3>
-                    <ul class="space-y-4">
+                </div>
+
+                <div id="activity-panel-pendaftaran" role="tabpanel" aria-labelledby="activity-tab-pendaftaran" x-show="active === 2" x-cloak x-transition.opacity.duration.200ms>
+                    <ul class="space-y-3">
                         @forelse ($recentPendaftaran as $item)
-                            <li class="border-l border-subtle pl-3">
-                                <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
-                                <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                            <li class="flex items-start gap-3 rounded-xl border border-subtle bg-elevated p-3.5">
+                                <span class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface text-primary"><i data-lucide="user-plus" class="w-4 h-4" aria-hidden="true"></i></span>
+                                <div class="min-w-0">
+                                    <p class="text-sm leading-relaxed"><span class="font-medium">{{ $item['user'] }}</span> {{ $item['action'] }}</p>
+                                    <p class="mt-1 text-xs text-muted">{{ $item['time'] }}</p>
+                                </div>
                             </li>
                         @empty
-                            <li class="text-sm text-muted">Belum ada pendaftaran baru</li>
+                            <li class="rounded-xl border border-dashed border-subtle p-5 text-sm text-muted">Belum ada pendaftaran baru</li>
                         @endforelse
                     </ul>
-                </section>
-            </div>
-        </section>
+                </div>
+
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-subtle pt-4">
+                    <p class="text-xs text-muted">Diperbarui otomatis setiap kali data berubah.</p>
+                    <a href="{{ route('admin.feature-pendukung') }}" class="inline-flex items-center gap-2 py-1 text-xs font-semibold text-primary hover:underline">
+                        Lihat semua aktivitas
+                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </section>
+
+            <section class="glass-card relative min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6" aria-labelledby="focus-heading" data-reveal>
+                <canvas class="pointer-events-none absolute inset-0 h-full w-full opacity-20" data-canvas-ripple aria-hidden="true"></canvas>
+                <div class="relative">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="ui-eyebrow">Sinyal program</p>
+                            <h2 id="focus-heading" class="mt-2 text-lg font-semibold">Fokus hari ini</h2>
+                        </div>
+                        <div class="relative grid h-14 w-14 place-items-center rounded-full border border-subtle bg-surface">
+                            <svg class="absolute inset-0 h-14 w-14 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+                                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ui-border)" stroke-width="2.5" />
+                                <circle cx="18" cy="18" r="15.5" pathLength="100" fill="none" stroke="url(#focusGrad)" stroke-width="2.5" stroke-dasharray="{{ $stats['rata_kehadiran'] }} 100" stroke-linecap="round" data-ring />
+                                <defs>
+                                    <linearGradient id="focusGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="var(--ui-primary)" />
+                                        <stop offset="100%" stop-color="var(--ui-accent)" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <span class="text-sm font-semibold tabular-nums">{{ $stats['rata_kehadiran'] }}%</span>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 text-sm leading-relaxed text-muted">Kehadiran rata-rata peserta aktif. Tindak lanjuti antrean yang masih terbuka.</p>
+
+                    <ul class="mt-5 space-y-2.5">
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="book-open" class="w-4 h-4 text-primary" aria-hidden="true"></i> Logbook pending</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ $stats['logbook_pending'] }}</span>
+                        </li>
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="circle-alert" class="w-4 h-4 text-primary" aria-hidden="true"></i> Performa rendah</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ count($lowPerformers) }}</span>
+                        </li>
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="trending-up" class="w-4 h-4 text-primary" aria-hidden="true"></i> Skor rata-rata</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ $stats['rata_skor'] }}</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ route('admin.monitoring') }}" class="ui-button mt-5 inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-xs">
+                        Buka monitoring
+                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
     </div>
 @endsection

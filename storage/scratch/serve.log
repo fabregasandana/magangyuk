@@ -1,0 +1,63 @@
+
+ INFO Server running on [http://127.0.0.1:8000]. 
+
+ Press Ctrl+C to stop the server
+
+ 2026-11-20 20:16:06 / .. ~ 1dt
+ 2026-11-20 20:16:06 /_boost/browser-logs .. ~ 2dt
+ 2026-11-20 20:16:16 / .. ~ 1dt
+ 2026-11-20 20:16:16 /_boost/browser-logs .. ~ 2dt
+ 2026-11-20 20:16:27 .. ~ 5dt
+ 2026-11-20 20:59:53 .. ~ 3dt
+ 2026-11-20 23:10:35 /login .. ~ 542.96ms
+ 2026-11-20 23:10:35 /favicon.ico .. ~ 1dt
+ 2026-11-20 23:10:37 /_boost/browser-logs .. ~ 0.09ms
+ 2026-11-20 23:11:12 /login .. ~ 0.26ms
+ 2026-11-20 23:11:12 /favicon.ico .. ~ 511.53ms
+ 2026-11-20 23:11:13 /_boost/browser-logs .. ~ 0.30ms
+ 2026-11-20 23:12:04 /login .. ~ 0.16ms
+ 2026-11-20 23:12:04 /favicon.ico .. ~ 1.02ms
+ 2026-11-20 23:12:05 /_boost/browser-logs .. ~ 0.27ms
+ 2026-11-20 23:13:40 /login .. ~ 515.13ms
+ 2026-11-20 23:13:40 /favicon.ico .. ~ 0.08ms
+ 2026-11-20 23:13:41 /_boost/browser-logs .. ~ 0.20ms
+ 2026-11-20 23:17:26 /_boost/browser-logs .. ~ 0.19ms
+ 2026-11-20 23:17:26 /_boost/browser-logs .. ~ 606.02ms
+ 2026-11-20 23:17:26 /login .. ~ 607.55ms
+ 2026-11-20 23:17:27 /_boost/browser-logs .. ~ 0.21ms
+ 2026-11-20 23:17:27 /favicon.ico .. ~ 0.08ms
+ 2026-11-20 23:17:28 /_boost/browser-logs .. ~ 0.20ms
+ 2026-11-20 23:17:54 /_boost/browser-logs .. ~ 0.14ms
+ 2026-11-20 23:19:55 /_boost/browser-logs .. ~ 0.19ms
+ 2026-11-20 23:22:25 / .. ~ 1dt
+ 2026-11-20 23:22:28 /_boost/browser-logs .. ~ 0.19ms
+ 2026-11-20 23:22:28 /favicon.ico .. ~ 0.15ms
+ 2026-11-20 23:26:08 /resources/js/animations/anime.js .. ~ 0.21ms
+ 2026-11-20 23:27:40 / .. ~ 1dt
+ 2026-11-20 23:27:42 /_boost/browser-logs .. ~ 0.10ms
+ 2026-11-20 23:31:31 / .. ~ 1dt
+ 2026-11-20 23:31:32 /login .. ~ 0.13ms
+ 2026-11-20 23:31:33 /_boost/browser-logs .. ~ 514.88ms
+ 2026-11-20 23:31:33 /_boost/browser-logs .. ~ 0.06ms
+ 2026-11-20 23:31:32 /favicon.ico .. ~ 1dt
+ 2026-11-20 23:31:34 /_boost/browser-logs .. ~ 0.05ms
+ 2026-11-20 23:32:42 / .. ~ 1dt
+ 2026-11-20 23:32:44 /_boost/browser-logs .. ~ 0.15ms
+ 2026-11-20 23:37:28 / .. ~ 1dt
+ 2026-11-20 23:45:10 /_boost/browser-logs .. ~ 1dt
+ 2026-11-20 23:45:57 / .. ~ 3dt
+ 2026-11-20 23:45:57 /build/assets/landing-DwGDjp9x.css .. ~ 3dt
+ 2026-11-20 23:46:01 /build/assets/app-Ce5PbiGB.css .. ~ 2.08ms
+ 2026-11-20 23:46:01 /build/assets/landing-CdsSgCmO.js .. ~ 11.76ms
+ 2026-11-20 23:46:01 /build/assets/app-CSSz1DUb.js .. ~ 13.16ms
+ 2026-11-20 23:46:02 /build/assets/plus-jakarta-sans-latin-wght-normal-eXO_dkmS.woff2 .. ~ 0.19ms
+ 2026-11-20 23:46:06 /build/assets/canvas-CEK_10Ew.js .. ~ 0.53ms
+ 2026-11-20 23:46:07 /favicon.ico .. ~ 0.17ms
+ 2026-11-20 23:46:11 /images/alip3.jpg .. ~ 2.98ms
+ 2026-11-20 23:46:11 /images/alip4.jpeg .. ~ 639.80ms
+ 2026-11-20 23:46:12 /images/alip5.jpeg .. ~ 25.14ms
+ 2026-11-20 23:46:12 /images/alip2.jpg .. ~ 32.01ms
+ 2026-11-20 23:49:44 /_boost/browser-logs .. ~ 503.50ms
+ 2026-11-20 23:49:44 /_boost/browser-logs .. ~ 506.68ms
+ 2026-11-20 23:49:45 /favicon.ico .. ~ 0.17ms
+ 2026-11-20 23:52:23 .. ~ 26dt

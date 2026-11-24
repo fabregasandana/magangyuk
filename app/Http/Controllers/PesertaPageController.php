@@ -7,8 +7,8 @@ use App\Models\ActivityLog;
 use App\Models\Izin;
 use App\Models\Laporan;
 use App\Models\Logbook;
-use App\Models\Penilaian;
 use App\Models\Pengaturan;
+use App\Models\Penilaian;
 use App\Models\Periode;
 use App\Models\Sertifikat;
 use App\Models\User;
@@ -89,10 +89,10 @@ class PesertaPageController extends Controller
                 'total' => $penilaian?->nilai_rata_rata ?? '—',
                 'aspek' => $this->aspekPenilaian($penilaian),
                 'komentar' => $penilaian?->komentar
-                    ? '"' . $penilaian->komentar . '"'
+                    ? '"'.$penilaian->komentar.'"'
                     : '"Belum ada komentar dari pembimbing."',
                 'komentar_oleh' => $penilaian
-                    ? trim(($penilaian->pembimbing?->nama_lengkap ?? 'Pembimbing') . ' • ' . $penilaian->tanggal_format)
+                    ? trim(($penilaian->pembimbing?->nama_lengkap ?? 'Pembimbing').' • '.$penilaian->tanggal_format)
                     : 'Menunggu penilaian pertama',
             ],
             'laporan' => [
@@ -101,7 +101,7 @@ class PesertaPageController extends Controller
                 'checklist' => [
                     [
                         'label' => 'Laporan mingguan',
-                        'detail' => '(' . $laporanMingguDisetujui . '/' . ($periode?->total_minggu ?? 8) . ')',
+                        'detail' => '('.$laporanMingguDisetujui.'/'.($periode?->total_minggu ?? 8).')',
                         'done' => $laporanMingguDisetujui > 0,
                     ],
                     [
@@ -142,7 +142,7 @@ class PesertaPageController extends Controller
             'syarat' => [
                 [
                     'judul' => 'Lokasi GPS aktif',
-                    'detail' => 'Harus berada dalam radius ' . number_format($radius) . 'm',
+                    'detail' => 'Harus berada dalam radius '.number_format($radius).'m',
                     'ok' => true,
                 ],
                 [
@@ -153,12 +153,12 @@ class PesertaPageController extends Controller
                 [
                     'judul' => 'Hari kerja aktif',
                     'detail' => implode(' – ', [$hariKerja[0] ?? 'Senin', end($hariKerja) ?: 'Kamis'])
-                        . ' (hari ini ' . $namaHari . ')',
+                        .' (hari ini '.$namaHari.')',
                     'ok' => in_array($namaHari, $hariKerja, true),
                 ],
                 [
                     'judul' => 'Jam masuk ideal',
-                    'detail' => 'Sebelum ' . $this->jamTitik($batasMasuk) . ' (toleransi ' . Absensi::TOLERANSI_MENIT . ' menit)',
+                    'detail' => 'Sebelum '.$this->jamTitik($batasMasuk).' (toleransi '.Absensi::TOLERANSI_MENIT.' menit)',
                     'ok' => now()->format('H:i') <= $batasMasuk,
                 ],
             ],
@@ -212,13 +212,13 @@ class PesertaPageController extends Controller
             'peserta' => $this->identitas($user),
             'chartData' => $this->chartSkor($skorMingguan, 'dark'),
             'ringkasan' => [
-                'skor_awal' => ['nilai' => (string) $skorAwal, 'ket' => 'Minggu ' . ($skorMingguan[0]['minggu'] ?? 1)],
-                'skor_sekarang' => ['nilai' => (string) $skorTerakhir, 'ket' => 'Minggu ' . ($skorMingguan[count($skorMingguan) - 1]['minggu'] ?? $mingguAktif)],
+                'skor_awal' => ['nilai' => (string) $skorAwal, 'ket' => 'Minggu '.($skorMingguan[0]['minggu'] ?? 1)],
+                'skor_sekarang' => ['nilai' => (string) $skorTerakhir, 'ket' => 'Minggu '.($skorMingguan[count($skorMingguan) - 1]['minggu'] ?? $mingguAktif)],
                 'peningkatan' => [
-                    'nilai' => ($selisih >= 0 ? '+' : '−') . abs($selisih),
-                    'ket' => ($selisih >= 0 ? '↑ ' : '↓ ') . abs($persenNaik) . '%',
+                    'nilai' => ($selisih >= 0 ? '+' : '−').abs($selisih),
+                    'ket' => ($selisih >= 0 ? '↑ ' : '↓ ').abs($persenNaik).'%',
                 ],
-                'rata_rata' => ['nilai' => number_format($rata, 1), 'ket' => count($skorMingguan) . ' minggu'],
+                'rata_rata' => ['nilai' => number_format($rata, 1), 'ket' => count($skorMingguan).' minggu'],
             ],
             'mingguan' => array_map(fn (array $s) => [
                 'minggu' => $s['minggu'],
@@ -249,9 +249,9 @@ class PesertaPageController extends Controller
         foreach ($mingguan as $minggu => $laporan) {
             $barisMingguan[] = [
                 'nomor' => (int) $minggu,
-                'judul' => 'Minggu ' . $minggu . ' – ' . ($periode?->rentangMinggu((int) $minggu) ?? ''),
+                'judul' => 'Minggu '.$minggu.' – '.($periode?->rentangMinggu((int) $minggu) ?? ''),
                 'detail' => $laporan->submitted_at
-                    ? 'Diserahkan ' . $laporan->submitted_at->translatedFormat('j M Y')
+                    ? 'Diserahkan '.$laporan->submitted_at->translatedFormat('j M Y')
                     : 'Belum dikumpulkan',
                 'status' => $laporan->status_label,
                 'done' => $laporan->status === 'disetujui',
@@ -264,12 +264,12 @@ class PesertaPageController extends Controller
                 'label' => $this->statusLaporanAkhir($laporanAkhir),
                 'badge' => $laporanAkhir && $laporanAkhir->status !== 'draft' ? 'Sudah diajukan' : 'Draft belum ada',
                 'batas' => $periode?->tanggal_selesai?->translatedFormat('j F Y') ?? '—',
-                'sisa' => ($periode?->sisa_hari ?? 0) . ' hari',
+                'sisa' => ($periode?->sisa_hari ?? 0).' hari',
             ],
             'checklist' => [
                 [
                     'label' => 'Laporan mingguan',
-                    'detail' => '(' . $mingguan->where('status', 'disetujui')->count() . ' dari ' . $totalMinggu . ')',
+                    'detail' => '('.$mingguan->where('status', 'disetujui')->count().' dari '.$totalMinggu.')',
                     'done' => $mingguan->where('status', 'disetujui')->count() > 0,
                 ],
                 ['label' => 'Draft laporan akhir', 'detail' => null, 'done' => (bool) $laporanAkhir && $laporanAkhir->status !== 'draft'],
@@ -285,14 +285,15 @@ class PesertaPageController extends Controller
         $user = $this->user();
         $terakhir = $this->penilaianTerakhir($user);
 
-        $riwayat = Penilaian::where('peserta_id', $user->id)
+        $riwayat = Penilaian::with('detail')
+            ->where('peserta_id', $user->id)
             ->terbaru()
             ->take(6)
             ->get();
 
         $barisRiwayat = $riwayat->values()->map(function (Penilaian $p, int $i) {
             return [
-                'judul' => 'Evaluasi ' . ($p->jenis === 'akhir' ? 'Akhir' : 'Minggu ' . ltrim(str_replace('w', '', (string) $p->periode_key), 'w')),
+                'judul' => 'Evaluasi '.($p->jenis === 'akhir' ? 'Akhir' : 'Minggu '.ltrim(str_replace('w', '', (string) $p->periode_key), 'w')),
                 'tanggal' => $p->tanggal_format,
                 'nilai' => $p->nilai_rata_rata,
                 'badge' => $i === 0 ? 'Terbaru' : ($p->jenis === 'akhir' ? 'Akhir' : 'Sebelumnya'),
@@ -309,9 +310,9 @@ class PesertaPageController extends Controller
             ],
             'aspek' => $this->aspekPenilaian($terakhir),
             'komentar' => [
-                'isi' => $terakhir?->komentar ? '"' . $terakhir->komentar . '"' : '"Belum ada komentar."',
+                'isi' => $terakhir?->komentar ? '"'.$terakhir->komentar.'"' : '"Belum ada komentar."',
                 'oleh' => $terakhir
-                    ? trim(($terakhir->pembimbing?->nama_lengkap ?? 'Pembimbing') . ' • ' . $terakhir->tanggal_format)
+                    ? trim(($terakhir->pembimbing?->nama_lengkap ?? 'Pembimbing').' • '.$terakhir->tanggal_format)
                     : '—',
             ],
             'riwayat' => $barisRiwayat,
@@ -336,7 +337,7 @@ class PesertaPageController extends Controller
             'terkunci' => $data['terkunci'],
             'syarat' => $data['syarat'],
             'info' => 'Sertifikat akan diterbitkan otomatis setelah semua syarat terpenuhi dan disetujui oleh pembimbing. '
-                . 'Pastikan laporan akhir dan penilaian final sudah lengkap sebelum periode magang berakhir.',
+                .'Pastikan laporan akhir dan penilaian final sudah lengkap sebelum periode magang berakhir.',
         ]);
     }
 
@@ -348,7 +349,7 @@ class PesertaPageController extends Controller
                 ->mapWithKeys(fn (string $jenis) => [$jenis => ucfirst($jenis)])
                 ->all(),
             'catatan' => 'Pengajuan akan ditinjau oleh pembimbing. Pastikan alasan jelas dan lampirkan bukti jika diperlukan '
-                . '(misalnya surat dokter untuk sakit). Status pengajuan dapat dilihat di halaman Riwayat.',
+                .'(misalnya surat dokter untuk sakit). Status pengajuan dapat dilihat di halaman Riwayat.',
         ]);
     }
 
@@ -414,7 +415,7 @@ class PesertaPageController extends Controller
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('absensi/' . $hariIni->format('Y-m'), 'public');
+            $fotoPath = $request->file('foto')->store('absensi/'.$hariIni->format('Y-m'), 'public');
         }
 
         // Jam dinding saat ini (bukan $hariIni yang selalu tengah malam).
@@ -422,7 +423,7 @@ class PesertaPageController extends Controller
 
         if ($validated['jenis'] === 'masuk') {
             if ($absen->jam_masuk) {
-                return back()->with('error', 'Anda sudah melakukan absen masuk pukul ' . substr($absen->jam_masuk, 0, 5) . '.');
+                return back()->with('error', 'Anda sudah melakukan absen masuk pukul '.substr($absen->jam_masuk, 0, 5).'.');
             }
             if ($jamSekarang > '11:59:59') {
                 return back()->with('error', 'Absen masuk hanya dapat dilakukan sebelum pukul 12.00 WIB.');
@@ -431,14 +432,14 @@ class PesertaPageController extends Controller
             $absen->jam_masuk = $jamSekarang;
             $absen->status = Absensi::statusDariJamMasuk($jamSekarang);
             $absen->foto_masuk_path = $fotoPath ?? $absen->foto_masuk_path;
-            $pesan = 'Absen masuk berhasil dicatat pukul ' . substr($jamSekarang, 0, 5)
-                . ' WIB — status ' . ucfirst($absen->status) . '.';
+            $pesan = 'Absen masuk berhasil dicatat pukul '.substr($jamSekarang, 0, 5)
+                .' WIB — status '.ucfirst($absen->status).'.';
         } else {
             if (! $absen->jam_masuk) {
                 return back()->with('error', 'Anda belum melakukan absen masuk hari ini.');
             }
             if ($absen->jam_pulang) {
-                return back()->with('error', 'Anda sudah melakukan absen pulang pukul ' . substr($absen->jam_pulang, 0, 5) . '.');
+                return back()->with('error', 'Anda sudah melakukan absen pulang pukul '.substr($absen->jam_pulang, 0, 5).'.');
             }
             if ($jamSekarang < '12:00:00') {
                 return back()->with('error', 'Absen pulang baru dapat dilakukan setelah pukul 12.00 WIB.');
@@ -446,7 +447,7 @@ class PesertaPageController extends Controller
 
             $absen->jam_pulang = $jamSekarang;
             $absen->foto_pulang_path = $fotoPath ?? $absen->foto_pulang_path;
-            $pesan = 'Absen pulang berhasil dicatat pukul ' . substr($jamSekarang, 0, 5) . ' WIB.';
+            $pesan = 'Absen pulang berhasil dicatat pukul '.substr($jamSekarang, 0, 5).' WIB.';
         }
 
         $absen->latitude = $validated['latitude'] ?? $absen->latitude;
@@ -462,7 +463,7 @@ class PesertaPageController extends Controller
     public function storeIzin(Request $request)
     {
         $validated = $request->validate([
-            'jenis' => ['required', 'in:' . implode(',', Izin::JENIS)],
+            'jenis' => ['required', 'in:'.implode(',', Izin::JENIS)],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'alasan' => ['required', 'string', 'min:10', 'max:1000'],
@@ -499,17 +500,17 @@ class PesertaPageController extends Controller
                 ['user_id' => $user->id, 'tanggal' => $tanggal->toDateString()],
                 [
                     'status' => 'izin',
-                    'keterangan' => 'Pengajuan ' . $validated['jenis'] . ' — menunggu persetujuan',
+                    'keterangan' => 'Pengajuan '.$validated['jenis'].' — menunggu persetujuan',
                 ],
             );
             $tanggal->addDay();
         }
 
-        ActivityLog::catat('izin', 'Mengajukan ' . $validated['jenis'] . ' untuk ' . $izin->rentang, $user);
+        ActivityLog::catat('izin', 'Mengajukan '.$validated['jenis'].' untuk '.$izin->rentang, $user);
 
         return redirect()->route('peserta.izin')->with(
             'success',
-            'Pengajuan ' . $validated['jenis'] . ' (' . $izin->rentang . ') berhasil dikirim. Status dapat dicek di halaman Riwayat.'
+            'Pengajuan '.$validated['jenis'].' ('.$izin->rentang.') berhasil dikirim. Status dapat dicek di halaman Riwayat.'
         );
     }
 
@@ -642,12 +643,12 @@ class PesertaPageController extends Controller
         $periode = $magang?->periodeRel;
 
         $periodePanjang = $periode?->tanggal_mulai && $periode?->tanggal_selesai
-            ? $periode->tanggal_mulai->translatedFormat('j F') . ' – ' . $periode->tanggal_selesai->translatedFormat('j F Y')
+            ? $periode->tanggal_mulai->translatedFormat('j F').' – '.$periode->tanggal_selesai->translatedFormat('j F Y')
             : ($magang?->periode_label ?? '—');
 
         return [
             'nama' => $user->nama_lengkap,
-            'id_peserta' => $magang?->id_kode ?? 'PS-' . str_pad((string) $user->id, 3, '0', STR_PAD_LEFT),
+            'id_peserta' => $magang?->id_kode ?? 'PS-'.str_pad((string) $user->id, 3, '0', STR_PAD_LEFT),
             'institusi' => $magang?->institusi_label ?? '—',
             'program_studi' => $magang?->prodi ?? '—',
             'unit_kerja' => $magang?->penempatan ?? '—',
@@ -670,9 +671,9 @@ class PesertaPageController extends Controller
         return [
             'lokasi' => $user->dataMagang?->penempatan ?? 'Dinas Kominfo Provinsi Sumatera Utara',
             'alamat' => 'Jl. HM. Said No.27, Medan',
-            'radius' => number_format($radius) . ' meter',
+            'radius' => number_format($radius).' meter',
             'hari_kerja' => implode('–', [$hariKerja[0] ?? 'Senin', end($hariKerja) ?: 'Kamis']),
-            'jam_kerja' => $this->jamTitik($jamMasuk) . ' – ' . $this->jamTitik($jamPulang) . ' WIB',
+            'jam_kerja' => $this->jamTitik($jamMasuk).' – '.$this->jamTitik($jamPulang).' WIB',
             'status_lokasi' => 'Dalam jangkauan',
         ];
     }
@@ -780,7 +781,7 @@ class PesertaPageController extends Controller
     private function chartSkor(array $skorMingguan, string $variant): array
     {
         return [
-            'labels' => array_map(fn (array $s) => 'Minggu ' . $s['minggu'], $skorMingguan),
+            'labels' => array_map(fn (array $s) => 'Minggu '.$s['minggu'], $skorMingguan),
             'data' => array_map(fn (array $s) => $s['skor'], $skorMingguan),
             'variant' => $variant,
         ];
@@ -872,22 +873,27 @@ class PesertaPageController extends Controller
                 'status' => $a->status,
             ]);
 
-        $izin = Izin::where('user_id', $user->id)
+        $izin = Izin::with('reviewer')
+            ->where('user_id', $user->id)
             ->where(function ($q) use ($awal, $akhir) {
                 $q->whereBetween('tanggal_mulai', [$awal->toDateString(), $akhir->toDateString()])
                     ->orWhereBetween('tanggal_selesai', [$awal->toDateString(), $akhir->toDateString()]);
             })
+            ->whereNotExists(function ($query) {
+                $query->selectRaw('1')
+                    ->from('absensi')
+                    ->whereColumn('absensi.user_id', 'izin.user_id')
+                    ->whereColumn('absensi.tanggal', 'izin.tanggal_mulai');
+            })
             ->orderByDesc('tanggal_mulai')
             ->get()
-            ->filter(fn (Izin $i) => ! Absensi::where('user_id', $user->id)
-                ->whereDate('tanggal', $i->tanggal_mulai)->exists())
             ->map(fn (Izin $i) => [
                 'sort' => $i->tanggal_mulai->timestamp,
                 'bulan' => strtoupper(substr($i->tanggal_mulai->translatedFormat('M'), 0, 3)),
                 'tgl' => $i->tanggal_mulai->format('d'),
                 'judul' => $i->tanggal_mulai->translatedFormat('l, j F Y'),
-                'detail' => $i->jenis_label . ' · ' . ucfirst($i->status)
-                    . ($i->reviewer ? ' oleh ' . $i->reviewer->nama_lengkap : ''),
+                'detail' => $i->jenis_label.' · '.ucfirst($i->status)
+                    .($i->reviewer ? ' oleh '.$i->reviewer->nama_lengkap : ''),
                 'status' => 'izin',
             ]);
 
@@ -919,7 +925,7 @@ class PesertaPageController extends Controller
         }
 
         return $periode->tanggal_selesai->translatedFormat('j F Y')
-            . ' (' . $periode->sisa_hari . ' hari lagi)';
+            .' ('.$periode->sisa_hari.' hari lagi)';
     }
 
     /**
@@ -935,7 +941,7 @@ class PesertaPageController extends Controller
         $syarat = [
             [
                 'label' => "Absensi minimal {$minKehadiran}%",
-                'detail' => '(Saat ini ' . $hadirPersen . '%)',
+                'detail' => '(Saat ini '.$hadirPersen.'%)',
                 'done' => $hadirPersen >= $minKehadiran,
             ],
             [
@@ -950,7 +956,7 @@ class PesertaPageController extends Controller
             ],
             [
                 'label' => 'Penilaian pembimbing final',
-                'detail' => $penilaianFinal ? 'Skor ' . (int) round($penilaianFinal->total_skor) : 'Menunggu evaluasi akhir',
+                'detail' => $penilaianFinal ? 'Skor '.(int) round($penilaianFinal->total_skor) : 'Menunggu evaluasi akhir',
                 'done' => (bool) $penilaianFinal,
             ],
         ];
@@ -966,7 +972,7 @@ class PesertaPageController extends Controller
                 'progress' => $progress,
                 'status' => $status,
                 'nomor' => $progress >= 100
-                    ? ($sertifikat?->nomor ?? 'SRT/MKD/' . now()->format('Y') . '/' . str_pad((string) $user->id, 4, '0', STR_PAD_LEFT))
+                    ? ($sertifikat?->nomor ?? 'SRT/MKD/'.now()->format('Y').'/'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT))
                     : null,
                 'issued_at' => $progress >= 100 ? ($sertifikat?->issued_at ?? now()) : null,
             ],

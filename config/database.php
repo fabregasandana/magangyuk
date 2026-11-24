@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use Pdo\Pgsql;
 
 return [
 
@@ -97,6 +98,10 @@ return [
             'prefix_indexes' => true,
             'search_path' => env('DB_SEARCH_PATH', 'public'),
             'sslmode' => 'require',
+            // Kirim SQL dan parameter bersama tanpa prepare terpisah ke pooler.
+            'options' => extension_loaded('pdo_pgsql') ? [
+                Pgsql::ATTR_DISABLE_PREPARES => true,
+            ] : [],
         ],
 
         'sqlsrv' => [

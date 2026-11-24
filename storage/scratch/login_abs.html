@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Masuk ke ruang Magang Komdigi untuk mengakses logbook, absensi, dan perkembangan magang sesuai peran akun Anda.">
+    <title>Login | Magang Komdigi 2026</title>
+    <script>
+    (() => {
+        const root = document.documentElement;
+        root.dataset.sidebarCollapsed = 'true';
+        try {
+            const theme = localStorage.getItem('komdigi-theme');
+            if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
+            root.dataset.sidebarCollapsed = localStorage.getItem('komdigi-sidebar-pinned') === 'true' ? 'false' : 'true';
+        } catch (_) {
+            // Keep the compact rail and page theme when storage is unavailable.
+        }
+        if (!root.dataset.theme) root.dataset.theme = 'light';
+        root.style.colorScheme = root.dataset.theme;
+    })();
+</script>
+    <script type="module" src="http://127.0.0.1:5173/@vite/client"></script><link rel="stylesheet" href="http://127.0.0.1:5173/resources/css/login.css" /><script type="module" src="http://127.0.0.1:5173/resources/js/login.js"></script><script id="browser-logger-active">
+(function() {
+    const ENDPOINT = 'http://127.0.0.1:8000/_boost/browser-logs';
+    const logQueue = [];
+    let flushTimeout = null;
+    const captureTypes = ["error","warning","info","log","debug","table"];
+
+    console.log('🔍 Browser logger active (MCP server detected). Posting to: ' + ENDPOINT);
+
+    // Store original console methods
+    const originalConsole = {
+        log: console.log,
+        debug: console.debug,
+        info: console.info,
+        error: console.error,
+        warn: console.warn,
+        table: console.table
+    };
+
+    // Walk own enumerable keys so JSON.stringify cannot auto-invoke a proxy fake toJSON (e.g. Livewire's `$wire`) and fire a real request.
+    function toSafeValue(value, seen) {
+        if (value === null || typeof value !== 'object') {
+            return value;
+        }
+        if (value instanceof Error) {
+            return { name: value.name, message: value.message, stack: value.stack };
+        }
+        // Date has no own enumerable keys, so the walk below would collapse it to {}.
+        if (value instanceof Date) {
+            return value.toISOString();
+        }
+        if (seen.has(value)) {
+            return '[Circular]';
+        }
+        seen.add(value);
+        if (Array.isArray(value)) {
+            return value.map((item) => toSafeValue(item, seen));
+        }
+        const plain = {};
+        for (const key of Object.keys(value)) {
+            if (key === 'toJSON') continue;
+            try {
+                plain[key] = toSafeValue(value[key], seen);
+            } catch (e) {
+                plain[key] = '[Unreadable]';
+            }
+        }
+        return plain;
+    }
+
+    // Helper to safely stringify values
+    function safeStringify(obj) {
+        return JSON.stringify(toSafeValue(obj, new WeakSet()));
+    }
+
+    // Normalize log type for consistency (e.g., 'warn' to 'warning')
+    function normalizeType(type) {
+        return type === 'warn' ? 'warning' : type;
+    }
+
+    // Determine if a log type should be captured based on configured levels
+    function shouldCapture(type) {
+        return captureTypes.includes(normalizeType(type));
+    }
+
+    // Batch and send logs
+    function flushLogs() {
+        if (logQueue.length === 0) return;
+
+        const batch = logQueue.splice(0, logQueue.length);
+
+        fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ logs: batch })
+        }).catch(err => {
+            // Silently fail to avoid infinite loops
+            originalConsole.error('Failed to send logs:', err);
+        });
+    }
+
+    // Debounced flush (100ms)
+    function scheduleFlush() {
+        if (flushTimeout) clearTimeout(flushTimeout);
+        flushTimeout = setTimeout(flushLogs, 100);
+    }
+
+    // Intercept console methods
+    ['log', 'debug', 'info', 'error', 'warn', 'table'].forEach(method => {
+        console[method] = function(...args) {
+            // Call original method
+            originalConsole[method].apply(console, args);
+
+            // Capture log data
+            try {
+                if (!shouldCapture(method)) {
+                    return;
+                }
+
+                logQueue.push({
+                    type: method,
+                    timestamp: new Date().toISOString(),
+                    data: args.map(arg => {
+                        try {
+                            return typeof arg === 'object' ? JSON.parse(safeStringify(arg)) : arg;
+                        } catch (e) {
+                            return String(arg);
+                        }
+                    }),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            } catch (e) {
+                // Fail silently
+            }
+        };
+    });
+
+    // Global error handlers for uncaught errors
+    const originalOnError = window.onerror;
+    window.onerror = function boostErrorHandler(errorMsg, url, lineNumber, colNumber, error) {
+        try {
+            if (shouldCapture('error')) {
+                logQueue.push({
+                    type: 'uncaught_error',
+                    timestamp: new Date().toISOString(),
+                    data: [{
+                        message: errorMsg,
+                        filename: url,
+                        lineno: lineNumber,
+                        colno: colNumber,
+                        error: error ? {
+                            name: error.name,
+                            message: error.message,
+                            stack: error.stack
+                        } : null
+                    }],
+                    url: window.location.href,
+                    userAgent: navigator.userAgent
+                });
+
+                scheduleFlush();
+            }
+
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Call original handler if it exists
+        if (originalOnError && typeof originalOnError === 'function') {
+            return originalOnError(errorMsg, url, lineNumber, colNumber, error);
+        }
+
+        // Let the error continue to propagate
+        return false;
+    }
+    window.addEventListener('error', (event) => {
+        try {
+            if (!shouldCapture('error')) {
+                return false;
+            }
+
+            logQueue.push({
+                type: 'window_error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    error: event.error ? {
+                        name: event.error.name,
+                        message: event.error.message,
+                        stack: event.error.stack
+                    } : null
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the error continue to propagate
+        return false;
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+        try {
+            if (!shouldCapture('error')) {
+                return false;
+            }
+
+            logQueue.push({
+                type: 'error',
+                timestamp: new Date().toISOString(),
+                data: [{
+                    message: 'Unhandled Promise Rejection',
+                    reason: toSafeValue(event.reason, new WeakSet())
+                }],
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+
+            scheduleFlush();
+        } catch (e) {
+            // Fail silently
+        }
+
+        // Let the rejection continue to propagate
+        return false;
+    });
+
+    // Flush on page unload
+    window.addEventListener('beforeunload', () => {
+        if (logQueue.length > 0) {
+            navigator.sendBeacon(ENDPOINT, JSON.stringify({ logs: logQueue }));
+        }
+    });
+})();
+</script>
+</head>
+<body class="login-page">
+    <a href="#login-form" class="login-skip-link">Lewati ke formulir masuk</a>
+    <div class="login-shell">
+        
+        <main class="login-main">
+            <header class="login-main-header">
+                <a href="http://127.0.0.1:8000" class="login-brand" aria-label="Magang Komdigi — Beranda">
+                    <span class="login-brand-mark" aria-hidden="true">K<span></span></span>
+                    <span>Magang Komdigi<small>Kementerian Komunikasi dan Digital</small></span>
+                </a>
+                <div class="login-header-actions">
+                    <a href="http://127.0.0.1:8000" class="login-back-link"><i data-lucide="arrow-left" class="w-5 h-5" aria-hidden="true"></i> Beranda</a>
+                    <button type="button" class="ui-icon-button" data-theme-toggle aria-label="Ganti tema tampilan" title="Ganti tema tampilan" aria-pressed="false">
+    <i data-lucide="sun" data-theme-icon="sun" class="w-4 h-4" aria-hidden="true"></i>
+    <i data-lucide="moon" data-theme-icon="moon" class="w-4 h-4" aria-hidden="true"></i>
+</button>
+                </div>
+            </header>
+
+            <div class="login-form-region">
+                <div class="login-form-shell">
+                    <p class="login-form-eyebrow">Program Magang 2026</p>
+                    <h1 data-split-text>Selamat datang<br>kembali.</h1>
+                    <p class="login-form-description">Masuk untuk melanjutkan perjalanan magangmu. Kelola absensi, logbook, dan ulasan pembimbing dalam satu ruang.</p>
+
+                    <form action="http://127.0.0.1:8000/login" method="POST" id="login-form" class="login-form" data-anime-stagger>
+                        <input type="hidden" name="_token" value="Jd7tGoxWl6lXPO8UUYpdGWehhoW4hRkcM4Tocu2I" autocomplete="off">                        <div class="login-field">
+                            <label for="email">Alamat email</label>
+                            <div class="login-input-wrap">
+                                <span class="login-input-icon"><i data-lucide="mail" class="w-5 h-5" aria-hidden="true"></i></span>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value=""
+                                    placeholder="nama@email.com"
+                                    autocomplete="username"
+                                    inputmode="email"
+                                    autocapitalize="none"
+                                    spellcheck="false"
+                                    class="form-input login-input"
+                                                                        required
+                                >
+                            </div>
+                                                    </div>
+
+                        <div class="login-field">
+                            <div class="login-label-row">
+                                <label for="password">Password</label>
+                            </div>
+                            <div class="login-input-wrap">
+                                <span class="login-input-icon"><i data-lucide="lock-keyhole" class="w-5 h-5" aria-hidden="true"></i></span>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Masukkan password"
+                                    autocomplete="current-password"
+                                    class="form-input login-input login-password-input"
+                                                                        required
+                                >
+                                <button
+                                    type="button"
+                                    data-action="toggle-password"
+                                    data-target="password"
+                                    aria-controls="password"
+                                    aria-pressed="false"
+                                    aria-label="Tampilkan password"
+                                    class="ui-icon-button login-password-toggle"
+                                >
+                                    <span data-icon="eye"><i data-lucide="eye" class="w-5 h-5" aria-hidden="true"></i></span>
+                                    <span data-icon="eye-off" hidden><i data-lucide="eye-off" class="w-5 h-5" aria-hidden="true"></i></span>
+                                </button>
+                            </div>
+                                                    </div>
+
+                        <div class="login-form-options">
+                            <label class="login-remember" for="remember">
+                                <input type="checkbox" id="remember" name="remember" value="1" >
+                                <span>Ingat saya</span>
+                            </label>
+                            <p class="login-password-help">Lupa password? Hubungi admin program.</p>
+                        </div>
+
+                        <button type="submit" class="ui-button login-submit">
+                            <span class="login-spinner" aria-hidden="true"></span>
+                            <span>Masuk</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5 login-submit-icon" aria-hidden="true"></i>
+                        </button>
+                    </form>
+
+                    <div class="login-account-note"><i data-lucide="shield-check" class="w-5 h-5" aria-hidden="true"></i><p><strong>Akses khusus anggota program</strong>Gunakan akun yang diberikan admin. Peserta, pembimbing, dan admin akan diarahkan sesuai peran masing-masing.</p></div>
+                </div>
+            </div>
+
+            <footer class="login-main-footer">&copy; 2026 Magang Komdigi. All rights reserved.</footer>
+        </main>
+
+        
+        <aside class="login-story" aria-labelledby="story-title">
+            <div class="login-story-art" aria-hidden="true">
+                <span class="login-arc login-arc-1"></span>
+                <span class="login-arc login-arc-2"></span>
+                <span class="login-dot-grid"></span>
+                <span class="login-chip-float chip-mail"><i data-lucide="mail" class="w-5 h-5"></i></span>
+                <span class="login-chip-float chip-cap"><i data-lucide="graduation-cap" class="w-5 h-5"></i></span>
+                <span class="login-chip-float chip-spark"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
+                <span class="login-story-rings"></span>
+            </div>
+
+            <div class="login-story-content">
+                <p class="login-eyebrow">Ruang Magang Komdigi</p>
+                <h2 id="story-title" data-split-text>Tempat belajar.<br>Ruang berkarya.<br><span>Langkah bersama.</span></h2>
+                <p class="login-story-description">Setiap pengalaman membentuk perjalananmu — tetap terhubung dengan pembimbing, rekam proses, dan tumbuh bersama.</p>
+
+                <div class="login-story-workflow" data-anime-stagger>
+                    <div><span><i data-lucide="calendar-check" class="w-5 h-5" aria-hidden="true"></i></span><p><strong>Mulai dengan kehadiran</strong><small>Catat absensi dan bangun kebiasaan baik.</small></p></div>
+                    <div><span><i data-lucide="notebook-pen" class="w-5 h-5" aria-hidden="true"></i></span><p><strong>Rekam proses belajarmu</strong><small>Dokumentasikan kegiatan melalui logbook.</small></p></div>
+                    <div><span><i data-lucide="message-square" class="w-5 h-5" aria-hidden="true"></i></span><p><strong>Berkembang lewat arahan</strong><small>Ikuti evaluasi dan ulasan pembimbing.</small></p></div>
+                </div>
+
+                <div class="login-story-quote">
+                    <i data-lucide="quote" class="w-5 h-5" aria-hidden="true"></i>
+                    <p>Belajar hari ini. Berkontribusi untuk esok.</p>
+                </div>
+            </div>
+
+            <div class="login-story-footer">
+                <span class="login-story-year">MMXXVI</span>
+                <span class="login-story-tag">Komdigi</span>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

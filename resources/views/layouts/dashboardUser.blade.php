@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,13 +10,16 @@
     @stack('styles')
 </head>
 <body class="dashboard-body font-sans antialiased">
-    @include('layouts.header')
-    <div class="dashboard-shell">
+    <div class="app-shell" x-data="appChrome" @keydown.window.ctrl.k.prevent="openCommand()" @keydown.window.meta.k.prevent="openCommand()" @keydown.window.escape="closeCommand()">
         @include('layouts.sidebar')
-        <main id="main-content" class="dashboard-main" tabindex="-1">
-            @include('layouts.peserta.flash')
-            @yield('content')
-        </main>
+        <div class="app-main">
+            @include('layouts.header', ['pageTitle' => trim($__env->yieldContent('title', 'Dashboard'))])
+            <main id="main-content" class="dashboard-main" tabindex="-1">
+                @include('layouts.peserta.flash')
+                @yield('content')
+            </main>
+        </div>
+        @include('layouts.dashboard-overlays', ['role' => 'peserta'])
     </div>
     @include('layouts.peserta.bottomnav')
     @stack('modals')

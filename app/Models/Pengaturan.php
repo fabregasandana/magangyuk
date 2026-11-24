@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['key', 'value', 'grup', 'label'])]
 class Pengaturan extends Model
 {
+    public const CACHE_BINDING = 'pengaturan.values';
+
     protected $table = 'pengaturan';
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => app()->forgetInstance(self::CACHE_BINDING));
+        static::deleted(fn () => app()->forgetInstance(self::CACHE_BINDING));
+    }
 
     /**
      * Ambil nilai pengaturan. Nilai scalar dibungkus jadi ['value' => x]
@@ -16,7 +24,7 @@ class Pengaturan extends Model
      */
     public static function ambil(string $key, mixed $default = null): mixed
     {
-        $baris = static::where('key', $key)->first();
+        $baris = app(self::CACHE_BINDING)->get($key);
         if (! $baris || $baris->value === null) {
             return $default;
         }

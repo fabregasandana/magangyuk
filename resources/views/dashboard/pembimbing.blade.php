@@ -4,23 +4,29 @@
 
 @section('content')
     <div class="space-y-6 text-foreground">
-        <header class="ui-page-header flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-reveal>
-            <div class="min-w-0">
-                <p class="ui-eyebrow">Selamat datang kembali</p>
-                <h1 class="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl break-words">{{ $mentor['nama_gelar'] }}</h1>
-                <p class="mt-2 text-sm text-muted">Pembimbing Magang · {{ $mentor['unit_penempatan'] }}</p>
-            </div>
-            <div class="glass flex w-fit shrink-0 items-center gap-3 rounded-xl px-4 py-3">
-                <i data-lucide="calendar-days" class="w-5 h-5 text-primary" aria-hidden="true"></i>
-                <div>
-                    <p class="text-sm font-medium" id="current-date">{{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y') }}</p>
-                    <p class="mt-0.5 text-xs tabular-nums text-muted" id="current-time">{{ now()->timezone('Asia/Jakarta')->format('H.i.s') }} WIB</p>
-                </div>
-            </div>
-        </header>
+        @include('layouts.dashboard-hero', [
+            'kicker' => 'Ruang bimbingan',
+            'title' => 'Halo, ' . $mentor['nama_gelar'],
+            'description' => 'Dampingi peserta bimbinganmu: tinjau logbook, beri penilaian, dan jaga ritme progres setiap minggu.',
+            'meta' => [
+                ['icon' => 'building-2', 'label' => $mentor['unit_penempatan']],
+                ['icon' => 'calendar-days', 'label' => now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('l, j F Y')],
+                ['icon' => 'clock', 'label' => now()->timezone('Asia/Jakarta')->format('H.i') . ' WIB'],
+            ],
+            'mini' => [
+                ['label' => 'Peserta bimbingan', 'value' => $jumlahPeserta],
+                ['label' => 'Logbook pending', 'value' => $ringkasan['logbook_pending']],
+                ['label' => 'Perlu perhatian', 'value' => $ringkasan['perhatian']],
+                ['label' => 'Rata-rata skor', 'value' => $ringkasan['rata_skor']],
+            ],
+            'actions' => [
+                ['label' => 'Review logbook', 'href' => route('pembimbing.logbook'), 'icon' => 'book-open-check'],
+                ['label' => 'Nilai peserta', 'href' => route('pembimbing.penilaianpeserta'), 'icon' => 'star', 'variant' => 'secondary'],
+            ],
+        ])
 
         <div class="grid grid-cols-2 gap-4 xl:grid-cols-4" data-stagger>
-            <section class="glass-card ui-stat rounded-2xl p-4 sm:p-5" aria-label="Peserta bimbingan">
+            <section class="glass-card ui-stat ui-stat-featured rounded-2xl p-4 sm:p-5" aria-label="Peserta bimbingan">
                 <div class="mb-4 flex items-start justify-between gap-3">
                     <p class="text-sm font-medium text-muted">Peserta Bimbingan</p>
                     <i data-lucide="users-round" class="w-5 h-5 shrink-0 text-primary" aria-hidden="true"></i>
@@ -55,8 +61,8 @@
         </div>
 
         {{-- Reviews are the primary daily action. --}}
-        <div class="grid gap-5 xl:grid-cols-2">
-            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6" aria-labelledby="pending-heading">
+        <div class="grid gap-5 xl:grid-cols-3">
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-1" aria-labelledby="pending-heading">
                 <div class="mb-5 flex items-start justify-between gap-3">
                     <div>
                         <p class="ui-eyebrow">Prioritas hari ini</p>
@@ -88,7 +94,7 @@
                 </a>
             </section>
 
-            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6" aria-labelledby="performance-heading">
+            <section class="glass-card min-w-0 rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-labelledby="performance-heading">
                 <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
                     <div>
                         <h2 id="performance-heading" class="text-base font-semibold">Ringkasan Performa</h2>
@@ -102,7 +108,8 @@
             </section>
         </div>
 
-        <section class="glass-card rounded-2xl p-5 sm:p-6" aria-labelledby="attention-heading">
+        <div class="grid gap-5 xl:grid-cols-3">
+        <section class="glass-card rounded-2xl p-5 sm:p-6 xl:col-span-2" aria-labelledby="attention-heading" data-reveal>
             <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
                     <i data-lucide="circle-alert" class="w-5 h-5 mt-0.5 shrink-0 text-primary" aria-hidden="true"></i>
@@ -140,17 +147,112 @@
             </div>
         </section>
 
-        <section class="glass-card rounded-2xl p-5 sm:p-6" aria-labelledby="participants-heading">
-            <div class="mb-5 flex items-start gap-3">
-                <i data-lucide="users-round" class="w-5 h-5 mt-0.5 shrink-0 text-primary" aria-hidden="true"></i>
-                <div>
-                    <h2 id="participants-heading" class="text-base font-semibold">Daftar Peserta Bimbingan</h2>
-                    <p class="mt-1 text-sm text-muted">Kartu ringkas performa peserta</p>
+            <section class="glass-card relative min-w-0 overflow-hidden rounded-2xl p-5 sm:p-6" aria-labelledby="focus-mentor-heading" data-reveal>
+                <canvas class="pointer-events-none absolute inset-0 h-full w-full opacity-20" data-canvas-ripple aria-hidden="true"></canvas>
+                <div class="relative">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="ui-eyebrow">Sinyal bimbingan</p>
+                            <h2 id="focus-mentor-heading" class="mt-2 text-lg font-semibold">Fokus bimbingan</h2>
+                        </div>
+                        <div class="relative grid h-14 w-14 shrink-0 place-items-center rounded-full border border-subtle bg-surface">
+                            <svg class="absolute inset-0 h-14 w-14 -rotate-90" viewBox="0 0 36 36" aria-hidden="true">
+                                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--ui-border)" stroke-width="2.5" />
+                                <circle cx="18" cy="18" r="15.5" pathLength="100" fill="none" stroke="url(#mentorGrad)" stroke-width="2.5" stroke-dasharray="{{ $ringkasan['rata_kehadiran'] }} 100" stroke-linecap="round" data-ring />
+                                <defs>
+                                    <linearGradient id="mentorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="var(--ui-primary)" />
+                                        <stop offset="100%" stop-color="var(--ui-accent)" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <span class="text-sm font-semibold tabular-nums">{{ $ringkasan['rata_kehadiran'] }}%</span>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 text-sm leading-relaxed text-muted">Rata-rata kehadiran peserta bimbingan. Jaga ritme review agar tidak ada antrean menumpuk.</p>
+
+                    <ul class="mt-5 space-y-2.5">
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="book-open-check" class="w-4 h-4 text-primary" aria-hidden="true"></i> Logbook pending</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ $ringkasan['logbook_pending'] }}</span>
+                        </li>
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="circle-alert" class="w-4 h-4 text-primary" aria-hidden="true"></i> Perlu perhatian</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ $ringkasan['perhatian'] }}</span>
+                        </li>
+                        <li class="flex items-center justify-between gap-3 rounded-xl border border-subtle bg-elevated px-3.5 py-3">
+                            <span class="flex items-center gap-2.5 text-sm"><i data-lucide="star" class="w-4 h-4 text-primary" aria-hidden="true"></i> Penilaian diberikan</span>
+                            <span class="text-sm font-semibold tabular-nums">{{ $ringkasan['penilaian_diberikan'] }}</span>
+                        </li>
+                    </ul>
+
+                    <a href="{{ route('pembimbing.logbook') }}" class="ui-button mt-5 inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-xs">
+                        Buka antrean logbook
+                        <i data-lucide="arrow-right" class="w-4 h-4" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <section
+            class="glass-card rounded-2xl p-5 sm:p-6"
+            aria-labelledby="participants-heading"
+            data-reveal
+            x-data="{
+                q: '',
+                filter: 'semua',
+                matches(el) {
+                    const hay = (el.dataset.searchText || '').toLowerCase();
+                    return (this.filter === 'semua' || this.filter === el.dataset.searchStatus) && hay.includes(this.q.toLowerCase().trim());
+                },
+                visibleCount() {
+                    return [...this.$root.querySelectorAll('[data-peserta-card]')].filter((el) => this.matches(el)).length;
+                },
+            }"
+        >
+            <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <span class="dash-icon-tile"><i data-lucide="users-round" class="w-4 h-4" aria-hidden="true"></i></span>
+                    <div>
+                        <h2 id="participants-heading" class="dash-card-title">Daftar Peserta Bimbingan</h2>
+                        <p class="dash-card-subtitle">Cari peserta atau saring berdasarkan status bimbingan.</p>
+                    </div>
+                </div>
+                <span class="chip"><span x-text="visibleCount()">0</span> / {{ count($pesertaSorot) }} peserta</span>
+            </div>
+
+            <div class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <label class="dash-search block w-full lg:max-w-xs">
+                    <span class="sr-only">Cari peserta bimbingan</span>
+                    <i data-lucide="search" class="w-4 h-4" aria-hidden="true"></i>
+                    <input type="search" class="form-input" placeholder="Cari nama, ID, atau institusi…" x-model="q" autocomplete="off">
+                </label>
+                <div class="chip-row" role="group" aria-label="Saring status peserta">
+                    <button type="button" class="chip" @click="filter = 'semua'" :aria-pressed="filter === 'semua' ? 'true' : 'false'">Semua</button>
+                    <button type="button" class="chip" @click="filter = 'aktif'" :aria-pressed="filter === 'aktif' ? 'true' : 'false'">Aktif</button>
+                    <button type="button" class="chip" @click="filter = 'perhatian'" :aria-pressed="filter === 'perhatian' ? 'true' : 'false'">Perlu perhatian</button>
+                    <button type="button" class="chip" @click="filter = 'selesai'" :aria-pressed="filter === 'selesai' ? 'true' : 'false'">Selesai</button>
                 </div>
             </div>
-            <div class="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4" data-stagger>
+
+            <div class="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
                 @forelse ($pesertaSorot as $p)
-                    <article class="min-w-0 rounded-xl border bg-elevated p-4 {{ $p['status'] === 'perhatian' ? 'border-rose-500/30' : 'border-subtle' }}">
+                    @php
+                        $haystack = mb_strtolower(implode(' ', array_filter([
+                            $p['nama'],
+                            $p['id_peserta'],
+                            $p['institusi'] ?? '',
+                            $p['gaya']['label'] ?? '',
+                        ])));
+                    @endphp
+                    <article
+                        class="min-w-0 rounded-xl border bg-elevated p-4 {{ $p['status'] === 'perhatian' ? 'border-rose-500/30' : 'border-subtle' }}"
+                        data-peserta-card
+                        data-search-text="{{ $haystack }}"
+                        data-search-status="{{ $p['status'] }}"
+                        x-show="matches($el)"
+                    >
                         <div class="mb-5 flex items-center gap-3">
                             <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-white">{{ $p['inisial'] }}</div>
                             <div class="min-w-0">
@@ -182,6 +284,9 @@
                 @empty
                     <p class="rounded-xl border border-dashed border-subtle p-5 text-sm text-muted sm:col-span-2 2xl:col-span-4">Belum ada peserta bimbingan.</p>
                 @endforelse
+                <p class="rounded-xl border border-dashed border-subtle p-5 text-sm text-muted sm:col-span-2 2xl:col-span-4" x-show="visibleCount() === 0" x-cloak>
+                    Tidak ada peserta yang cocok dengan pencarian atau filter ini.
+                </p>
             </div>
             <div class="mt-5 border-t border-subtle pt-4">
                 <a href="{{ route('pembimbing.peserta') }}" class="inline-flex items-center gap-2 py-1 text-sm font-medium text-primary hover:underline">

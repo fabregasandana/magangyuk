@@ -10,13 +10,17 @@ use App\Models\Izin;
 use App\Models\KriteriaPenilaian;
 use App\Models\Laporan;
 use App\Models\Logbook;
+use App\Models\Pengaturan;
 use App\Models\Penilaian;
 use App\Models\PenilaianDetail;
-use App\Models\Pengaturan;
 use App\Models\Periode;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -124,7 +128,7 @@ class PembimbingPageController extends Controller
     public function dashboard()
     {
         $peserta = $this->daftarPeserta();
-        $pending = $this->logbookMenunggu();
+        $pending = $this->logbookMenunggu(3);
         $ringkasan = $this->ringkasan($peserta);
         $tren = $this->trenSkor(array_column($peserta, 'id'));
 
@@ -137,10 +141,10 @@ class PembimbingPageController extends Controller
             'mentor' => $this->mentor(),
             'jumlahPeserta' => count($peserta),
             'ringkasan' => $ringkasan,
-            'deltaSkor' => ($delta >= 0 ? '+' : '−') . number_format(abs($delta), 1, ',', '.') . ' dari minggu lalu',
+            'deltaSkor' => ($delta >= 0 ? '+' : '−').number_format(abs($delta), 1, ',', '.').' dari minggu lalu',
             'perluPerhatian' => array_values(array_filter($peserta, fn (array $p) => $p['status'] === 'perhatian')),
             'pesertaSorot' => array_slice($peserta, 0, 4),
-            'logbookPending' => array_slice($pending, 0, 3),
+            'logbookPending' => $pending,
             'chartPerforma' => $this->chartLine($tren['labels'], $tren['data']),
         ]);
     }
@@ -195,26 +199,26 @@ class PembimbingPageController extends Controller
                 ],
                 [
                     'label' => 'Kehadiran',
-                    'nilai' => $kartu['kehadiran'] . '%',
+                    'nilai' => $kartu['kehadiran'].'%',
                     'warna' => 'text-white',
-                    'keterangan' => $kehadiran['hadir'] . ' Hadir • ' . $kehadiran['terlambat'] . ' Terlambat',
+                    'keterangan' => $kehadiran['hadir'].' Hadir • '.$kehadiran['terlambat'].' Terlambat',
                 ],
                 [
                     'label' => 'Logbook',
-                    'nilai' => $kartu['logbook_terisi'] . '/' . $kartu['logbook_total'],
+                    'nilai' => $kartu['logbook_terisi'].'/'.$kartu['logbook_total'],
                     'warna' => 'text-sky-400',
                     'keterangan' => $logbookPending > 0
-                        ? $logbookPending . ' menunggu approval'
+                        ? $logbookPending.' menunggu approval'
                         : 'Semua sudah direview',
                 ],
                 [
                     'label' => 'Penilaian',
                     'nilai' => $rataDetail ? number_format((float) $rataDetail, 1) : '—',
                     'warna' => 'text-amber-400',
-                    'keterangan' => 'Rata-rata dari ' . $penilaian->count() . ' penilaian',
+                    'keterangan' => 'Rata-rata dari '.$penilaian->count().' penilaian',
                 ],
             ],
-            'chartSkor' => (function () use ($user, $periode) {
+            'chartSkor' => (function () use ($user) {
                 $mingguan = $this->skorMingguan($user);
 
                 return $this->chartLine($mingguan['labels'], $mingguan['data'], 'Skor');
@@ -323,8 +327,8 @@ class PembimbingPageController extends Controller
                 ->get()
                 ->map(fn (ActivityLog $log) => [
                     'aksi' => self::LABEL_AKSI[$log->aksi] ?? ucfirst((string) $log->aksi),
-                    'detail' => trim(($log->deskripsi ?: self::LABEL_AKSI[$log->aksi] ?? '') . ' • '
-                        . ($log->created_at?->translatedFormat('j M Y, H.i') ?? '')),
+                    'detail' => trim(($log->deskripsi ?: self::LABEL_AKSI[$log->aksi] ?? '').' • '
+                        .($log->created_at?->translatedFormat('j M Y, H.i') ?? '')),
                     'dot' => self::DOT_AKSI[$log->aksi] ?? 'bg-slate-400',
                 ])
                 ->all(),
@@ -375,41 +379,49 @@ class PembimbingPageController extends Controller
         }
         abort_if($nilai === [], 422, 'Kriteria penilaian tidak dikenali.');
 
-        $penilaian = Penilaian::firstOrNew([
-            'peserta_id' => $peserta->id,
-            'jenis' => $jenis,
-            'periode_key' => $key,
-        ]);
-        $baru = ! $penilaian->exists;
+        [$penilaian, $baru, $total] = DB::transaction(function () use ($peserta, $jenis, $key, $opsiDipilih, $periode, $validated, $nilai): array {
+            $penilaian = Penilaian::firstOrNew([
+                'peserta_id' => $peserta->id,
+                'jenis' => $jenis,
+                'periode_key' => $key,
+            ]);
+            $baru = ! $penilaian->exists;
 
-        $penilaian->pembimbing_id = $this->user()->id;
-        $penilaian->periode_label = $this->labelPeriodePenilaian($jenis, $key, $opsiDipilih['label'], $periode);
-        $penilaian->komentar = $validated['komentar'];
-        $penilaian->tanggal = $this->tanggalPenilaian($key, $periode);
-        $penilaian->status = 'final';
-        if ($baru) {
-            $penilaian->di_override_admin = false;
-        }
-        $penilaian->save();
+            $penilaian->pembimbing_id = $this->user()->id;
+            $penilaian->periode_label = $this->labelPeriodePenilaian($jenis, $key, $opsiDipilih['label'], $periode);
+            $penilaian->komentar = $validated['komentar'];
+            $penilaian->tanggal = $this->tanggalPenilaian($key, $periode);
+            $penilaian->status = 'final';
+            if ($baru) {
+                $penilaian->di_override_admin = false;
+            }
+            $penilaian->save();
 
-        foreach ($nilai as $idKriteria => $skalaLima) {
-            PenilaianDetail::updateOrCreate(
-                ['penilaian_id' => $penilaian->id, 'kriteria_penilaian_id' => $idKriteria],
-                ['nilai' => $skalaLima],
-            );
-        }
-        // Buang detail kriteria yang sudah dinonaktifkan admin.
-        $penilaian->detail()->whereNotIn('kriteria_penilaian_id', array_keys($nilai))->delete();
+            $details = [];
+            foreach ($nilai as $idKriteria => $skalaLima) {
+                $details[] = [
+                    'penilaian_id' => $penilaian->id,
+                    'kriteria_penilaian_id' => $idKriteria,
+                    'nilai' => $skalaLima,
+                ];
+            }
+            PenilaianDetail::upsert($details, ['penilaian_id', 'kriteria_penilaian_id'], ['nilai']);
 
-        $total = Penilaian::hitungSkorBerbobot($nilai);
-        $penilaian->update([
-            'total_skor' => $total,
-            'grade' => Penilaian::gradeDariSkor($total),
-        ]);
+            // Buang detail kriteria yang sudah dinonaktifkan admin.
+            $penilaian->detail()->whereNotIn('kriteria_penilaian_id', array_keys($nilai))->delete();
 
-        $pesan = ($baru ? 'Penilaian' : 'Penilaian terbaru') . ' untuk ' . $peserta->nama_lengkap
-            . ' (' . $opsiDipilih['label'] . ') tersimpan dengan skor '
-            . number_format($total, 1, ',', '.') . ' — ' . $penilaian->grade . '.';
+            $total = Penilaian::hitungSkorBerbobot($nilai);
+            $penilaian->update([
+                'total_skor' => $total,
+                'grade' => Penilaian::gradeDariSkor($total),
+            ]);
+
+            return [$penilaian, $baru, $total];
+        });
+
+        $pesan = ($baru ? 'Penilaian' : 'Penilaian terbaru').' untuk '.$peserta->nama_lengkap
+            .' ('.$opsiDipilih['label'].') tersimpan dengan skor '
+            .number_format($total, 1, ',', '.').' — '.$penilaian->grade.'.';
 
         ActivityLog::catat('penilaian', $pesan, $this->user());
 
@@ -440,8 +452,8 @@ class PembimbingPageController extends Controller
         ]);
 
         $nama = $logbook->user?->nama_lengkap ?? 'Peserta';
-        $pesan = 'Logbook minggu ke-' . $logbook->minggu_ke . ' milik ' . $nama
-            . ($setuju ? ' berhasil disetujui.' : ' ditolak. Peserta akan diberi notifikasi.');
+        $pesan = 'Logbook minggu ke-'.$logbook->minggu_ke.' milik '.$nama
+            .($setuju ? ' berhasil disetujui.' : ' ditolak. Peserta akan diberi notifikasi.');
 
         ActivityLog::catat('logbook', $pesan, $this->user());
 
@@ -470,8 +482,8 @@ class PembimbingPageController extends Controller
         ]);
 
         $nama = $laporan->user?->nama_lengkap ?? 'Peserta';
-        $jenis = $laporan->tipe === Laporan::TIPE_AKHIR ? 'laporan akhir' : 'laporan minggu ke-' . $laporan->minggu_ke;
-        $pesan = ucfirst($jenis) . ' milik ' . $nama . ($setuju ? ' disetujui.' : ' ditandai perlu revisi.');
+        $jenis = $laporan->tipe === Laporan::TIPE_AKHIR ? 'laporan akhir' : 'laporan minggu ke-'.$laporan->minggu_ke;
+        $pesan = ucfirst($jenis).' milik '.$nama.($setuju ? ' disetujui.' : ' ditandai perlu revisi.');
 
         ActivityLog::catat('laporan', $pesan, $this->user());
 
@@ -500,8 +512,8 @@ class PembimbingPageController extends Controller
         ]);
 
         $nama = $izin->user?->nama_lengkap ?? 'Peserta';
-        $pesan = 'Pengajuan ' . $izin->jenis_label . ' milik ' . $nama
-            . ' (' . $izin->rentang . ')' . ($setuju ? ' disetujui.' : ' ditolak.');
+        $pesan = 'Pengajuan '.$izin->jenis_label.' milik '.$nama
+            .' ('.$izin->rentang.')'.($setuju ? ' disetujui.' : ' ditolak.');
 
         ActivityLog::catat('izin', $pesan, $this->user());
 
@@ -533,7 +545,7 @@ class PembimbingPageController extends Controller
 
         $diri = DataDiri::firstOrNew(['user_id' => $user->id]);
         if (! $diri->exists) {
-            $diri->nik = '1272' . str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
+            $diri->nik = '1272'.str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
         }
         $diri->fill([
             'nama_lengkap' => $validated['nama'],
@@ -588,14 +600,26 @@ class PembimbingPageController extends Controller
     }
 
     /** Semua data_magang yang menunjuk pembimbing yang sedang login. */
-    private function bimbingan()
+    private function bimbingan(bool $withStatistics = false): Collection
     {
-        return DataMagang::with(['user', 'institusiRel', 'periodeRel'])
+        $query = DataMagang::with(['user', 'institusiRel', 'periodeRel'])
             ->where('pembimbing_id', $this->user()->id)
             ->whereHas('user')
-            ->orderBy('id')
-            ->get()
-            ->values();
+            ->orderBy('id');
+
+        if ($withStatistics) {
+            $query->with(['user' => fn (BelongsTo $users) => $users
+                ->withCount(['penilaian', 'logbook'])
+                ->addSelect(['skor_terbaru' => Penilaian::select('total_skor')
+                    ->whereColumn('peserta_id', 'users.id')
+                    ->orderByDesc('tanggal')
+                    ->orderByDesc('id')
+                    ->limit(1),
+                ]),
+            ]);
+        }
+
+        return $query->get()->values();
     }
 
     /** Kartu tampilan pembimbing (dipakai header, sidebar, dan halaman profil). */
@@ -618,8 +642,8 @@ class PembimbingPageController extends Controller
             'nama_pendek' => trim(Str::before($nama, ',')),
             'inisial' => $user->inisial,
             'nip' => $diri->nip ?: '—',
-            'id_pembimbing' => 'PB-' . ($user->created_at?->year ?? now()->year)
-                . '-' . str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
+            'id_pembimbing' => 'PB-'.($user->created_at?->year ?? now()->year)
+                .'-'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
             'email' => $user->email,
             'telepon' => $diri->no_hp ?: '—',
             'jabatan' => $diri->jabatan ?: '—',
@@ -659,44 +683,48 @@ class PembimbingPageController extends Controller
 
     private function participants(): array
     {
-        $bimbingan = $this->bimbingan();
+        $bimbingan = $this->bimbingan(withStatistics: true);
         if ($bimbingan->isEmpty()) {
             return [];
         }
 
         $minSkor = (float) Pengaturan::ambil('min_skor', 75);
         $minKehadiran = (int) Pengaturan::ambil('min_kehadiran', 80);
+        $absensi = Absensi::whereIn('user_id', $bimbingan->pluck('user_id'))
+            ->get(['user_id', 'tanggal', 'status'])
+            ->groupBy('user_id');
 
         $kartu = [];
         foreach ($bimbingan->values() as $urut => $magang) {
-            $kartu[] = $this->kartuPeserta($magang, (int) $urut, $minSkor, $minKehadiran);
+            $kartu[] = $this->kartuPeserta(
+                $magang, (int) $urut, $minSkor, $minKehadiran, $absensi->get($magang->user_id, collect()),
+            );
         }
 
         return $kartu;
     }
 
-    private function kartuPeserta(DataMagang $magang, int $urut, float $minSkor, int $minKehadiran): array
+    /** @param Collection<int, Absensi> $absensi */
+    private function kartuPeserta(DataMagang $magang, int $urut, float $minSkor, int $minKehadiran, Collection $absensi): array
     {
         $user = $magang->user;
         $periode = $magang->periodeRel;
         $totalMinggu = max(1, (int) ($periode?->total_minggu ?? 1));
 
-        $kehadiranRingkas = $this->ringkasanKehadiran($user, $periode);
+        $kehadiranRingkas = $this->ringkasanKehadiran($user, $periode, $absensi);
         $kehadiran = $this->persenKehadiran($kehadiranRingkas, $this->totalHariKerja($periode));
 
-        $skor = (int) round((float) (Penilaian::where('peserta_id', $user->id)
-            ->terbaru()
-            ->value('total_skor') ?? 0));
-        $jumlahPenilaian = Penilaian::where('peserta_id', $user->id)->count();
+        $skor = (int) round((float) ($user->skor_terbaru ?? 0));
+        $jumlahPenilaian = (int) $user->penilaian_count;
 
-        $logbookTerisi = Logbook::where('user_id', $user->id)->count();
+        $logbookTerisi = (int) $user->logbook_count;
         $logbookKosong = max(0, $totalMinggu - $logbookTerisi);
 
         $senin = Carbon::today()->startOfWeek();
-        $terlambatMingguIni = Absensi::where('user_id', $user->id)
-            ->where('status', 'terlambat')
-            ->whereBetween('tanggal', [$senin->toDateString(), Carbon::today()->toDateString()])
-            ->count();
+        $hariIni = Carbon::today();
+        $terlambatMingguIni = $absensi->filter(fn (Absensi $row) => $row->status === 'terlambat'
+            && $row->tanggal?->greaterThanOrEqualTo($senin)
+            && $row->tanggal->lessThanOrEqualTo($hariIni))->count();
 
         $status = match (true) {
             $magang->status === 'selesai', $user->status === 'selesai' => 'selesai',
@@ -716,7 +744,7 @@ class PembimbingPageController extends Controller
             'id' => $user->id,
             'nama' => $user->nama_lengkap,
             'inisial' => $user->inisial,
-            'id_peserta' => $magang->id_kode ?: 'MKD-' . $user->id,
+            'id_peserta' => $magang->id_kode ?: 'MKD-'.$user->id,
             'institusi' => $magang->institusi_label ?: '—',
             'skor' => $skor,
             'kehadiran' => $kehadiran,
@@ -758,16 +786,16 @@ class PembimbingPageController extends Controller
         }
 
         if ($kehadiran < $minKehadiran) {
-            return ['Kehadiran ' . $kehadiran . '%', 'bg-rose-100 text-rose-700'];
+            return ['Kehadiran '.$kehadiran.'%', 'bg-rose-100 text-rose-700'];
         }
         if ($logbookKosong >= 3) {
-            return [$logbookKosong . ' Logbook kosong', 'bg-rose-100 text-rose-700'];
+            return [$logbookKosong.' Logbook kosong', 'bg-rose-100 text-rose-700'];
         }
         if ($terlambatMingguIni > 0) {
-            return [$terlambatMingguIni . 'x Terlambat minggu ini', 'bg-amber-100 text-amber-700'];
+            return [$terlambatMingguIni.'x Terlambat minggu ini', 'bg-amber-100 text-amber-700'];
         }
         if ($skor > 0 && $skor < $minSkor) {
-            return ['Skor di bawah ' . (int) $minSkor, 'bg-amber-100 text-amber-700'];
+            return ['Skor di bawah '.(int) $minSkor, 'bg-amber-100 text-amber-700'];
         }
 
         return ['Perlu pendampingan', 'bg-amber-100 text-amber-700'];
@@ -860,7 +888,7 @@ class PembimbingPageController extends Controller
        ====================================================================== */
 
     /** Logbook berstatus menunggu milik seluruh peserta bimbingan (terbaru dulu). */
-    private function logbookMenunggu(): array
+    private function logbookMenunggu(?int $limit = null): array
     {
         $peserta = $this->daftarPeserta();
         $ids = array_column($peserta, 'id');
@@ -876,6 +904,7 @@ class PembimbingPageController extends Controller
             ->orderByDesc('submitted_at')
             ->orderByDesc('minggu_ke')
             ->orderByDesc('id')
+            ->when($limit !== null, fn (Builder $query) => $query->limit($limit))
             ->get()
             ->map(function (Logbook $lb) use ($avatar) {
                 $user = $lb->user;
@@ -890,8 +919,8 @@ class PembimbingPageController extends Controller
                     'peserta_inisial' => (string) $user?->inisial,
                     'peserta_id' => $magang?->id_kode ?: '—',
                     'avatar' => $avatar[$user?->id] ?? self::AVATAR[0],
-                    'minggu_label' => 'Minggu ke-' . $minggu,
-                    'minggu_key' => 'minggu' . $minggu,
+                    'minggu_label' => 'Minggu ke-'.$minggu,
+                    'minggu_key' => 'minggu'.$minggu,
                     'rentang' => $periode?->rentangMinggu($minggu) ?: (string) $lb->rentang,
                     'rentang_panjang' => $this->rentangPanjang($periode, $minggu, $lb->rentang),
                     'dikirim' => ($lb->submitted_at ?? $lb->updated_at)?->translatedFormat('j M Y, H.i') ?? '—',
@@ -915,7 +944,7 @@ class PembimbingPageController extends Controller
             return (string) $fallback;
         }
 
-        return $mulai->translatedFormat('j F Y') . ' – ' . $selesai->translatedFormat('j F Y');
+        return $mulai->translatedFormat('j F Y').' – '.$selesai->translatedFormat('j F Y');
     }
 
     /**
@@ -937,8 +966,8 @@ class PembimbingPageController extends Controller
 
         for ($m = min($total, $aktif); $m >= 1; $m--) {
             $mingguan[] = [
-                'value' => 'w' . $m,
-                'label' => 'Minggu ke-' . $m . ' (' . $periode->rentangMinggu($m) . ')',
+                'value' => 'w'.$m,
+                'label' => 'Minggu ke-'.$m.' ('.$periode->rentangMinggu($m).')',
             ];
         }
 
@@ -948,7 +977,7 @@ class PembimbingPageController extends Controller
         $bulan = $periode->tanggal_mulai->copy()->startOfMonth();
 
         while ($bulan->lessThanOrEqualTo($batas->copy()->startOfMonth())) {
-            $bulanan[] = ['value' => 'b' . $bulan->format('Y-m'), 'label' => $bulan->translatedFormat('F Y')];
+            $bulanan[] = ['value' => 'b'.$bulan->format('Y-m'), 'label' => $bulan->translatedFormat('F Y')];
             $bulan->addMonth();
         }
 
@@ -1045,7 +1074,7 @@ class PembimbingPageController extends Controller
             $minggu = (int) $m[1];
 
             return [
-                'Minggu ke-' . $minggu,
+                'Minggu ke-'.$minggu,
                 $periode?->rentangMinggu($minggu) ?: ($p->tanggal?->translatedFormat('j M Y') ?? ''),
             ];
         }
@@ -1056,7 +1085,7 @@ class PembimbingPageController extends Controller
             return [
                 $bulan->translatedFormat('F Y'),
                 $bulan->copy()->startOfMonth()->translatedFormat('j M')
-                    . ' – ' . $bulan->copy()->endOfMonth()->translatedFormat('j M Y'),
+                    .' – '.$bulan->copy()->endOfMonth()->translatedFormat('j M Y'),
             ];
         }
 
@@ -1072,7 +1101,7 @@ class PembimbingPageController extends Controller
         if (preg_match('/^w(\d+)$/', $key, $m)) {
             $rentang = $periode?->rentangMinggu((int) $m[1]);
 
-            return 'Minggu ke-' . $m[1] . ($rentang ? ' (' . $rentang . ')' : '');
+            return 'Minggu ke-'.$m[1].($rentang ? ' ('.$rentang.')' : '');
         }
 
         return $labelOpsi;
@@ -1122,7 +1151,7 @@ class PembimbingPageController extends Controller
         $labels = [];
         $data = [];
         foreach ($rows as $minggu => $skor) {
-            $labels[] = 'Minggu ' . $minggu;
+            $labels[] = 'Minggu '.$minggu;
             $data[] = $skor;
         }
 
@@ -1137,9 +1166,7 @@ class PembimbingPageController extends Controller
         $akhir = min($total, $aktif);
         $awal = max(1, $akhir - self::MAKS_MINGGU_CHART + 1);
 
-        $labels = [];
-        $data = [];
-
+        $minggu = [];
         for ($m = $awal; $m <= $akhir; $m++) {
             $mulai = $periode?->mulaiMinggu($m);
             $selesai = $periode?->selesaiMinggu($m);
@@ -1153,13 +1180,30 @@ class PembimbingPageController extends Controller
                 continue;
             }
 
-            $masuk = Absensi::where('user_id', $user->id)
-                ->whereIn('status', ['hadir', 'terlambat'])
-                ->whereBetween('tanggal', [$mulai->toDateString(), $selesai->toDateString()])
-                ->count();
+            $minggu[$m] = [
+                'mulai' => $mulai->toDateString(),
+                'selesai' => $selesai->toDateString(),
+                'hari_kerja' => $hariKerja,
+            ];
+        }
 
-            $labels[] = 'Minggu ' . $m;
-            $data[] = (int) min(100, round($masuk / $hariKerja * 100));
+        if ($minggu === []) {
+            return ['labels' => [], 'data' => []];
+        }
+
+        $tanggalMasuk = Absensi::where('user_id', $user->id)
+            ->whereIn('status', ['hadir', 'terlambat'])
+            ->whereBetween('tanggal', [reset($minggu)['mulai'], end($minggu)['selesai']])
+            ->toBase()
+            ->pluck('tanggal');
+
+        $labels = [];
+        $data = [];
+        foreach ($minggu as $m => $rentang) {
+            $masuk = $tanggalMasuk->filter(fn (string $tanggal) => $tanggal >= $rentang['mulai']
+                && $tanggal <= $rentang['selesai'])->count();
+            $labels[] = 'Minggu '.$m;
+            $data[] = (int) min(100, round($masuk / $rentang['hari_kerja'] * 100));
         }
 
         return ['labels' => $labels, 'data' => $data];
@@ -1189,7 +1233,7 @@ class PembimbingPageController extends Controller
         $labels = [];
         $data = [];
         foreach ($grup as $minggu => $nilai) {
-            $labels[] = 'Minggu ' . $minggu;
+            $labels[] = 'Minggu '.$minggu;
             $data[] = (int) round(array_sum($nilai) / count($nilai));
         }
 
@@ -1225,7 +1269,7 @@ class PembimbingPageController extends Controller
                 $minggu = (int) $lb->minggu_ke;
 
                 return [
-                    'minggu' => 'Minggu ke-' . $minggu,
+                    'minggu' => 'Minggu ke-'.$minggu,
                     'rentang' => $periode?->rentangMinggu($minggu) ?: (string) $lb->rentang,
                     'ringkasan' => Str::limit((string) $lb->uraian, 80),
                     'status' => (string) $lb->status,
@@ -1311,23 +1355,23 @@ class PembimbingPageController extends Controller
 
         $kekuatan = [
             $rataSkor >= 80
-                ? 'Rata-rata skor kinerja ' . $ringkasan['rata_skor'] . ' (kategori Baik ke atas)'
+                ? 'Rata-rata skor kinerja '.$ringkasan['rata_skor'].' (kategori Baik ke atas)'
                 : ($rataSkor >= 70
-                    ? 'Rata-rata skor kinerja ' . $ringkasan['rata_skor'] . ' (kategori Cukup Baik)'
-                    : 'Rata-rata skor kinerja ' . $ringkasan['rata_skor'] . ' — masih perlu ditingkatkan'),
-            'Tingkat kehadiran keseluruhan ' . $ringkasan['rata_kehadiran'] . '% dari total hari kerja',
-            $ringkasan['aktif'] . ' dari ' . $ringkasan['total'] . ' peserta berstatus Aktif dengan performa stabil',
-            $ringkasan['penilaian_diberikan'] . ' penilaian sudah diberikan selama periode berjalan',
+                    ? 'Rata-rata skor kinerja '.$ringkasan['rata_skor'].' (kategori Cukup Baik)'
+                    : 'Rata-rata skor kinerja '.$ringkasan['rata_skor'].' — masih perlu ditingkatkan'),
+            'Tingkat kehadiran keseluruhan '.$ringkasan['rata_kehadiran'].'% dari total hari kerja',
+            $ringkasan['aktif'].' dari '.$ringkasan['total'].' peserta berstatus Aktif dengan performa stabil',
+            $ringkasan['penilaian_diberikan'].' penilaian sudah diberikan selama periode berjalan',
         ];
 
         $perbaikan = [
             $perhatian === []
                 ? 'Tidak ada peserta dengan status perlu perhatian'
-                : count($perhatian) . ' peserta perlu perhatian' . ($namaPerhatian !== '' ? ': ' . $namaPerhatian : ''),
+                : count($perhatian).' peserta perlu perhatian'.($namaPerhatian !== '' ? ': '.$namaPerhatian : ''),
             $logbookKosong > 0
-                ? 'Masih ada ' . $logbookKosong . ' logbook mingguan yang belum diisi peserta'
+                ? 'Masih ada '.$logbookKosong.' logbook mingguan yang belum diisi peserta'
                 : 'Seluruh logbook mingguan peserta sudah terisi',
-            $ringkasan['logbook_pending'] . ' logbook menunggu persetujuan Anda',
+            $ringkasan['logbook_pending'].' logbook menunggu persetujuan Anda',
         ];
 
         $rekomendasi = $perhatian === []
@@ -1346,22 +1390,28 @@ class PembimbingPageController extends Controller
        ====================================================================== */
 
     /**
+     * @param  Collection<int, Absensi>|null  $absensi
      * @return array<string, int>
      */
-    private function ringkasanKehadiran(User $user, ?Periode $periode): array
+    private function ringkasanKehadiran(User $user, ?Periode $periode, ?Collection $absensi = null): array
     {
         $ringkas = ['hadir' => 0, 'terlambat' => 0, 'izin' => 0, 'sakit' => 0, 'cuti' => 0, 'alpha' => 0, 'menunggu' => 0];
+        $mulai = $periode?->tanggal_mulai;
+        $batas = $this->earliest($periode?->tanggal_selesai, Carbon::today());
 
-        $query = Absensi::where('user_id', $user->id);
-
-        if ($periode?->tanggal_mulai) {
-            $batas = $periode->tanggal_selesai && $periode->tanggal_selesai->lessThan(Carbon::today())
-                ? $periode->tanggal_selesai->copy()
-                : Carbon::today();
-            $query->whereBetween('tanggal', [$periode->tanggal_mulai->toDateString(), $batas->toDateString()]);
+        if ($absensi === null) {
+            $query = Absensi::where('user_id', $user->id);
+            if ($mulai) {
+                $query->whereBetween('tanggal', [$mulai->toDateString(), $batas->toDateString()]);
+            }
+            $statuses = $query->pluck('status');
+        } else {
+            $statuses = $absensi->filter(fn (Absensi $row) => ! $mulai
+                || ($row->tanggal?->greaterThanOrEqualTo($mulai)
+                    && $row->tanggal->lessThanOrEqualTo($batas)))->pluck('status');
         }
 
-        foreach ($query->pluck('status') as $status) {
+        foreach ($statuses as $status) {
             $ringkas[$status] = ($ringkas[$status] ?? 0) + 1;
         }
 

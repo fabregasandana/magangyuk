@@ -30,6 +30,24 @@
         ],
     ];
     $menu = $menus[$role];
+    $sidebarName = auth()->user()?->nama_lengkap ?? ucfirst($role);
+    $sidebarInitials = collect(explode(' ', trim($sidebarName)))->filter()->take(2)
+        ->map(fn ($word) => mb_strtoupper(mb_substr($word, 0, 1)))->implode('');
+    $sidebarProfileRoute = match ($role) {
+        'peserta' => 'peserta.profil',
+        'pembimbing' => 'pembimbing.profile',
+        default => 'admin.feature-pendukung',
+    };
+    $roleMeta = [
+        'peserta' => ['label' => 'Peserta magang', 'icon' => 'graduation-cap'],
+        'pembimbing' => ['label' => 'Pembimbing magang', 'icon' => 'users-round'],
+        'admin' => ['label' => 'Administrator', 'icon' => 'shield-check'],
+    ][$role];
+    $help = [
+        'peserta' => ['title' => 'Butuh bantuan?', 'copy' => 'Pelajari alur absensi dan logbook agar progres magangmu tetap rapi.', 'label' => 'Buka panduan', 'route' => 'peserta.laporan', 'icon' => 'circle-help'],
+        'pembimbing' => ['title' => 'Ruang bimbingan', 'copy' => 'Tinjau logbook dan beri umpan balik yang membangun setiap minggu.', 'label' => 'Lihat logbook', 'route' => 'pembimbing.logbook', 'icon' => 'book-open-check'],
+        'admin' => ['title' => 'Pusat kendali', 'copy' => 'Pantau performa program dan tindak lanjuti peserta yang perlu perhatian.', 'label' => 'Monitoring', 'route' => 'admin.monitoring', 'icon' => 'chart-no-axes-combined'],
+    ][$role];
 @endphp
 @if (($variant ?? 'sidebar') === 'bottom')
     <nav class="bottom-nav" aria-label="Navigasi cepat">
@@ -47,39 +65,48 @@
 @else
     <div class="navigation-backdrop" data-navigation-close aria-hidden="true"></div>
     <aside class="glass-sidebar" id="app-sidebar" aria-label="Navigasi {{ $role }}" tabindex="-1">
+        <div class="sidebar-brand">
+            <a href="{{ route($role . '.dashboard') }}" class="app-brand" aria-label="Magang Komdigi — beranda">
+                <span class="sidebar-brand-mark"><i data-lucide="radio-tower" class="w-5 h-5" aria-hidden="true"></i></span>
+                <span class="sidebar-brand-text">
+                    <span class="sidebar-brand-name">Magang Komdigi</span>
+                    <span class="sidebar-brand-caption">Ruang tumbuh talenta digital</span>
+                </span>
+            </a>
+        </div>
+
         <div class="sidebar-mobile-heading">
             <p class="font-semibold text-sm">Menu {{ ucfirst($role) }}</p>
             <button type="button" class="ui-icon-button" data-navigation-close aria-label="Tutup navigasi"><i data-lucide="x" class="w-4 h-4" aria-hidden="true"></i></button>
         </div>
+
         <div class="sidebar-scroll">
-            <p class="sidebar-section-title">Workspace / {{ $role }}</p>
             <nav id="sidebar-nav" aria-label="Menu utama">
                 @foreach ($menu as $item)
                     @php
                         [$label, $route, $icon] = $item;
                         $isActive = request()->routeIs($route, $item[3] ?? $route);
                     @endphp
-                    <a href="{{ route($route) }}" class="sidebar-link {{ $isActive ? 'active' : '' }}" title="{{ $label }}" @if($isActive) aria-current="page" @endif>
+                    <a href="{{ route($route) }}" class="sidebar-link {{ $isActive ? 'active' : '' }}" title="{{ $label }}" aria-label="{{ $label }}" data-nav-label="{{ $label }}" @if($isActive) aria-current="page" @endif>
                         <span class="sidebar-icon"><i data-lucide="{{ $icon }}" class="w-[18px] h-[18px]" aria-hidden="true"></i></span>
                         <span class="sidebar-label">{{ $label }}</span>
                     </a>
                 @endforeach
             </nav>
         </div>
+
         <div class="sidebar-footer">
-            @if ($role === 'peserta' && isset($peserta['periode_label']))
-                <p class="ui-eyebrow">Periode magang</p>
-                <p class="text-xs font-semibold mt-2">{{ $peserta['periode_label'] }}</p>
-                <div class="h-1 bg-elevated rounded-full overflow-hidden mt-3" role="progressbar" aria-label="Periode magang berjalan" aria-valuenow="{{ $peserta['periode_progress'] ?? 0 }}" aria-valuemin="0" aria-valuemax="100">
-                    <div class="h-full bg-komdigi-blue rounded-full" data-progress style="width: {{ max(0, min(100, $peserta['periode_progress'] ?? 0)) }}%"></div>
-                </div>
-            @elseif ($role === 'pembimbing')
-                <p class="ui-eyebrow">Ruang bimbingan</p>
-                <p class="text-xs text-muted mt-2 leading-relaxed">Dampingi proses. Apresiasi setiap perkembangan.</p>
-            @else
-                <p class="ui-eyebrow">Magang Komdigi</p>
-                <p class="text-xs text-muted mt-2 leading-relaxed">Monitoring yang terarah,<br>pengelolaan yang lebih mudah.</p>
-            @endif
+            <a href="{{ route($sidebarProfileRoute) }}" class="sidebar-account" aria-label="Profil {{ $sidebarName }}">
+                <span class="app-avatar" aria-hidden="true">{{ $sidebarInitials }}</span>
+                <span class="sidebar-account-copy">
+                    <strong>{{ $sidebarName }}</strong>
+                    <small>{{ $roleMeta['label'] }}</small>
+                </span>
+            </a>
+            <button type="button" class="sidebar-collapse-button" data-sidebar-pin aria-controls="app-sidebar" aria-expanded="false" aria-pressed="false" aria-label="Sematkan menu">
+                <i data-lucide="panel-left" class="w-5 h-5" aria-hidden="true"></i>
+                <span>Sematkan menu</span>
+            </button>
         </div>
     </aside>
 @endif

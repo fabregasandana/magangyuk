@@ -12,14 +12,16 @@ use App\Models\Izin;
 use App\Models\KriteriaPenilaian;
 use App\Models\Laporan;
 use App\Models\Logbook;
+use App\Models\Pengaturan;
 use App\Models\Penilaian;
 use App\Models\PenilaianDetail;
-use App\Models\Pengaturan;
 use App\Models\Periode;
 use App\Models\Sertifikat;
 use App\Models\User;
 use App\Support\Kinerja;
 use App\Support\Sanitizer;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +49,7 @@ use ZipArchive;
 class AdminPageController extends Controller
 {
     /* ================================================================== */
-    /* KONSTANTA TAMPILAN                                                  */
+    /* KONSTANTA TAMPILAN */
     /* ================================================================== */
 
     /** Gradien avatar (tanpa prefix bg-gradient-to-br; view sudah menuliskannya). */
@@ -273,7 +275,7 @@ class AdminPageController extends Controller
     private bool $periodeSudahDiambil = false;
 
     /* ================================================================== */
-    /* HALAMAN                                                             */
+    /* HALAMAN */
     /* ================================================================== */
 
     public function dashboard()
@@ -327,7 +329,7 @@ class AdminPageController extends Controller
     public function manajemenPembimbing()
     {
         $pembimbing = User::where('role', User::ROLE_PEMBIMBING)
-            ->with(['dataDiri', 'pesertaBimbingan.user'])
+            ->with(['dataDiri', 'pesertaBimbingan.user', 'pesertaBimbingan.institusiRel'])
             ->orderBy('nama_lengkap')
             ->get();
 
@@ -338,11 +340,33 @@ class AdminPageController extends Controller
             ->pluck('rata', 'pembimbing_id');
 
         $maks = (int) Pengaturan::ambil('maks_peserta_per_pembimbing', 8);
-        $semuaPeserta = $this->rekapPeserta();
-        $ringkasPeserta = array_map(
-            fn (array $r) => ['id' => $r['id'], 'nama' => $r['nama'], 'institusi' => $r['institusi_key']],
-            $semuaPeserta,
-        );
+        $semuaPeserta = DataMagang::with(['user:id,nama_lengkap', 'institusiRel:id,kode,singkat'])
+            ->whereHas('user', fn ($q) => $q->where('role', User::ROLE_PESERTA))
+            ->orderBy('id_kode')
+            ->get(['id', 'id_kode', 'user_id', 'institusi_id', 'institusi']);
+        $ringkasPeserta = $semuaPeserta->map(fn (DataMagang $m) => [
+            'id' => $m->id_kode ?: ('MKD-'.$m->user_id),
+            'nama' => $m->user->name,
+            'institusi' => $m->institusiRel?->kode ?: ($m->institusi_singkat ?: '-'),
+        ])->all();
+
+        $previewPesertaIds = $pembimbing
+            ->flatMap(fn (User $user) => $user->pesertaBimbingan->take(3)->pluck('user_id'))
+            ->intersect($semuaPeserta->pluck('user_id'))
+            ->unique();
+        $nilaiPeserta = Penilaian::with('detail')
+            ->whereIn('peserta_id', $previewPesertaIds)
+            ->where('id', function (Builder $query) {
+                $query->select('terakhir.id')
+                    ->from('penilaian as terakhir')
+                    ->whereColumn('terakhir.peserta_id', 'penilaian.peserta_id')
+                    ->orderByDesc('terakhir.tanggal')
+                    ->orderByDesc('terakhir.id')
+                    ->limit(1);
+            })
+            ->get(['id', 'peserta_id', 'total_skor'])
+            ->mapWithKeys(fn (Penilaian $p) => [$p->peserta_id => $p->nilai_rata_rata])
+            ->all();
 
         $baris = [];
         foreach ($pembimbing as $i => $user) {
@@ -384,7 +408,7 @@ class AdminPageController extends Controller
                 'status' => $user->status,
                 'initial' => $user->inisial,
                 'gradient' => $this->gradientUntuk($i, $user->status),
-                'bimbingan' => $this->bimbinganSingkat($user->pesertaBimbingan),
+                'bimbingan' => $this->bimbinganSingkat($user->pesertaBimbingan, $nilaiPeserta),
                 'terassign' => $terassign,
                 'tersedia' => $tersedia,
                 'form' => [
@@ -524,7 +548,7 @@ class AdminPageController extends Controller
             ];
         }
 
-        $penilaianModel = Penilaian::with(['peserta', 'pembimbing', 'detail.kriteria'])
+        $penilaianModel = Penilaian::with(['peserta.dataMagang', 'pembimbing', 'detail.kriteria'])
             ->terbaru()
             ->limit(30)
             ->get();
@@ -631,7 +655,7 @@ class AdminPageController extends Controller
 
     public function featurePendukung()
     {
-        $periode = Periode::orderByDesc('tanggal_mulai')->get();
+        $periode = Periode::withCount('dataMagang')->orderByDesc('tanggal_mulai')->get();
         $jumlahPeserta = DataMagang::count();
         $aktif = $this->periodeAktif();
 
@@ -643,7 +667,7 @@ class AdminPageController extends Controller
                 'nama' => $p->nama,
                 'mulai' => $p->tanggal_mulai?->translatedFormat('j M Y') ?? '-',
                 'selesai' => $p->tanggal_selesai?->translatedFormat('j M Y') ?? '-',
-                'peserta' => $p->dataMagang()->count(),
+                'peserta' => $p->data_magang_count,
                 'status' => $p->status === 'aktif' ? 'Aktif' : 'Selesai',
                 'progress' => $p->progress,
                 'maks_peserta' => (int) $p->maks_peserta,
@@ -658,7 +682,7 @@ class AdminPageController extends Controller
         }
 
         $barisInstitusi = [];
-        foreach (Institusi::orderBy('nama')->get() as $i => $ins) {
+        foreach (Institusi::withCount('dataMagang')->orderBy('nama')->get() as $i => $ins) {
             $barisInstitusi[] = [
                 'id' => (string) $ins->id,
                 'kode' => $ins->kode,
@@ -666,7 +690,7 @@ class AdminPageController extends Controller
                 'singkat' => $ins->singkat ?: Str::upper(Str::substr($ins->nama, 0, 4)),
                 'jenis' => $ins->jenis ?: '-',
                 'kota' => $ins->kota ?: '-',
-                'peserta' => $ins->dataMagang()->count(),
+                'peserta' => $ins->data_magang_count,
                 'status' => $ins->status,
                 'gradient' => $this->gradientUntuk($i, $ins->status),
                 'form' => [
@@ -707,7 +731,7 @@ class AdminPageController extends Controller
                 'total' => $periode->count(),
                 'aktif' => $periode->where('status', 'aktif')->count(),
                 'peserta' => $jumlahPeserta,
-                'progress' => ($aktif?->progress ?? 0) . '%',
+                'progress' => ($aktif?->progress ?? 0).'%',
             ],
             'periode' => $barisPeriode,
             'institusi' => $barisInstitusi,
@@ -722,7 +746,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* AKSI: PESERTA                                                       */
+    /* AKSI: PESERTA */
     /* ================================================================== */
 
     /**
@@ -798,7 +822,7 @@ class AdminPageController extends Controller
 
             $hp = $this->normalisasiHp($data['hp'] ?? '');
             if ($hp === '') {
-                $hp = '0811' . str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
+                $hp = '0811'.str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
             }
 
             DataDiri::updateOrCreate(['user_id' => $user->id], [
@@ -837,11 +861,11 @@ class AdminPageController extends Controller
 
         ActivityLog::catat(
             $baru ? 'tambah_peserta' : 'ubah_peserta',
-            ($baru ? 'Menambahkan peserta baru ' : 'Memperbarui data peserta ') . ($magang->id_kode ?: $data['nama']),
+            ($baru ? 'Menambahkan peserta baru ' : 'Memperbarui data peserta ').($magang->id_kode ?: $data['nama']),
         );
 
         return back()->with('success', "Peserta {$data['nama']} berhasil disimpan!"
-            . ($baru ? ' Sandi awal: ' . self::PASSWORD_AWAL : ''));
+            .($baru ? ' Sandi awal: '.self::PASSWORD_AWAL : ''));
     }
 
     public function updatePeserta(Request $request)
@@ -944,6 +968,7 @@ class AdminPageController extends Controller
             $email = strtolower($ambil('email'));
             if ($nama === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $gagal[] = "baris {$nomor} (nama/email tidak valid)";
+
                 continue;
             }
 
@@ -952,14 +977,14 @@ class AdminPageController extends Controller
             }
         }
 
-        ActivityLog::catat('import_peserta', "Impor peserta: {$berhasil} berhasil, " . count($gagal) . ' gagal');
+        ActivityLog::catat('import_peserta', "Impor peserta: {$berhasil} berhasil, ".count($gagal).' gagal');
 
         $pesan = "Impor selesai: {$berhasil} peserta ditambahkan.";
         if ($gagal !== []) {
-            return back()->with('warning', $pesan . ' Gagal: ' . implode(', ', array_slice($gagal, 0, 5)) . (count($gagal) > 5 ? ', …' : ''));
+            return back()->with('warning', $pesan.' Gagal: '.implode(', ', array_slice($gagal, 0, 5)).(count($gagal) > 5 ? ', …' : ''));
         }
 
-        return back()->with('success', $pesan . ' Sandi awal semua akun: ' . self::PASSWORD_AWAL);
+        return back()->with('success', $pesan.' Sandi awal semua akun: '.self::PASSWORD_AWAL);
     }
 
     public function exportPeserta(): StreamedResponse
@@ -970,16 +995,16 @@ class AdminPageController extends Controller
         $baris = array_map(fn (array $r) => [
             $r['id'], $r['nama'], $r['nim'], $r['email'], $r['hp'],
             $r['institusi'], $r['prodi'], $r['pembimbing'], $r['periode'],
-            $r['hadir'] . '%', (string) round($r['skor']), $r['penilaian'], ucfirst($r['status']),
+            $r['hadir'].'%', (string) round($r['skor']), $r['penilaian'], ucfirst($r['status']),
         ], $rekap);
 
         array_unshift($baris, ['ID Peserta', 'Nama', 'NIM', 'Email', 'No. HP', 'Institusi', 'Prodi', 'Pembimbing', 'Periode', 'Kehadiran', 'Skor', 'Nilai', 'Status']);
 
-        return $this->unduhCsv('data-peserta-' . now()->format('Ymd-His') . '.csv', $baris);
+        return $this->unduhCsv('data-peserta-'.now()->format('Ymd-His').'.csv', $baris);
     }
 
     /* ================================================================== */
-    /* AKSI: PEMBIMBING                                                    */
+    /* AKSI: PEMBIMBING */
     /* ================================================================== */
 
     public function storePembimbing(Request $request)
@@ -1026,7 +1051,7 @@ class AdminPageController extends Controller
 
             $hp = $this->normalisasiHp($data['hp'] ?? '');
             if ($hp === '') {
-                $hp = '0812' . str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
+                $hp = '0812'.str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
             }
 
             DataDiri::updateOrCreate(['user_id' => $user->id], [
@@ -1047,11 +1072,11 @@ class AdminPageController extends Controller
 
         ActivityLog::catat(
             $baru ? 'tambah_pembimbing' : 'ubah_pembimbing',
-            ($baru ? 'Menambahkan pembimbing ' : 'Memperbarui data pembimbing ') . $data['nama'],
+            ($baru ? 'Menambahkan pembimbing ' : 'Memperbarui data pembimbing ').$data['nama'],
         );
 
         return back()->with('success', "Pembimbing {$data['nama']} berhasil disimpan!"
-            . ($baru ? ' Sandi awal: ' . self::PASSWORD_AWAL : ''));
+            .($baru ? ' Sandi awal: '.self::PASSWORD_AWAL : ''));
     }
 
     public function updatePembimbing(Request $request)
@@ -1145,7 +1170,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* AKSI: MONITORING & PENILAIAN                                        */
+    /* AKSI: MONITORING & PENILAIAN */
     /* ================================================================== */
 
     public function exportLaporan(): StreamedResponse
@@ -1157,7 +1182,7 @@ class AdminPageController extends Controller
             $kelas = Kinerja::kelasKinerja((float) $r['skor'], (int) $r['hadir']);
             $kinerja[] = [
                 $r['id'], $r['nama'], $r['pembimbing'], $r['institusi'], $r['periode'],
-                (string) round($r['skor']), $r['hadir'] . '%', $r['penilaian'],
+                (string) round($r['skor']), $r['hadir'].'%', $r['penilaian'],
                 Kinerja::labelKinerja($kelas), ucfirst($r['status']),
                 (string) $r['hadir_hari'], (string) $r['terlambat'], (string) $r['alpha'], $r['laporan'],
             ];
@@ -1165,7 +1190,7 @@ class AdminPageController extends Controller
 
         array_unshift($kinerja, ['ID', 'Nama', 'Pembimbing', 'Institusi', 'Periode', 'Skor', 'Kehadiran', 'Nilai', 'Kategori Kinerja', 'Status', 'Hadir (hari)', 'Terlambat', 'Alpha', 'Laporan']);
 
-        return $this->unduhCsv('monitoring-kinerja-' . now()->format('Ymd-His') . '.csv', $kinerja);
+        return $this->unduhCsv('monitoring-kinerja-'.now()->format('Ymd-His').'.csv', $kinerja);
     }
 
     /**
@@ -1208,7 +1233,7 @@ class AdminPageController extends Controller
         ActivityLog::catat(
             $baru ? 'tambah_kriteria' : 'ubah_kriteria',
             ($baru ? 'Menambah kriteria penilaian ' : 'Memperbarui kriteria penilaian ')
-                . "{$data['nama']} (bobot {$data['bobot']}%)",
+                ."{$data['nama']} (bobot {$data['bobot']}%)",
         );
 
         return back()->with('success', "Kriteria {$data['nama']} berhasil disimpan!");
@@ -1279,13 +1304,13 @@ class AdminPageController extends Controller
             );
 
             $catatan = trim((string) $penilaian->komentar);
-            $tambahan = '[Koreksi admin ' . now()->translatedFormat('j M Y') . ': ' . $this->teksBersih(request('alasan')) . ']';
+            $tambahan = '[Koreksi admin '.now()->translatedFormat('j M Y').': '.$this->teksBersih(request('alasan')).']';
 
             $penilaian->update([
                 'total_skor' => $skor,
                 'grade' => Penilaian::gradeDariSkor($skor),
                 'di_override_admin' => true,
-                'komentar' => $catatan === '' ? $tambahan : $catatan . ' ' . $tambahan,
+                'komentar' => $catatan === '' ? $tambahan : $catatan.' '.$tambahan,
             ]);
         });
 
@@ -1298,7 +1323,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* AKSI: CMS                                                           */
+    /* AKSI: CMS */
     /* ================================================================== */
 
     public function storeCms(Request $request)
@@ -1425,10 +1450,10 @@ class AdminPageController extends Controller
 
         ActivityLog::catat(
             $hasil['baru'] ? 'tambah_cms' : 'ubah_cms',
-            ($hasil['baru'] ? 'Menambah ' : 'Memperbarui ') . strtolower($label) . ': ' . $hasil['judul'],
+            ($hasil['baru'] ? 'Menambah ' : 'Memperbarui ').strtolower($label).': '.$hasil['judul'],
         );
 
-        return back()->with('success', $label . ' berhasil disimpan!');
+        return back()->with('success', $label.' berhasil disimpan!');
     }
 
     public function destroyCms(Request $request)
@@ -1453,7 +1478,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* AKSI: FITUR PENDUKUNG & PENGATURAN                                  */
+    /* AKSI: FITUR PENDUKUNG & PENGATURAN */
     /* ================================================================== */
 
     public function storeFeature(Request $request)
@@ -1585,7 +1610,7 @@ class AdminPageController extends Controller
 
         array_unshift($baris, ['Waktu', 'User', 'Role', 'Label Aksi', 'Aksi (mentah)', 'Deskripsi', 'IP']);
 
-        return $this->unduhCsv('log-aktivitas-' . now()->format('Ymd-His') . '.csv', $baris);
+        return $this->unduhCsv('log-aktivitas-'.now()->format('Ymd-His').'.csv', $baris);
     }
 
     /**
@@ -1613,7 +1638,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: REKAP PESERTA                                               */
+    /* HELPER: REKAP PESERTA */
     /* ================================================================== */
 
     /**
@@ -1637,12 +1662,12 @@ class AdminPageController extends Controller
             return $this->rekapCache = [];
         }
 
-        $penilaian = Penilaian::with('detail')
-            ->whereIn('peserta_id', $userIds)
+        $penilaian = Penilaian::whereIn('peserta_id', $userIds)
             ->orderBy('tanggal')
             ->orderBy('id')
             ->get()
             ->groupBy('peserta_id');
+        $penilaian->map(fn (Collection $daftar) => $daftar->last())->load('detail');
 
         $absensi = Absensi::whereIn('user_id', $userIds)
             ->get(['user_id', 'tanggal', 'status'])
@@ -1690,7 +1715,7 @@ class AdminPageController extends Controller
             $kodeInstitusi = $institusi?->kode ?: ($m->institusi_singkat ?: '-');
 
             $hasil[] = [
-                'id' => $m->id_kode ?: ('MKD-' . $user->id),
+                'id' => $m->id_kode ?: ('MKD-'.$user->id),
                 'uid' => $user->id,
                 'nama' => $user->name,
                 'nim' => $m->nis_nim,
@@ -1713,7 +1738,7 @@ class AdminPageController extends Controller
                 'terlambat' => $ringkas['terlambat'],
                 'izin_hari' => $ringkas['izin'] + $ringkas['sakit'] + $ringkas['cuti'],
                 'alpha' => $ringkas['alpha'],
-                'laporan' => $laporanUser->where('status', 'disetujui')->count() . '/' . max($totalMinggu, $laporanUser->count()),
+                'laporan' => $laporanUser->where('status', 'disetujui')->count().'/'.max($totalMinggu, $laporanUser->count()),
                 'jumlah_penilaian' => $daftarNilai->count(),
                 'form' => [
                     'id' => $m->id_kode ?: '',
@@ -1739,7 +1764,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: DASHBOARD                                                   */
+    /* HELPER: DASHBOARD */
     /* ================================================================== */
 
     /** Empat peserta dengan kinerja terendah (skor naik, lalu kehadiran naik). */
@@ -1798,7 +1823,7 @@ class AdminPageController extends Controller
         if (count($rendah) > 0) {
             $notifikasi[] = [
                 'type' => 'warning',
-                'title' => count($rendah) . " peserta di bawah ambang (skor < {$minSkor} / hadir < {$minKehadiran}%)",
+                'title' => count($rendah)." peserta di bawah ambang (skor < {$minSkor} / hadir < {$minKehadiran}%)",
                 'desc' => 'Perlu monitoring dan tindakan pembimbing',
                 'time' => 'Hari ini',
             ];
@@ -1827,7 +1852,7 @@ class AdminPageController extends Controller
         $notifikasi[] = [
             'type' => 'success',
             'title' => $pesertaBaru > 0 ? "{$pesertaBaru} peserta baru minggu ini" : 'Belum ada peserta baru minggu ini',
-            'desc' => 'Total ' . count($rekap) . ' peserta terdaftar di sistem',
+            'desc' => 'Total '.count($rekap).' peserta terdaftar di sistem',
             'time' => '2 hari lalu',
         ];
 
@@ -1877,7 +1902,7 @@ class AdminPageController extends Controller
         foreach ($penilaian as $p) {
             $hasil[] = [
                 'user' => $p->pembimbing?->name ?: 'Sistem',
-                'action' => 'menilai ' . ($p->peserta?->name ?: 'peserta') . ' (skor ' . (int) round($p->total_skor) . ')',
+                'action' => 'menilai '.($p->peserta?->name ?: 'peserta').' (skor '.(int) round($p->total_skor).')',
                 'time' => $this->waktuTerbaru($p->tanggal ?? $p->created_at),
             ];
         }
@@ -1898,7 +1923,7 @@ class AdminPageController extends Controller
             $institusi = $u->dataMagang?->institusi_singkat ?: '-';
             $hasil[] = [
                 'user' => $u->name,
-                'action' => 'terdaftar — ' . $institusi . ', ' . ucfirst($u->status),
+                'action' => 'terdaftar — '.$institusi.', '.ucfirst($u->status),
                 'time' => $this->waktuTerbaru($u->created_at),
             ];
         }
@@ -1930,14 +1955,14 @@ class AdminPageController extends Controller
             ->pluck('created_at');
 
         $skorMingguan = Penilaian::where('periode_key', 'like', 'w%')
-            ->selectRaw("periode_key, AVG(total_skor) as rata")
+            ->selectRaw('periode_key, AVG(total_skor) as rata')
             ->groupBy('periode_key')
             ->pluck('rata', 'periode_key');
 
         $totalPeserta = $pesertaBaru->count();
 
         for ($m = 1; $m <= $jumlahMinggu; $m++) {
-            $labels[] = 'Minggu ' . $m;
+            $labels[] = 'Minggu '.$m;
 
             $batas = $periode !== null
                 ? ($periode->selesaiMinggu($m)?->endOfDay() ?? now())
@@ -1946,7 +1971,7 @@ class AdminPageController extends Controller
             $kumulatif = $pesertaBaru->filter(fn ($t) => $t !== null && $t->lessThanOrEqualTo($batas))->count();
             $dataPeserta[] = $kumulatif > 0 ? $kumulatif : $totalPeserta;
 
-            $rata = $skorMingguan['w' . $m] ?? null;
+            $rata = $skorMingguan['w'.$m] ?? null;
             $dataSkor[] = $rata !== null ? round((float) $rata, 1) : null;
         }
 
@@ -2052,7 +2077,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: BARIS CMS                                                   */
+    /* HELPER: BARIS CMS */
     /* ================================================================== */
 
     private function dataHero(?CmsKonten $hero): array
@@ -2100,7 +2125,7 @@ class AdminPageController extends Controller
             $hasil[] = [
                 'id' => (string) $c->id,
                 'judul' => $c->judul,
-                'slug' => '/' . ltrim((string) ($c->slug ?: Str::slug($c->judul)), '/'),
+                'slug' => '/'.ltrim((string) ($c->slug ?: Str::slug($c->judul)), '/'),
                 'deskripsi' => $payload['deskripsi'] ?? Str::limit(Sanitizer::teks($c->isi), 120),
                 'tanggal' => $tanggal !== null ? Carbon::parse($tanggal)->translatedFormat('j M Y') : '-',
                 'kategori' => $kategori,
@@ -2159,7 +2184,7 @@ class AdminPageController extends Controller
             $hasil[] = [
                 'id' => (string) $c->id,
                 'nama' => $c->judul,
-                'username' => $payload['username'] ?? '@' . Str::slug($c->judul, ''),
+                'username' => $payload['username'] ?? '@'.Str::slug($c->judul, ''),
                 'posisi' => $posisi,
                 'posisi_key' => Str::lower($posisi),
                 'institusi' => $payload['institusi'] ?? '-',
@@ -2197,7 +2222,7 @@ class AdminPageController extends Controller
             $hasil[] = [
                 'id' => (string) $c->id,
                 'judul' => $c->judul,
-                'slug' => '/' . ltrim((string) ($c->slug ?: Str::slug($c->judul)), '/'),
+                'slug' => '/'.ltrim((string) ($c->slug ?: Str::slug($c->judul)), '/'),
                 'status' => $status,
                 'icon_class' => self::GAYA_HALAMAN[$i % count(self::GAYA_HALAMAN)],
                 'deskripsi' => $payload['deskripsi'] ?? Str::limit(Sanitizer::teks($c->isi), 90),
@@ -2229,7 +2254,7 @@ class AdminPageController extends Controller
             $tanggal = '-';
             if ($mulai !== null) {
                 $tanggal = $selesai !== null && $selesai !== $mulai
-                    ? Carbon::parse($mulai)->translatedFormat('j') . '–' . Carbon::parse($selesai)->translatedFormat('j M Y')
+                    ? Carbon::parse($mulai)->translatedFormat('j').'–'.Carbon::parse($selesai)->translatedFormat('j M Y')
                     : Carbon::parse($mulai)->translatedFormat('j M Y');
             }
 
@@ -2341,7 +2366,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: LOOKUP & FORMAT                                             */
+    /* HELPER: LOOKUP & FORMAT */
     /* ================================================================== */
 
     /** Kode tampilan pembimbing diturunkan dari id user (tidak disimpan di DB). */
@@ -2367,7 +2392,7 @@ class AdminPageController extends Controller
         }
 
         return User::where('role', User::ROLE_PEMBIMBING)
-            ->whereRaw('LOWER(nama_lengkap) LIKE ?', ['%' . Str::lower($kode) . '%'])
+            ->whereRaw('LOWER(nama_lengkap) LIKE ?', ['%'.Str::lower($kode).'%'])
             ->orderBy('nama_lengkap')
             ->first();
     }
@@ -2383,7 +2408,7 @@ class AdminPageController extends Controller
         return Institusi::where('kode', $nilai)
             ->orWhere('singkat', $nilai)
             ->orWhere('nama', $nilai)
-            ->orWhereRaw('LOWER(nama) LIKE ?', ['%' . Str::lower($nilai) . '%'])
+            ->orWhereRaw('LOWER(nama) LIKE ?', ['%'.Str::lower($nilai).'%'])
             ->orderByRaw('CASE WHEN kode = ? THEN 0 WHEN singkat = ? THEN 1 ELSE 2 END', [$nilai, $nilai])
             ->first();
     }
@@ -2410,7 +2435,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: BEBAN PEMBIMBING & NORMALISASI                              */
+    /* HELPER: BEBAN PEMBIMBING & NORMALISASI */
     /* ================================================================== */
 
     private function labelBeban(int $jumlah, int $maks): string
@@ -2434,24 +2459,18 @@ class AdminPageController extends Controller
     }
 
     /** Ringkasan 3 peserta bimbingan utk kartu pembimbing. */
-    private function bimbinganSingkat($magangCollection): array
+    private function bimbinganSingkat(Collection $magangCollection, array $nilaiPeserta): array
     {
-        $peta = [];
-        foreach ($this->rekapPeserta() as $r) {
-            $peta[$r['id']] = $r;
-        }
-
         $hasil = [];
-        foreach ($magangCollection as $magang) {
-            $kode = $magang->id_kode ?: ('MKD-' . $magang->user_id);
+        foreach ($magangCollection->take(3) as $magang) {
             $hasil[] = [
                 'initial' => $magang->user?->inisial ?: '??',
                 'nama' => $magang->user?->name ?: '-',
-                'skor' => $peta[$kode]['penilaian'] ?? '0.0',
+                'skor' => $nilaiPeserta[$magang->user_id] ?? '0.0',
             ];
         }
 
-        return array_slice($hasil, 0, 3);
+        return $hasil;
     }
 
     private function normalisasiHp(mixed $hp): string
@@ -2466,11 +2485,11 @@ class AdminPageController extends Controller
 
         return $bersih !== ''
             ? Str::limit($bersih, 20, '')
-            : '1271' . str_pad((string) $userId, 12, '0', STR_PAD_LEFT);
+            : '1271'.str_pad((string) $userId, 12, '0', STR_PAD_LEFT);
     }
 
     /* ================================================================== */
-    /* HELPER: GENERATOR KODE & PENJAGA KAPASITAS                          */
+    /* HELPER: GENERATOR KODE & PENJAGA KAPASITAS */
     /* ================================================================== */
 
     private function kodePesertaBaru(): string
@@ -2479,7 +2498,7 @@ class AdminPageController extends Controller
         $prefix = "MKD-{$tahun}-";
         $maks = 0;
 
-        foreach (DataMagang::where('id_kode', 'like', $prefix . '%')->pluck('id_kode') as $kode) {
+        foreach (DataMagang::where('id_kode', 'like', $prefix.'%')->pluck('id_kode') as $kode) {
             $maks = max($maks, (int) substr((string) $kode, strlen($prefix)));
         }
 
@@ -2507,7 +2526,7 @@ class AdminPageController extends Controller
         $kode = $dasar;
         $i = 2;
         while (Institusi::where('kode', $kode)->exists()) {
-            $kode = Str::limit($dasar, 12, '') . $i++;
+            $kode = Str::limit($dasar, 12, '').$i++;
         }
 
         return $kode;
@@ -2517,14 +2536,14 @@ class AdminPageController extends Controller
     {
         $dasar = Str::upper(Str::slug($nama, '-'));
         if ($dasar === '' || Str::length($dasar) > 20) {
-            $dasar = 'PRD-' . ($mulai?->format('Y') ?? now()->format('Y'));
+            $dasar = 'PRD-'.($mulai?->format('Y') ?? now()->format('Y'));
         }
         $dasar = Str::limit($dasar, 20, '');
 
         $kode = $dasar;
         $i = 2;
         while (Periode::where('kode', $kode)->exists()) {
-            $kode = Str::limit($dasar, 16, '') . '-' . $i++;
+            $kode = Str::limit($dasar, 16, '').'-'.$i++;
         }
 
         return $kode;
@@ -2593,7 +2612,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: OPSI DROPDOWN & PAGINASI                                    */
+    /* HELPER: OPSI DROPDOWN & PAGINASI */
     /* ================================================================== */
 
     /** kode institusi => nama (dipakai select peserta & filter tabel). */
@@ -2611,7 +2630,7 @@ class AdminPageController extends Controller
             ->get(['id', 'nama_lengkap', 'status']);
 
         foreach ($pembimbing as $u) {
-            $hasil[$this->kodePembimbing($u->id)] = $u->nama_lengkap . ($u->status === 'nonaktif' ? ' (nonaktif)' : '');
+            $hasil[$this->kodePembimbing($u->id)] = $u->nama_lengkap.($u->status === 'nonaktif' ? ' (nonaktif)' : '');
         }
 
         return $hasil;
@@ -2669,7 +2688,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: PENYIMPAN FITUR PENDUKUNG (return [aksi_log, pesan])        */
+    /* HELPER: PENYIMPAN FITUR PENDUKUNG (return [aksi_log, pesan]) */
     /* ================================================================== */
 
     private function simpanPeriode(Request $request): array
@@ -2901,7 +2920,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: PEMBACA ROLE / PERMISSION / PENGATURAN                      */
+    /* HELPER: PEMBACA ROLE / PERMISSION / PENGATURAN */
     /* ================================================================== */
 
     private function daftarRole(): array
@@ -3015,7 +3034,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: PENYIMPAN CMS (return ['baru' => bool, 'judul' => string])  */
+    /* HELPER: PENYIMPAN CMS (return ['baru' => bool, 'judul' => string]) */
     /* ================================================================== */
 
     /** Ambil baris CMS lama (bila id valid) atau model baru yang belum disimpan. */
@@ -3042,7 +3061,7 @@ class AdminPageController extends Controller
             ->when($kecualikanId !== null, fn ($q) => $q->where('id', '!=', $kecualikanId))
             ->exists()
         ) {
-            $slug = $dasar . '-' . $i++;
+            $slug = $dasar.'-'.$i++;
         }
 
         return $slug;
@@ -3178,7 +3197,7 @@ class AdminPageController extends Controller
                 'bio' => $bio,
                 'instagram' => (string) $request->input('instagram', ''),
                 'linkedin' => (string) $request->input('linkedin', ''),
-                'username' => $lama['username'] ?? '@' . Str::slug($nama, ''),
+                'username' => $lama['username'] ?? '@'.Str::slug($nama, ''),
                 'initial' => $lama['initial'] ?? Str::upper(Str::substr($nama, 0, 2)),
                 'gradient' => $lama['gradient'] ?? $this->gradientUntuk($konten->urutan ?: 0, 'aktif'),
             ],
@@ -3352,7 +3371,7 @@ class AdminPageController extends Controller
     }
 
     /* ================================================================== */
-    /* HELPER: BERKAS                                                      */
+    /* HELPER: BERKAS */
     /* ================================================================== */
 
     private function simpanBerkas($file, string $dir): string
@@ -3398,14 +3417,14 @@ class AdminPageController extends Controller
         $byte = (int) $file->getSize();
 
         return match (true) {
-            $byte >= 1048576 => number_format($byte / 1048576, 1) . ' MB',
-            $byte >= 1024 => number_format($byte / 1024, 0) . ' KB',
-            default => $byte . ' B',
+            $byte >= 1048576 => number_format($byte / 1048576, 1).' MB',
+            $byte >= 1024 => number_format($byte / 1024, 0).' KB',
+            default => $byte.' B',
         };
     }
 
     /* ================================================================== */
-    /* HELPER: IMPOR PESERTA                                               */
+    /* HELPER: IMPOR PESERTA */
     /* ================================================================== */
 
     private function bacaCsv(string $path): array
@@ -3605,7 +3624,7 @@ class AdminPageController extends Controller
 
                 $hp = $this->normalisasiHp($ambil('hp'));
                 if ($hp === '' || DataDiri::where('no_hp', $hp)->where('user_id', '!=', $user->id)->exists()) {
-                    $hp = '0811' . str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
+                    $hp = '0811'.str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
                 }
 
                 DataDiri::updateOrCreate(['user_id' => $user->id], [
@@ -3642,14 +3661,14 @@ class AdminPageController extends Controller
 
             return true;
         } catch (\Throwable $e) {
-            $gagal[] = "baris {$nomor} (" . Str::limit($e->getMessage(), 60) . ')';
+            $gagal[] = "baris {$nomor} (".Str::limit($e->getMessage(), 60).')';
 
             return false;
         }
     }
 
     /* ================================================================== */
-    /* HELPER: EKSPOR CSV                                                  */
+    /* HELPER: EKSPOR CSV */
     /* ================================================================== */
 
     private function unduhCsv(string $namaFile, array $baris): StreamedResponse

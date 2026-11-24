@@ -1,4 +1,5 @@
-const PALETTE = ['#5b7cff', '#8baaff', '#10b981', '#f59e0b', '#ef4444', '#a78bfa'];
+const PALETTE = ['#0b5ed7', '#78acfa', '#4386e7', '#a9cafd', '#084eaf', '#60a5fa'];
+const STATUS_COLORS = { success: '#10b981', warning: '#f59e0b', danger: '#ef4444' };
 const FONT = '"Plus Jakarta Sans Variable", "Plus Jakarta Sans", sans-serif';
 const EMPTY = 'Belum ada data untuk ditampilkan.';
 const INVALID = 'Data grafik tidak valid.';
@@ -9,9 +10,9 @@ const isLabel = (value) => typeof value === 'string' || isNumber(value);
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 
 function seriesColor(label, index) {
-    if (/sangat baik|berhasil|selesai/i.test(label)) return PALETTE[2];
-    if (/perlu perbaikan|alpha|gagal/i.test(label)) return PALETTE[4];
-    if (/cukup|izin|terlambat/i.test(label)) return PALETTE[3];
+    if (/sangat baik|berhasil|selesai/i.test(label)) return STATUS_COLORS.success;
+    if (/perlu perbaikan|alpha|gagal/i.test(label)) return STATUS_COLORS.danger;
+    if (/cukup|izin|terlambat/i.test(label)) return STATUS_COLORS.warning;
     if (/kehadiran|rata-rata|^baik/i.test(label)) return PALETTE[1];
     return PALETTE[index % PALETTE.length];
 }
@@ -22,7 +23,7 @@ function axisOptions(scale, values, names, colors) {
         opposite: scale.position === 'right',
         show: scale.display !== false,
         forceNiceScale: false,
-        labels: { style: { colors: colors.muted, fontSize: '11px' }, formatter: formatValue },
+        labels: { style: { colors: colors.muted, fontSize: '12px' }, formatter: formatValue },
         axisBorder: { show: false },
         axisTicks: { show: false },
         title: { text: scale.title?.display ? scale.title.text : undefined, style: { color: colors.muted } },
@@ -133,7 +134,7 @@ export function adaptChartConfig(payload, appearance = {}) {
         legend: {
             show: settings.plugins?.legend?.display ?? !participant,
             position: settings.plugins?.legend?.position ?? 'bottom',
-            fontSize: mobile ? '10px' : '11px',
+            fontSize: mobile ? '12px' : '13px',
             height: mobile ? 48 : undefined,
             labels: { colors: colors.muted },
             formatter: (name) => escapeHtml(mobile && String(name).length > 26 ? `${String(name).slice(0, 25)}…` : name),
@@ -157,8 +158,8 @@ export function adaptChartConfig(payload, appearance = {}) {
                 rotate: 0,
                 hideOverlappingLabels: true,
                 trim: true,
-                style: { colors: colors.muted, fontSize: mobile ? '10px' : '11px' },
-                formatter: (value) => mobile ? String(value).replace(/^Minggu\s+/i, 'M').slice(0, 16) : String(value),
+                style: { colors: colors.muted, fontSize: mobile ? '12px' : '13px' },
+                formatter: (value) => String(value).replace(/^Minggu\s+/i, 'M').slice(0, mobile ? 16 : 24),
             },
             axisBorder: { show: false },
             axisTicks: { show: false },
@@ -307,7 +308,7 @@ function tooltipFor(state) {
 }
 
 function currentAppearance(state) {
-    const styles = getComputedStyle(document.documentElement);
+    const styles = getComputedStyle(document.body);
     return {
         theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
         text: styles.getPropertyValue('--ui-text').trim(),

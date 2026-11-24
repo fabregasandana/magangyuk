@@ -25,29 +25,27 @@ uniform vec3 u_warm;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-    vec2 p = uv * 2.0 - 1.0;
-    p.x *= u_resolution.x / u_resolution.y;
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 p = vec2(uv.x * aspect, uv.y);
 
-    float t = u_time * 0.12;
-    float radius = length(p);
-    float angle = atan(p.y, p.x);
+    // Three slow, oversized blobs create a soft blue light field instead of
+    // a hard geometric pattern. Pointer movement only adds a small highlight.
+    float t = u_time * 0.07;
+    vec2 a = vec2(0.25 * aspect + sin(t * 1.2) * 0.09, 0.78 + cos(t * 0.9) * 0.06);
+    vec2 b = vec2(0.77 * aspect + cos(t * 0.8) * 0.08, 0.38 + sin(t * 1.1) * 0.07);
+    vec2 c = vec2(0.52 * aspect + sin(t * 0.7 + 1.2) * 0.1, 0.97 + cos(t * 0.6) * 0.04);
 
-    // A slow domain warp keeps the tunnel from looking mechanically circular.
-    vec2 warp = vec2(
-        sin(p.y * 2.2 + t * 1.4),
-        cos(p.x * 1.9 - t * 1.1)
-    ) * 0.16;
-    vec2 q = p + warp;
+    float r1 = smoothstep(0.74, 0.0, length(p - a));
+    float r2 = smoothstep(0.62, 0.0, length(p - b));
+    float r3 = smoothstep(0.54, 0.0, length(p - c));
 
-    float tunnel = sin(length(q) * 5.2 - t * 3.0 + sin(angle * 3.0 + t) * 0.6);
-    float rings = smoothstep(-0.2, 0.9, tunnel);
-    float glow = smoothstep(1.25, 0.15, radius);
-    float pointerGlow = smoothstep(0.7, 0.0, length(p - u_pointer));
+    vec2 pointerP = vec2(u_pointer.x * 0.5 + aspect * 0.5, u_pointer.y * 0.5 + 0.5);
+    float pointerGlow = smoothstep(0.46, 0.0, length(p - pointerP)) * 0.45;
 
-    vec3 color = mix(u_cool, u_warm, rings * 0.7 + glow * 0.3);
-    float alpha = rings * 0.3 + glow * 0.26 + pointerGlow * 0.22;
+    float blend = clamp(r1 * 0.72 + r2 * 0.55 + r3 * 0.36 + pointerGlow, 0.0, 1.0);
+    vec3 color = mix(u_cool, u_warm, clamp(uv.y * 0.62 + uv.x * 0.38, 0.0, 1.0));
 
-    gl_FragColor = vec4(color, alpha * 0.85);
+    gl_FragColor = vec4(color, blend * 0.4);
 }
 `;
 

@@ -2,14 +2,15 @@
 <script>
     (() => {
         const root = document.documentElement;
+        root.dataset.sidebarCollapsed = 'true';
         try {
             const theme = localStorage.getItem('komdigi-theme');
             if (theme === 'dark' || theme === 'light') root.dataset.theme = theme;
-            root.dataset.sidebarCollapsed = localStorage.getItem('komdigi-sidebar-collapsed') === 'true' ? 'true' : 'false';
+            root.dataset.sidebarCollapsed = localStorage.getItem('komdigi-sidebar-pinned') === 'true' ? 'false' : 'true';
         } catch (_) {
-            // Use the page default in private or restricted browsing contexts.
+            // Keep the compact rail and page theme when storage is unavailable.
         }
-        if (!root.dataset.theme) root.dataset.theme = 'dark';
+        if (!root.dataset.theme) root.dataset.theme = 'light';
         root.style.colorScheme = root.dataset.theme;
     })();
 </script>

@@ -1,1 +1,1 @@
-@include('layouts.topbar', ['role' => 'admin'])
+@include('layouts.topbar', ['role' => 'admin', 'pageTitle' => $pageTitle ?? null])

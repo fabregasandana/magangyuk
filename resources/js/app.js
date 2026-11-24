@@ -1,6 +1,6 @@
 import '@fontsource-variable/plus-jakarta-sans';
 import { renderIcons } from './icons';
-import { initGsapMotion } from './animations/gsap';
+import { initAnimeText, initAnimeMotion } from './animations/anime';
 
 const root = document.documentElement;
 const desktop = window.matchMedia('(min-width: 1024px)');
@@ -46,15 +46,41 @@ function initNavigation() {
     const sidebar = document.getElementById('app-sidebar');
     if (!sidebar) return;
     let trigger;
+    let hovered = false;
+    root.dataset.sidebarCollapsed ??= 'true';
+    const pinButton = sidebar.querySelector('[data-sidebar-pin]');
     const background = [...document.querySelectorAll('.app-header, .dashboard-main, .bottom-nav')];
     const sync = () => {
         const open = root.dataset.navigationOpen === 'true';
+        const pinned = root.dataset.sidebarCollapsed === 'false';
+        const expanded = desktop.matches ? pinned || hovered || sidebar.contains(document.activeElement) : open;
+        sidebar.dataset.expanded = String(expanded);
         document.querySelectorAll('[data-navigation-toggle]').forEach((button) => {
-            const expanded = desktop.matches ? root.dataset.sidebarCollapsed !== 'true' : open;
             button.setAttribute('aria-expanded', String(expanded));
             button.setAttribute('aria-label', desktop.matches ? (expanded ? 'Ringkas navigasi' : 'Perluas navigasi') : 'Buka semua menu');
         });
+        if (pinButton) {
+            const label = pinned ? 'Lepas sematan menu' : 'Sematkan menu';
+            pinButton.setAttribute('aria-pressed', String(pinned));
+            pinButton.setAttribute('aria-expanded', String(expanded));
+            pinButton.setAttribute('aria-label', label);
+            pinButton.setAttribute('title', label);
+            pinButton.querySelector('span').textContent = label;
+        }
     };
+    sidebar.addEventListener('pointerenter', (event) => {
+        hovered = event.pointerType !== 'touch' && desktop.matches;
+        sync();
+    });
+    sidebar.addEventListener('pointerleave', () => { hovered = false; sync(); });
+    sidebar.addEventListener('focusin', sync);
+    sidebar.addEventListener('focusout', () => queueMicrotask(sync));
+    pinButton?.addEventListener('click', (event) => {
+        root.dataset.sidebarCollapsed = String(root.dataset.sidebarCollapsed === 'false');
+        persist('komdigi-sidebar-pinned', String(root.dataset.sidebarCollapsed === 'false'));
+        if (event.detail > 0) pinButton.blur();
+        sync();
+    });
     const close = () => {
         root.dataset.navigationOpen = 'false';
         sidebar.removeAttribute('role');
@@ -68,8 +94,8 @@ function initNavigation() {
         const toggle = event.target.closest('[data-navigation-toggle]');
         if (toggle) {
             if (desktop.matches) {
-                root.dataset.sidebarCollapsed = String(root.dataset.sidebarCollapsed !== 'true');
-                persist('komdigi-sidebar-collapsed', root.dataset.sidebarCollapsed);
+                root.dataset.sidebarCollapsed = String(root.dataset.sidebarCollapsed === 'false');
+                persist('komdigi-sidebar-pinned', String(root.dataset.sidebarCollapsed === 'false'));
             } else {
                 trigger = toggle;
                 root.dataset.navigationOpen = 'true';
@@ -88,7 +114,7 @@ function initNavigation() {
         if (event.key === 'Escape') close();
         trapFocus(event, sidebar);
     });
-    desktop.addEventListener('change', () => { close(); sync(); });
+    desktop.addEventListener('change', () => { hovered = false; close(); sync(); });
     sync();
 }
 
@@ -150,13 +176,48 @@ function initCounterReset() {
     });
 }
 
+/**
+ * Dashboard-only visual layers. WebGL paints the hero light field and the
+ * Canvas module draws the ASCII ripple inside insight cards. Both are loaded
+ * after the page is interactive so first paint stays cheap.
+ */
+function initDashboardEffects() {
+    if (!document.body.classList.contains('dashboard-body')) return;
+
+    initAnimeText(document);
+
+    const cleanups = [];
+    const dispose = () => cleanups.forEach((cleanup) => cleanup());
+
+    const hero = document.querySelector('[data-dashboard-webgl]');
+    if (hero) {
+        import('./animations/dashboard-webgl')
+            .then(({ initDashboardWebgl }) => cleanups.push(initDashboardWebgl(hero)))
+            .catch(() => {});
+    }
+
+    document.querySelectorAll('[data-canvas-ripple]').forEach((canvas) => {
+        import('./animations/canvas')
+            .then(({ initAsciiRipple }) => cleanups.push(initAsciiRipple(canvas)))
+            .catch(() => {});
+    });
+
+    window.addEventListener('pagehide', (event) => {
+        if (event.persisted) return;
+        dispose();
+    }, { once: true });
+}
+
 function init() {
     renderIcons();
     syncThemeButtons();
     initNavigation();
     initDialogAccessibility();
-    initGsapMotion();
+    initAnimeMotion();
+    initDashboardEffects();
     initCounterReset();
+    // Alpine owns dashboard state only; landing and login skip the runtime.
+    if (document.querySelector('[x-data]')) import('./alpine');
     document.addEventListener('click', (event) => {
         if (!event.target.closest('[data-theme-toggle]')) return;
         const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
